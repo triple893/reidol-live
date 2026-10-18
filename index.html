@@ -220,6 +220,24 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
   text-align: center; font-size: 12px; color: var(--dim); pointer-events: none;
 }
+@media (orientation:landscape) {
+  #live .lhud { z-index:7; padding-top:6px; }
+  #live .lbarrow { position:fixed; left:max(16px,env(safe-area-inset-left,0px)); right:max(16px,env(safe-area-inset-right,0px)); bottom:22px; margin-top:0; }
+  #live .hintbar { bottom:4px; font-size:10px; }
+  #live .judge { top:18%; left:auto; right:16px; width:24%; text-align:right; font-size:clamp(18px,3vw,30px); }
+  #live .lcombo { top:28%; left:auto; right:16px; width:24%; text-align:right; font-size:22px; }
+  #live #encore { left:12px; top:40%; width:clamp(160px,26vw,300px); transform:none; padding:10px; border-radius:16px; background:#140d11dd; }
+  #live #encoretext { font-size:clamp(18px,3vw,32px); }
+  #live #encorestop { width:100%; padding:0 8px; font-size:14px; }
+}
+@media (orientation:landscape) and (max-height:520px) {
+  #live .who .av { width:26px !important; height:26px !important; }
+  #live .who span { font-size:12px; }
+  #live .lscore { font-size:24px; }
+  #live .life-row { margin-top:3px; gap:6px; font-size:11px; }
+  #live #llife { font-size:19px; letter-spacing:2px; }
+  #live #lstage { font-size:11px; }
+}
 
 /* ---------- リザルト ---------- */
 #result {
@@ -550,6 +568,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <input type="range" id="setoff" min="-150" max="150" step="5">
       <small>音が遅れて聞こえる時は「−」に。ノーツの判定と表示がいっしょにずれます。</small>
     </div>
+    <div class="setrow">
+      <label for="setspeed"><span>ノーツの速さ</span><output id="setspeedv"></output></label>
+      <input type="range" id="setspeed" min="1" max="10" step="1">
+      <small>1はゆっくり、10は速い。判定のタイミングは変わりません。次のライブから反映します。</small>
+    </div>
     <div class="btns"><button class="btn sec" id="setclose" type="button">閉じる</button></div>
   </div>
 </div>
@@ -818,7 +841,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 
   // ---- 設定・ベストスコア（localStorage。使えなくても動く）
   const CKEY = 'reidol.settings.v1', BKEY = 'reidol.best.v2';
-  const CFG = { call: true, se: 0.5, off: 0, bgm: 0.7 };
+  const CFG = { call: true, se: 0.5, off: 0, bgm: 0.7, speed: 5 };
   try {
     const r = JSON.parse(localStorage.getItem(CKEY) || 'null');
     if (r && typeof r === 'object') {
@@ -826,6 +849,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       if (typeof r.se === 'number' && isFinite(r.se)) CFG.se = clamp(r.se, 0, 1);
       if (typeof r.bgm === 'number' && isFinite(r.bgm)) CFG.bgm = clamp(r.bgm, 0, 1);
       if (typeof r.off === 'number' && isFinite(r.off)) CFG.off = clamp(Math.round(r.off), -150, 150);
+      if (typeof r.speed === 'number' && Number.isFinite(r.speed)) CFG.speed = clamp(Math.round(r.speed), 1, 10);
     }
   } catch (e) {}
   const saveCfg = () => { try { localStorage.setItem(CKEY, JSON.stringify(CFG)); } catch (e) {} };
@@ -1247,23 +1271,58 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     });
   }
 
+  // PERSPECTIVE PURE BEGIN — 描画と入力が共用する、見本と同じ投影。
+  function laneGeometry(width, height) {
+    return { hitY:height * .84, horizonY:height * (width > height ? .12 : .18),
+      bottomW:Math.min(width * (width > height ? .78 : .96), height * 1.6), cx:width / 2, far:.18 };
+  }
+  function projectLane(depth, laneT, g) {
+    const d = Math.max(0, Math.min(1, depth)), F = 1 / g.far - 1;
+    const s = 1 / (1 + d * F);
+    return { x:g.cx + (laneT - .5) * g.bottomW * s,
+      y:g.horizonY + (g.hitY - g.horizonY) * ((s - g.far) / (1 - g.far)), s };
+  }
+  function laneAtHitX(x, g, lanes) {
+    return Math.max(0, Math.min(lanes - 1, Math.floor((x - (g.cx - g.bottomW / 2)) / g.bottomW * lanes)));
+  }
+  function noteTravelSeconds(speed) {
+    const level = Number.isFinite(speed) ? Math.max(1, Math.min(10, Math.round(speed))) : 5;
+    return 1.4 * (1 + (5 - level) * .1);
+  }
+  // PERSPECTIVE PURE END
+
   // ---- ライブ
   const cv = $('stage'), ctx = cv.getContext('2d');
   let live = null, raf = 0, lastFrame = 0, pendingLive = null;
   let W = 0, H = 0, DPR = 1, stageW = 0, sx = 0, laneW = 0, hitY = 0, topY = 0;
+  let laneGeo = null, stagePaint = null;
+  const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
   function resize() {
     DPR = Math.min(window.devicePixelRatio || 1, 2.5);
     W = window.innerWidth; H = window.innerHeight;
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
-    stageW = W; sx = 0; laneW = stageW / (live ? live.mode.lanes : 3);
-    hitY = H * .78; topY = Math.max(H * .22, 82);
+    const lanes = live ? live.mode.lanes : 3;
+    laneGeo = laneGeometry(W, H);
+    stageW = laneGeo.bottomW; sx = laneGeo.cx - stageW / 2; laneW = stageW / lanes;
+    hitY = laneGeo.hitY; topY = laneGeo.horizonY;
+    // Canvasのリサイズで無効になる素材だけを作り直す。描画フレームでは勾配を生成しない。
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    const background = ctx.createLinearGradient(0, 0, 0, H);
+    background.addColorStop(0, '#1f1218'); background.addColorStop(1, '#0d0709');
+    const floor = ctx.createLinearGradient(0, topY, 0, hitY);
+    floor.addColorStop(0, 'rgba(255,255,255,.02)'); floor.addColorStop(1, 'rgba(255,255,255,.07)');
+    const spots = MEMBERS.filter((_, i) => i % 2 === 0).map((member, k) => {
+      const gradient = ctx.createLinearGradient(W * (.14 + .24 * k), 0, W / 2, H);
+      gradient.addColorStop(0, rgba(member.color, .24)); gradient.addColorStop(1, rgba(member.color, 0));
+      return gradient;
+    });
+    const edges = Array.from({ length:lanes+1 }, (_, i) => ({ far:projectLane(1, i/lanes, laneGeo), near:projectLane(0, i/lanes, laneGeo) }));
+    stagePaint = { background, floor, spots, edges };
     const fx = $('fx'); fx.width = Math.round(W * DPR); fx.height = Math.round(H * DPR);
   }
   resize(); addEventListener('resize', () => { resize(); syncOrientation(); });
 
-  const APPROACH = 1.4, PERFECT = 0.07, GOOD = 0.16, SONG_END = 41.5;
-  const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
-
+  const PERFECT = 0.07, GOOD = 0.16, SONG_END = 41.5;
   function makeChart() {
     const notes = []; let prev = 1;
     for (let s = 8; s <= 152; s++) {
@@ -1347,7 +1406,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     live = {
       h, m, notes, step: 0, score: 0, combo: 0, maxCombo: 0, perfect: 0, good: 0, miss: 0,
       flash: Array(mode.lanes).fill(0), parts: [], done: false, dest: null, src: null, lastCall: -9,
-      mode, dev: DEV || !!(so && so.dev), life: BALANCE.life.hearts[mode.diff], failed: false, paused: false, buf: so ? so.buf : null,
+      mode, approach:noteTravelSeconds(CFG.speed), dev: DEV || !!(so && so.dev), life: BALANCE.life.hearts[mode.diff], failed: false, paused: false, buf: so ? so.buf : null,
       support: so && !so.dev && supportH && supportH !== h ? supportH : null, skills:so && !so.dev ? [...S.skills] : [],
       draft: so && so.dev ? so.draft : null,
       song: so ? { s: so.s, df: so.df, title: so.chart.title || so.s.title } : null,
@@ -1444,7 +1503,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   function liveTap(e) {
     if (!live || live.done || live.paused || e.clientY < H * 0.42 || innerWidth < innerHeight) return;
     e.preventDefault();
-    const lane = Math.max(0, Math.min(live.mode.lanes - 1, Math.floor((e.clientX - sx) / laneW)));
+    const lane = laneAtHitX(e.clientX, laneGeo, live.mode.lanes);
     live.flash[lane] = 1;
     const t = gameT();
     let best = null;
@@ -1559,61 +1618,62 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
 
   function drawLive(t, dt) {
-    const mc = live.m.color;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#1f1218'); g.addColorStop(1, '#0d0709');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = stagePaint.background; ctx.fillRect(0, 0, W, H);
     const ph = (((t / 0.5) % 1) + 1) % 1, pulse = Math.pow(1 - ph, 3);
     // スポットライト
     ctx.globalCompositeOperation = 'lighter';
     for (let k = 0; k < 4; k++) {
       const ox = W * (0.14 + 0.24 * k), sw = reduceMotion ? 0 : Math.sin(t * 0.9 + k * 1.7) * 0.32;
       const tx = ox + Math.tan(sw + (k - 1.5) * 0.12) * H;
-      const lg = ctx.createLinearGradient(ox, 0, tx, H);
-      const col = MEMBERS[(k * 2 + 1) % 7].color;
-      lg.addColorStop(0, rgba(col, 0.2 + pulse * 0.1)); lg.addColorStop(1, rgba(col, 0));
-      ctx.fillStyle = lg;
+      ctx.fillStyle = stagePaint.spots[k]; ctx.globalAlpha = .65 + pulse * .35;
       ctx.beginPath(); ctx.moveTo(ox - 8, 0); ctx.lineTo(ox + 8, 0); ctx.lineTo(tx + H * 0.16, H); ctx.lineTo(tx - H * 0.16, H); ctx.closePath(); ctx.fill();
     }
-    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
     // センターの立ち絵（奥に薄く）
     const im = live.img;
     if (im && im.complete && im.naturalWidth) {
-      const ih = H * 0.82, iw = ih * im.naturalWidth / im.naturalHeight;
-      ctx.globalAlpha = 0.25; ctx.drawImage(im, (W - iw) / 2, H - ih, iw, ih); ctx.globalAlpha = 1;
+      const ih = H * .66, iw = ih * im.naturalWidth / im.naturalHeight;
+      ctx.globalAlpha = .16; ctx.drawImage(im, (W - iw) / 2, hitY - ih, iw, ih); ctx.globalAlpha = 1;
     }
-    // レーンとタップ面（下半分）
+    // レーン床。見本の奥行きd=1から判定線d=0までを台形で結ぶ。
     for (let i = 0; i < live.mode.lanes; i++) {
-      const x = sx + laneW * i;
-      ctx.fillStyle = 'rgba(255,255,255,.035)'; ctx.fillRect(x, topY, laneW, H - topY);
+      const a = stagePaint.edges[i], b = stagePaint.edges[i+1];
+      ctx.beginPath(); ctx.moveTo(a.far.x, a.far.y); ctx.lineTo(b.far.x, b.far.y);
+      ctx.lineTo(b.near.x, b.near.y); ctx.lineTo(a.near.x, a.near.y); ctx.closePath();
+      ctx.fillStyle = stagePaint.floor; ctx.fill();
       live.flash[i] = Math.max(0, live.flash[i] - dt * 5);
-      ctx.fillStyle = rgba(LANE_COLORS[i], 0.07 + live.flash[i] * 0.32);
-      ctx.fillRect(x, H * 0.5, laneW, H * 0.5);
-      ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(x, topY, 1, H - topY);
+      if (live.flash[i] > 0) { ctx.fillStyle = rgba(LANE_COLORS[i], live.flash[i] * .32); ctx.fill(); }
     }
-    ctx.fillRect(sx + stageW - 1, topY, 1, H - topY);
     ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(sx, H * 0.5); ctx.lineTo(sx + stageW, H * 0.5); ctx.stroke();
-    // ヒットライン
-    ctx.strokeStyle = rgba(mc, 0.55 + pulse * 0.4); ctx.lineWidth = 3 + pulse * 3;
+    stagePaint.edges.forEach(edge => { ctx.beginPath(); ctx.moveTo(edge.far.x, edge.far.y); ctx.lineTo(edge.near.x, edge.near.y); ctx.stroke(); });
+    // 床の横線も同じ投影を使う。動きを減らす設定では位置を固定する。
+    const floorPhase = reduceMotion ? 0 : ((t / live.approach) % 1 + 1) % 1;
+    for (let k = 0; k < 8; k++) {
+      const depth = (k / 8 - floorPhase + 1) % 1;
+      const left = projectLane(depth, 0, laneGeo), right = projectLane(depth, 1, laneGeo);
+      ctx.strokeStyle = `rgba(255,255,255,${.08 * (1-depth)})`;
+      ctx.beginPath(); ctx.moveTo(left.x,left.y); ctx.lineTo(right.x,right.y); ctx.stroke();
+    }
+    // 判定線と各レーンのタップ面
+    ctx.strokeStyle = '#ffcf4a'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(sx, hitY); ctx.lineTo(sx + stageW, hitY); ctx.stroke();
-    const r = Math.min(laneW * 0.3, 46);
     for (let i = 0; i < live.mode.lanes; i++) {
       const cx = sx + laneW * (i + 0.5);
-      ctx.strokeStyle = rgba(LANE_COLORS[i], 0.8); ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(cx, hitY, r + 2, 0, 7); ctx.stroke();
+      const w = laneW * .82, h = w * .28;
+      ctx.strokeStyle = rgba(LANE_COLORS[i], .7); ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(cx-w/2, hitY-h/2, w, h, h/2); ctx.stroke();
     }
     // ノーツ
     for (const n of live.notes) {
-      const d = n.time - t;
-      if (n.st !== 0 || d > APPROACH || d < -0.25 || live.song && n.stage >= live.stages.length && !live.mayUnlockFull) continue;
-      const y = hitY - (d / APPROACH) * (hitY - topY), cx = sx + laneW * (n.lane + 0.5), c = LANE_COLORS[n.lane];
-      const rg = ctx.createRadialGradient(cx, y, r * 0.2, cx, y, r * 1.7);
-      rg.addColorStop(0, rgba(c, 0.5)); rg.addColorStop(1, rgba(c, 0));
-      ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(cx, y, r * 1.7, 0, 7); ctx.fill();
-      ctx.fillStyle = c; ctx.beginPath(); ctx.arc(cx, y, r, 0, 7); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(cx, y, r * 0.5, 0, 7); ctx.fill();
+      const remaining = n.time - t, depth = remaining / live.approach;
+      if (n.st !== 0 || depth > 1 || remaining < -0.25 || live.song && n.stage >= live.stages.length && !live.mayUnlockFull) continue;
+      const p = projectLane(depth, (n.lane + .5) / live.mode.lanes, laneGeo);
+      const w = laneW * .82 * p.s, h = Math.max(4, w * .28);
+      ctx.globalAlpha = Math.min(1, Math.max(0, (1-depth) * 3));
+      ctx.fillStyle = LANE_COLORS[n.lane]; ctx.beginPath(); ctx.roundRect(p.x-w/2, p.y-h/2, w, h, h/2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.beginPath(); ctx.roundRect(p.x-w*.4, p.y-h/2+1, w*.8, h*.3, h); ctx.fill();
+      ctx.globalAlpha = 1;
     }
     // キラキラ
     for (let k = live.parts.length - 1; k >= 0; k--) {
@@ -2027,10 +2087,12 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     $('setsev').textContent = Math.round(CFG.se * 100) + '%';
     $('setbgmv').textContent = Math.round(CFG.bgm * 100) + '%';
     $('setoffv').textContent = (CFG.off > 0 ? '+' : '') + CFG.off + 'ms';
+    $('setspeedv').textContent = `${CFG.speed} / 10`;
   }
   function closeSettings() { $('settings').hidden = true; }
   $('setbtn').addEventListener('click', () => {
     $('setcall').checked = CFG.call; $('setbgm').value = Math.round(CFG.bgm * 100); $('setse').value = Math.round(CFG.se * 100); $('setoff').value = CFG.off;
+    $('setspeed').value = CFG.speed;
     syncSet(); $('settings').hidden = false; $('settings').querySelector('.sheet').scrollTop = 0;
   });
   $('setcall').addEventListener('change', (e) => { CFG.call = e.target.checked; saveCfg(); });
@@ -2038,6 +2100,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('setse').addEventListener('change', () => { audio(); playSE('clap'); }); // 音量の試し聞き
   $('setbgm').addEventListener('input', (e) => { CFG.bgm = clamp((+e.target.value || 0) / 100, 0, 1); applyVol(); syncSet(); saveCfg(); bgmSync(); });
   $('setoff').addEventListener('input', (e) => { CFG.off = clamp(Math.round(+e.target.value || 0), -150, 150); syncSet(); saveCfg(); });
+  $('setspeed').addEventListener('input', (e) => { CFG.speed = clamp(Math.round(+e.target.value || 5), 1, 10); syncSet(); saveCfg(); });
   $('setclose').addEventListener('click', closeSettings);
   $('settings').addEventListener('click', (e) => { if (e.target === $('settings')) closeSettings(); });
 
