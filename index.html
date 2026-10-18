@@ -593,8 +593,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 </div>
 <canvas id="fx"></canvas>
 
+<script src="difficulty.js"></script>
 <script>
 (() => {
+  const DEV = new URLSearchParams(location.search).get('dev') === '1';
   // BALANCE PURE BEGIN — 数値の変更先と、DOMに依存しない計算。
   const BALANCE = {
     version: 2, maxLevel: 10, migrationBonus: 300,
@@ -697,7 +699,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
   let S = load();
-  save(); // 移行ボーナスをリロードごとに再付与しない。
+  if (!DEV) save(); // 試遊URLでは起動時の移行も保存しない。
 
   // ---- 設定・ベストスコア（localStorage。使えなくても動く）
   const CKEY = 'reidol.settings.v1', BKEY = 'reidol.best.v2';
@@ -1025,12 +1027,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const mode = so ? so.mode : { diff: 'easy', lanes: 3, length: 'short' };
     const dur = so ? mode.length === 'full' ? Math.min(so.chart.duration, so.buf.duration) : Math.min(so.chart.short_end, so.buf.duration) : 40;
     const notes = so
+      // type欠落はtap。hold/flickも今は開始時刻の単発tapとして描画・判定する。
       ? (mode.lanes === 5 ? so.chart.charts5 : so.chart.charts)[so.df.k].filter((n) => n.t < dur - .3).map((n) => ({ time: +n.t, lane: clamp(n.l | 0, 0, mode.lanes - 1), st: 0 })).sort((a, b) => a.time - b.time)
       : makeChart();
     live = {
       h, m, notes, step: 0, score: 0, combo: 0, maxCombo: 0, perfect: 0, good: 0, miss: 0,
       flash: Array(mode.lanes).fill(0), parts: [], done: false, dest: null, src: null, lastCall: -9,
-      mode, life: BALANCE.life.max, failed: false, paused: false, buf: so ? so.buf : null,
+      mode, dev: !!(so && so.dev), life: BALANCE.life.max, failed: false, paused: false, buf: so ? so.buf : null,
       song: so ? { s: so.s, df: so.df, title: so.chart.title || so.s.title } : null,
       dur, end: so ? dur : SONG_END,
       p0: performance.now() + lead * 1000, t0: ac ? ac.currentTime + lead : 0,
@@ -1223,9 +1226,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     L.score = calcScore({ ...L, total: L.notes.length });
     const reward = calcRewards(L.score, L.mode, bday);
     const clear = isClear(L.score, L.life, !L.failed);
-    const gain = L.song ? reward.exp : 0, currency = L.song ? reward.currency : 0, mult = reward.mult;
+    const gain = L.song && !L.dev ? reward.exp : 0, currency = L.song && !L.dev ? reward.currency : 0, mult = reward.mult;
     let best = null;
-    if (L.song) {
+    if (L.song && !L.dev) {
       const key = bestKey(L.song.s.slug, L.song.df.k, L.mode), prev = bestOf(L.song.s.slug, L.song.df.k, L.mode);
       best = { prev, isNew: L.score > prev };
       if (best.isNew) { BEST[key] = L.score; saveBest(); }
@@ -1235,15 +1238,18 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
         if (gate) p[gate] = Math.max(+p[gate] || 0, L.score);
       }
     }
-    const grown = L.song ? growMember(st, gain) : st;
-    S.members[L.h] = grown;
+    const grown = L.song && !L.dev ? growMember(st, gain) : st;
+    if (!L.dev) S.members[L.h] = grown;
     const { lv, exp } = grown;
-    S.keiki += currency; S.wallet += currency; S.plays++;
-    save();
+    if (!L.dev) {
+      S.keiki += currency; S.wallet += currency; S.plays++;
+      save();
+    }
     for (let k = vBefore + 1; k <= venueIdx(); k++) pendingStory.push(k + 1);
     if (CFG.call && !L.failed && L.miss === 0 && L.perfect + L.good === L.notes.length) playSE('clap');
     const r = { bday, clear, rank: reward.rank, currency, mode: L.mode, failed: L.failed, h: L.h, m: L.m, score: L.score, perfect: L.perfect, good: L.good, miss: L.miss, maxCombo: L.maxCombo, gain, mult, song: L.song, best, before, after: { lv, exp }, vBefore, vAfter: venueIdx() };
     showResult(r);
+    if (L.dev) $('rsong').textContent = `${L.song.title} ［開発中の譜面・記録なし］`;
   }
   let resultId = 0;
   const setBar = (el, pct, anim) => {
@@ -1368,6 +1374,26 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const box = $('songlist'); box.textContent = '';
     const d = document.createElement('div'); d.className = 'snote'; d.textContent = text; box.appendChild(d);
   }
+  function renderDevButton(box) {
+    if (DEV) {
+      const devButton = document.createElement('button'); devButton.type = 'button'; devButton.className = 'btn sec';
+      devButton.textContent = '開発中の譜面で遊ぶ';
+      devButton.addEventListener('click', () => {
+        try {
+          const draft = JSON.parse(localStorage.getItem('reidol.devchart') || 'null');
+          const s = draft && SONGS.find(s => s.slug === draft.slug);
+          if (!draft || draft.version !== 1 || !s || ![3, 5].includes(draft.lanes) || !DIFFS.some(d => d.k === draft.diff)) throw new Error('開発用の譜面がありません。エディタから送ってください。');
+          const c = draft.chart, list = c && c[draft.lanes === 5 ? 'charts5' : 'charts'] && c[draft.lanes === 5 ? 'charts5' : 'charts'][draft.diff];
+          const measured = ReidolDifficulty.evaluate(list, { duration:c.duration, bpm:c.bpm, offset:c.offset, lanes:draft.lanes });
+          if (!list.length) throw new Error('ノーツがありません。');
+          audio();
+          beginSong(pickH, s, DIFFS.find(d => d.k === draft.diff), { lanes:draft.lanes, length:'full' }, draft);
+          devButton.title = `難易度レベル ${measured.level}`;
+        } catch (e) { alert(e.message); }
+      });
+      box.appendChild(devButton);
+    }
+  }
   function openSongs(h) {
     pickH = h;
     const m = byH(h);
@@ -1390,6 +1416,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       } catch (e) { songNote('この場所では曲が使えません。下の「練習モード」なら仮のビートで遊べます。'); return; }
     }
     const box = $('songlist'); box.textContent = '';
+    renderDevButton(box);
     $('wallet').textContent = `景気残高 ${fmt(S.wallet)} ／ 累計 ${fmt(S.keiki)}`;
     [...SONGS].sort((a, b) => BALANCE.prices[a.slug] - BALANCE.prices[b.slug]).forEach((s) => {
       const card = document.createElement('div'); card.className = 'song';
@@ -1479,17 +1506,22 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     chunks.forEach((c) => { out.set(c, o); o += c.length; });
     return out.buffer;
   }
-  async function beginSong(h, s, df, selectedMode) {
+  async function beginSong(h, s, df, selectedMode, draft = null) {
     const mode = { ...(selectedMode || modeFor(s.slug, df)), diff: df.k };
-    if (!S.ownedSongs.includes(s.slug) || !modeUnlocked(S.progress[s.slug], mode)) { renderSongs(); return; }
+    const dev = DEV && draft && draft.slug === s.slug;
+    if (!dev && (!S.ownedSongs.includes(s.slug) || !modeUnlocked(S.progress[s.slug], mode))) { renderSongs(); return; }
     tryLandscape();
     const id = ++loadSeq;
     if (loadCtl) { try { loadCtl.abort(); } catch (e) {} }
     const ctl = loadCtl = new AbortController();
-    if (!audio()) { fallbackPractice(h, id); return; }
+    if (!audio()) {
+      if (dev) { releaseLandscape(); alert('音声を再生できません。開発用プレイは開始していません。'); }
+      else fallbackPractice(h, id);
+      return;
+    }
     showLoading(`${s.title}　［${df.label}］`, '譜面を読み込み中…');
     try {
-      let chart = chartCache[s.slug];
+      let chart = dev ? draft.chart : chartCache[s.slug];
       if (!chart) {
         const r = await fetch(`charts/${encodeURIComponent(s.slug)}.json`, { credentials: 'same-origin', signal: ctl.signal });
         if (!r.ok) { const e = new Error('http'); e.status = r.status; throw e; }
@@ -1516,10 +1548,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       loadCtl = null; hideLoading();
       if (ac.state === 'suspended') { try { await ac.resume(); } catch (e) {} }
       if (id !== loadSeq) return;
-      requestLive(h, { s, df, chart, buf, mode });
+      requestLive(h, { s, df, chart, buf, mode, dev });
     } catch (e) {
       if (id !== loadSeq) return; // やめる で中断された
-      if (e && (e.status === 403 || e.status === 401)) { hideLoading(); releaseLandscape(); askPass(() => beginSong(h, s, df, mode)); return; }
+      if (e && (e.status === 403 || e.status === 401)) { hideLoading(); releaseLandscape(); askPass(() => beginSong(h, s, df, mode, draft)); return; }
+      if (dev) { hideLoading(); releaseLandscape(); alert('開発用の曲を読み込めませんでした。音声の配置と合言葉を確認してください。'); return; }
       fallbackPractice(h, id);
     }
   }

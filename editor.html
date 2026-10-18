@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Re:IDOL 譜面エディタ</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#121629;color:#f2f4ff;font:15px system-ui}main{max-width:1200px;margin:auto;padding:20px}h1{font-size:24px}fieldset{border:1px solid #465075;border-radius:12px;margin:12px 0;padding:12px}legend{color:#9dc9ff}label{display:inline-flex;align-items:center;gap:5px;margin:5px}input,select,button{font:inherit;color:inherit;background:#242d4b;border:1px solid #64709a;border-radius:6px;padding:8px}input[type=number]{width:105px}button{cursor:pointer}button:disabled{opacity:.4}button[aria-pressed=true]{background:#6151b5}button:focus-visible,input:focus-visible{outline:3px solid #ffc94e}.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.cols{display:grid;grid-template-columns:minmax(300px,2fr) minmax(280px,1fr);gap:16px}#scroll{height:560px;overflow:auto;background:#0b1020;touch-action:pan-y;border:1px solid #64709a}canvas{display:block;position:sticky;top:0;width:100%;height:540px;touch-action:none}#status{min-height:2em;color:#ffda78;white-space:pre-wrap}#pads{display:flex;gap:6px}#pads button{flex:1;min-height:62px;touch-action:none}small,.muted{color:#b8c0db}pre{white-space:pre-wrap}#breaklist button{margin:4px}audio{width:100%}@media(max-width:780px){.cols{grid-template-columns:1fr}main{padding:10px}}
+</style>
+<main><h1>Re:IDOL ライブ · 譜面エディタ</h1><p class="muted">曲を聴いて叩き、裏拍やブレイクを作る。ゲームでの試遊は成長・景気・ベストに記録されません。</p>
+<fieldset><legend>曲と作業ファイル</legend><div class="row"><label>曲<select id="song" aria-label="曲"></select></label><button id="load">曲を読み込む</button><label>レーン<select id="lanes"><option>3</option><option>5</option></select></label><label>難易度<select id="diff"><option value="easy">かんたん</option><option value="normal">ふつう</option><option value="hard">むずかしい</option></select></label><button id="export">JSONを保存</button><label>JSONを読み込む<input id="import" type="file" accept=".json,application/json"></label><button id="test">ゲームで試す</button></div><small>作業内容はこのブラウザに自動保存。別の曲を読む前に必要なJSONを保存してください。</small></fieldset>
+<div id="status" role="status" aria-live="polite">曲を選んで読み込んでください。</div><button id="reloadmusic">編集中の譜面を保って音声を読み込む</button>
+<fieldset><legend>再生と記録</legend><audio id="audio" controls></audio><div class="row"><label>速度<select id="speed"><option value="0.5">0.5</option><option value="0.75">0.75</option><option value="1" selected>1.0</option></select></label><label>ループ<input type="checkbox" id="loop"></label><label>開始秒<input id="loopstart" type="number" min="0" value="0" step=".01"></label><label>終了秒<input id="loopend" type="number" min="0" value="10" step=".01"></label><button id="record" aria-pressed="false">記録 OFF</button><button id="seek">再生位置へ</button></div><div id="pads"></div><div id="keys"></div><small>キー設定は物理キー名（KeyD / KeyF / Space / KeyJ / KeyK）。入力欄にカーソルがある間は記録しません。</small></fieldset>
+<div class="cols"><section><fieldset><legend>グリッドと編集</legend><div class="row"><label>BPM<input id="bpm" type="number" min="1" max="1000" step=".001"></label><label>offset 秒<input id="offset" type="number" step=".001"></label><label>分解能<select id="division"><option value="4">1/4</option><option value="8" selected>1/8</option><option value="16">1/16</option><option value="12">3連 1/12</option><option value="24">3連 1/24</option></select></label><label>寄せる幅 ms<input id="tolerance" type="number" min="0" max="1000" value="60"></label><button id="fit">オートフィット</button><button id="offsetfit">タップからoffsetを推定</button></div><div class="row"><label>操作<select id="tool"><option value="select">選択・ドラッグで移動</option><option value="add">クリックで追加</option><option value="delete">クリックで削除</option></select></label><label>追加する種類<select id="type"><option value="tap">tap</option><option value="hold">hold</option><option value="flick">flick</option></select></label><button id="undo">元に戻す</button><button id="redo">やり直し</button><button id="copy">コピー</button><button id="paste">再生位置に貼り付け</button><button id="delete">選択を削除</button></div><small>Shift+クリックで複数選択。Ctrl+Z / Ctrl+Y / Ctrl+C / Ctrl+V。青＝表拍、黄＝裏拍、紫＝細分。赤枠＝寄せる幅より大きなずれ。右の数値で時刻・レーンも変更できます。</small></fieldset><div id="scroll"><canvas id="timeline" aria-label="縦タイムライン。クリックで追加・選択、ドラッグで移動"></canvas><div id="spacer"></div></div></section>
+<aside><fieldset><legend>選択ノーツ</legend><div id="selection">未選択</div><label>時刻 秒<input id="nt" type="number" min="0" step=".001"></label><label>レーン<input id="nl" type="number" min="1" max="5" value="1"></label><label>種類<select id="nk"><option>tap</option><option>hold</option><option>flick</option></select></label><label>長押し 秒<input id="nd" type="number" min=".01" step=".01" value=".5"></label><label>フリック<select id="ndir"><option value="-1">左</option><option value="1">右</option></select></label><button id="apply">選択へ適用</button><small>複数選択時は先頭からの差分で時刻・レーンをまとめて移動します。</small></fieldset>
+<fieldset><legend>ブレイク（ノーツを置かない区間）</legend><label>開始秒<input id="bs" type="number" min="0" value="0" step=".01"></label><label>終了秒<input id="be" type="number" min="0" value="1" step=".01"></label><button id="breakadd">区間を追加</button><div id="breaklist"></div><small>既存ノーツと重なる区間は追加できません。区間ボタンで解除します。</small></fieldset>
+<fieldset><legend>難易度の自動測定</legend><strong id="level">—</strong><pre id="metrics"></pre><small>目安のレベルです。曲全体を測定。報酬倍率への反映は行いません。</small></fieldset></aside></div></main>
+<dialog id="login"><form method="dialog"><h2>合言葉</h2><label>合言葉<input id="password" type="password" autocomplete="off"></label><p id="loginerror"></p><button value="cancel">キャンセル</button><button id="loginok" type="button">曲を読み込む</button></form></dialog>
+<script src="difficulty.js"></script><script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id), D = ReidolDifficulty, audio = $('audio'), canvas = $('timeline'), ctx = canvas.getContext('2d');
+  const KEY = 'reidol.editor.v1', scale = 110, height = 540, clone = x => JSON.parse(JSON.stringify(x));
+  let chart = null, slug = '', laneCount = 3, diff = 'easy', selected = new Set(), undo = [], redo = [], clipboard = [], taps = [], wave = null, mediaURL = null, loadID = 0, recording = false;
+  let keys = ['KeyD', 'KeyF', 'KeyJ'], songs = [], pointer = null;
+  const notes = () => chart ? chart[laneCount === 5 ? 'charts5' : 'charts'][diff] : [];
+  const status = s => { $('status').textContent = s; };
+  const group = () => laneCount === 5 ? 'charts5' : 'charts';
+  function snapshot() { return { chart: clone(chart), slug, laneCount, diff, taps: clone(taps), keys: [...keys] }; }
+  function autosave() { if (chart) try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) { status('自動保存できません。JSONを保存してください。'); } }
+  function restore(s) { chart = clone(s.chart); slug = s.slug; laneCount = s.laneCount; diff = s.diff; taps = s.taps || []; keys = s.keys || defaultKeys(); selected.clear(); controls(); refresh(); }
+  function change(fn) {
+    if (!chart) return;
+    const before = snapshot();
+    try { fn(); validateChart(chart); undo.push(before); if (undo.length > 80) undo.shift(); redo = []; selected.clear(); refresh(); return true; }
+    catch (e) { restore(before); status(e.message); return false; }
+  }
+  function validateChart(c) {
+    if (!c || !Number.isFinite(c.duration) || c.duration <= 0 || !Number.isFinite(c.bpm) || c.bpm <= 0 || c.bpm > 1000 || !Number.isFinite(c.offset) || !Number.isFinite(c.short_end) || c.short_end <= 0 || c.short_end > c.duration) throw new Error('曲の長さ・BPM・offset・short_endが不正です');
+    for (const [key, lanes] of [['charts', 3], ['charts5', 5]]) for (const df of ['easy', 'normal', 'hard']) D.validate(c[key] && c[key][df], lanes, c.duration);
+    if (c.breaks != null && (!Array.isArray(c.breaks) || c.breaks.some(b => !Array.isArray(b) || b.length !== 2 || !b.every(Number.isFinite) || b[0] < 0 || b[1] <= b[0] || b[1] > c.duration))) throw new Error('ブレイク区間が不正です');
+  }
+  const defaultKeys = () => laneCount === 5 ? ['KeyD', 'KeyF', 'Space', 'KeyJ', 'KeyK'] : ['KeyD', 'KeyF', 'KeyJ'];
+  function controls() {
+    $('lanes').value = laneCount; $('diff').value = diff; $('bpm').value = chart.bpm; $('offset').value = chart.offset; $('nl').max = laneCount;
+    if (songs.some(s => s.slug === slug)) $('song').value = slug;
+    $('pads').replaceChildren(); $('keys').replaceChildren();
+    keys.forEach((key, lane) => {
+      const b = document.createElement('button'); b.textContent = `${lane + 1} · ${key === 'Space' ? '空白' : key.replace('Key', '')}`;
+      b.onpointerdown = e => { e.preventDefault(); record(lane); }; $('pads').append(b);
+      const label = document.createElement('label'); label.textContent = `${lane + 1}キー`;
+      const input = document.createElement('input'); input.value = key; input.size = 6; input.setAttribute('aria-label', `${lane + 1}レーンのキー`);
+      input.onchange = () => { if (!/^(Key[A-Z]|Space|Digit[0-9]|Arrow(Left|Right|Up|Down))$/.test(input.value) || keys.some((k, i) => i !== lane && k === input.value)) { input.value = keys[lane]; status('重複しない物理キー名を指定してください。'); return; } keys[lane] = input.value; autosave(); b.textContent = `${lane + 1} · ${input.value}`; };
+      label.append(input); $('keys').append(label);
+    });
+  }
+  function refresh() {
+    if (!chart) return;
+    notes().sort((a, b) => a.t - b.t || a.l - b.l);
+    $('bpm').value = chart.bpm; $('offset').value = chart.offset;
+    $('spacer').style.height = Math.max(0, chart.duration * scale + 50 - height) + 'px';
+    const result = D.evaluate(notes(), { duration: chart.duration, bpm: chart.bpm, offset: chart.offset, lanes: laneCount });
+    $('level').textContent = `LEVEL ${result.level} / 15`;
+    const names = { notes:'ノーツ数', avgDensity:'平均密度 /秒', maxDensity5:'5秒最大密度 /秒', simultaneousRatio:'同時押し率', offbeatRatio:'裏拍率', sixteenthRatio:'16分以上の率', laneJump:'レーンの飛び', holdCount:'長押し数' };
+    $('metrics').textContent = Object.entries(names).map(([k, v]) => `${v}: ${result[k]}`).join('\n');
+    $('breaklist').replaceChildren(); (chart.breaks || []).forEach((b, i) => { const btn = document.createElement('button'); btn.textContent = `${b[0]}〜${b[1]}秒 ×`; btn.onclick = () => change(() => chart.breaks.splice(i, 1)); $('breaklist').append(btn); });
+    $('undo').disabled = !undo.length; $('redo').disabled = !redo.length; autosave(); selection(); draw();
+  }
+  function selection() {
+    const list = [...selected].map(i => notes()[i]).filter(Boolean); $('selection').textContent = list.length ? `${list.length}個選択` : '未選択';
+    if (list.length) { const n = list[0]; $('nt').value = n.t; $('nl').value = n.l + 1; $('nk').value = n.type || 'tap'; $('nd').value = n.d || .5; $('ndir').value = n.dir || 1; }
+  }
+  function gridOptions() { return { bpm: chart.bpm, offset: chart.offset, division: +$('division').value, tolerance: +$('tolerance').value / 1000, duration: chart.duration }; }
+  const inBreak = (t, d = 0) => (chart.breaks || []).some(b => t < b[1] && t + d >= b[0]);
+  function makeNote(t, l) { const type = $('type').value, n = { t, l, type }; if (type === 'hold') n.d = +$('nd').value; if (type === 'flick') n.dir = +$('ndir').value; return n; }
+  function guardBreaks(ns) { if (ns.some(n => inBreak(n.t, n.type === 'hold' ? n.d : 0))) throw new Error('ブレイク区間にはノーツを置けません。区間を解除してください。'); }
+  function record(lane) {
+    if (!recording || !chart || audio.paused || audio.ended) return;
+    const t = Math.round(audio.currentTime * 1e6) / 1e6;
+    change(() => { const n = makeNote(t, lane); guardBreaks([n]); notes().push(n); taps.push(t); });
+  }
+  async function music() {
+    const id = ++loadID, currentSlug = slug;
+    audio.pause(); audio.removeAttribute('src'); audio.load(); wave = null;
+    if (mediaURL) { URL.revokeObjectURL(mediaURL); mediaURL = null; }
+    try {
+      const r = await fetch(`music/${encodeURIComponent(currentSlug)}.mp3`, { credentials:'same-origin' });
+      if (id !== loadID) return;
+      if (r.status === 401 || r.status === 403) { $('login').showModal(); status('合言葉を入力すると曲を読み込めます。'); return; }
+      if (!r.ok) throw new Error(`曲の読み込み HTTP ${r.status}。譜面の編集・保存はできます。`);
+      const bytes = await r.arrayBuffer(); if (id !== loadID) return;
+      mediaURL = URL.createObjectURL(new Blob([bytes], { type:'audio/mpeg' })); audio.src = mediaURL; audio.playbackRate = +$('speed').value;
+      let ac;
+      try { ac = new AudioContext(); const buf = await ac.decodeAudioData(bytes.slice(0)); if (id === loadID) { const data = buf.getChannelData(0); wave = Array.from({ length:Math.ceil(buf.duration * 50) }, (_, i) => { let v = 0; const a = Math.floor(i * data.length / (buf.duration * 50)), end = Math.min(data.length, a + Math.ceil(buf.sampleRate / 50)); for (let j = a; j < end; j += 8) v = Math.max(v, Math.abs(data[j])); return v; }); } }
+      catch (e) { status('波形を作れませんでした。音声の再生は試せます。'); }
+      finally { if (ac) await ac.close(); }
+      if (id === loadID) { status('曲を読み込みました。記録をONにして再生してください。'); draw(); }
+    } catch (e) { if (id === loadID) status(e.message); }
+  }
+  $('loginok').onclick = async () => {
+    try { const r = await fetch('/api/login', { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ passcode:$('password').value }) }); $('password').value = ''; if (!r.ok) throw new Error('合言葉を確認してください。'); $('login').close(); await music(); }
+    catch (e) { $('loginerror').textContent = e.message; }
+  };
+  $('load').onclick = async () => {
+    const requested = $('song').value; if (!requested) return;
+    try { const r = await fetch(`charts/${encodeURIComponent(requested)}.json`); if (!r.ok) throw new Error(`譜面 HTTP ${r.status}`); const c = await r.json(); validateChart(c); chart = c; slug = requested; undo = []; redo = []; taps = []; selected.clear(); controls(); refresh(); await music(); } catch (e) { status(e.message); }
+  };
+  $('reloadmusic').onclick = () => { if (chart) music(); };
+  for (const id of ['lanes', 'diff']) $(id).onchange = () => { if (!chart) return; autosave(); laneCount = +$('lanes').value; diff = $('diff').value; keys = defaultKeys(); selected.clear(); taps = []; controls(); refresh(); };
+  $('speed').onchange = () => { audio.playbackRate = +$('speed').value; };
+  $('record').onclick = () => { recording = !recording; $('record').textContent = `記録 ${recording ? 'ON' : 'OFF'}`; $('record').setAttribute('aria-pressed', recording); };
+  audio.ontimeupdate = () => {
+    const start = +$('loopstart').value, end = +$('loopend').value;
+    if ($('loop').checked && Number.isFinite(start) && end > start && end <= audio.duration && audio.currentTime >= end) { audio.currentTime = start; if (audio.paused) audio.play().catch(e => status(e.message)); }
+    draw();
+  };
+  $('seek').onclick = () => { $('scroll').scrollTop = Math.max(0, audio.currentTime * scale - 120); draw(); };
+  for (const id of ['bpm', 'offset']) $(id).onchange = () => change(() => { chart[id] = +$(id).value; });
+  for (const id of ['division', 'tolerance']) $(id).onchange = draw;
+  $('fit').onclick = () => { if (!chart) return; let changed = 0; const opts = gridOptions(); if (change(() => { const old = notes(), fitted = D.fit(old, opts); guardBreaks(fitted); changed = fitted.filter((n, i) => n.t !== old[i].t).length; chart[group()][diff] = fitted; })) status(`${changed}個をグリッドへ移動。赤枠のノーツは残しています。`); };
+  $('offsetfit').onclick = () => { if (!chart || !taps.length) { status('記録したタップが必要です。'); return; } const g = gridOptions(); const mean = taps.reduce((sum, t) => sum + t - D.nearest(t, g.bpm, g.offset, g.division), 0) / taps.length; change(() => { chart.offset = Math.round((chart.offset + mean) * 1e6) / 1e6; }); status(`平均ずれ ${(mean * 1000).toFixed(2)}ms をoffsetに反映しました。タップ時刻は保持します。`); };
+  function history(back) { const from = back ? undo : redo, to = back ? redo : undo; if (!from.length) return; to.push(snapshot()); restore(from.pop()); }
+  $('undo').onclick = () => history(true); $('redo').onclick = () => history(false);
+  function copy() { clipboard = [...selected].map(i => clone(notes()[i])); status(`${clipboard.length}個コピーしました。`); }
+  function paste() { if (!clipboard.length || !chart) return; const base = Math.min(...clipboard.map(n => n.t)); change(() => { const ns = clipboard.map(n => ({ ...n, t: n.t - base + audio.currentTime })); guardBreaks(ns); notes().push(...ns); }); }
+  function remove() { change(() => { chart[group()][diff] = notes().filter((n, i) => !selected.has(i)); }); }
+  $('copy').onclick = copy; $('paste').onclick = paste; $('delete').onclick = remove;
+  $('apply').onclick = () => { if (!selected.size) return; const first = notes()[[...selected][0]], dt = +$('nt').value - first.t, dl = +$('nl').value - 1 - first.l; change(() => { const ns = notes().map((n, i) => { if (!selected.has(i)) return n; const m = { t: n.t + dt, l: n.l + dl, type:$('nk').value }; if (m.type === 'hold') m.d = +$('nd').value; if (m.type === 'flick') m.dir = +$('ndir').value; return m; }); guardBreaks(ns.filter((n, i) => selected.has(i))); chart[group()][diff] = ns; }); };
+  $('breakadd').onclick = () => change(() => { const b = [+$('bs').value, +$('be').value]; if (notes().some(n => n.t < b[1] && n.t + (n.type === 'hold' ? n.d : 0) >= b[0])) throw new Error('区間内にノーツがあります。先に移動・削除してください。'); (chart.breaks ||= []).push(b); });
+  function exported() { validateChart(chart); const c = clone(chart); for (const [key, dest] of [['charts', 'counts'], ['charts5', 'counts5']]) if (c[dest]) for (const df of ['easy', 'normal', 'hard']) c[dest][df] = c[key][df].length; return c; }
+  $('export').onclick = () => { if (!chart) return; try { const blob = new Blob([JSON.stringify(exported(), null, 2)], { type:'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `${slug}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); status(`${slug}.json を書き出しました。`); } catch (e) { status(e.message); } };
+  $('import').onchange = async () => { const file = $('import').files[0]; if (!file) return; try { const c = JSON.parse(await file.text()); validateChart(c); const newSlug = c.slug || file.name.replace(/\.json$/i, ''); if (!songs.some(s => s.slug === newSlug)) throw new Error('曲リストにあるslugのJSONを指定してください。'); chart = c; slug = newSlug; selected.clear(); undo = []; redo = []; taps = []; controls(); refresh(); await music(); } catch (e) { status(e.message); } finally { $('import').value = ''; } };
+  $('test').onclick = () => { if (!chart) return; try { const c = exported(); localStorage.setItem('reidol.devchart', JSON.stringify({ version:1, slug, lanes:laneCount, diff, chart:c })); window.open('index.html?dev=1', '_blank', 'noopener'); status('ゲームを開きました。メンバーを選び「開発中の譜面で遊ぶ」を押してください。'); } catch (e) { status(e.message); } };
+  document.addEventListener('keydown', e => { if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName) || $('login').open) return; if ((e.ctrlKey || e.metaKey) && ['z','y','c','v'].includes(e.key.toLowerCase())) { e.preventDefault(); const k = e.key.toLowerCase(); if (k === 'z') history(!e.shiftKey); if (k === 'y') history(false); if (k === 'c') copy(); if (k === 'v') paste(); return; } if (e.key === 'Delete') { e.preventDefault(); remove(); return; } const l = keys.indexOf(e.code); if (l >= 0) { e.preventDefault(); if (!e.repeat) record(l); } });
+  function position(e) { const rect = canvas.getBoundingClientRect(); return { t: Math.max(0, (e.clientY - rect.top + $('scroll').scrollTop) / scale), l: Math.max(0, Math.min(laneCount - 1, Math.floor((e.clientX - rect.left - 65) / ((rect.width - 65) / laneCount)))) }; }
+  function hit(p) { let best = -1, distance = .12; notes().forEach((n, i) => { const d = Math.abs(n.t - p.t); if (n.l === p.l && d < distance) { best = i; distance = d; } }); return best; }
+  canvas.onpointerdown = e => {
+    if (!chart) return; const p = position(e), index = hit(p), tool = $('tool').value;
+    if (tool === 'add') { const o = gridOptions(); change(() => { const n = makeNote(Math.max(0, D.nearest(p.t, o.bpm, o.offset, o.division)), p.l); guardBreaks([n]); notes().push(n); }); return; }
+    if (tool === 'delete') { if (index >= 0) { selected = new Set([index]); remove(); } return; }
+    if (index < 0) { selected.clear(); selection(); draw(); return; }
+    if (e.shiftKey) { if (selected.has(index)) selected.delete(index); else selected.add(index); }
+    else if (!selected.has(index)) selected = new Set([index]);
+    pointer = { ...p, x:e.clientX, y:e.clientY }; canvas.setPointerCapture(e.pointerId); selection(); draw();
+  };
+  canvas.onpointerup = e => { if (!pointer || !chart) return; const start = pointer; pointer = null; if (Math.hypot(e.clientX - start.x, e.clientY - start.y) < 5 || !selected.size) return; const p = position(e), dt = p.t - start.t, dl = p.l - start.l; change(() => { const ns = notes().map((n, i) => selected.has(i) ? { ...n, t: Math.round((n.t + dt) * 1e6) / 1e6, l:n.l + dl } : n); guardBreaks(ns.filter((n, i) => selected.has(i))); chart[group()][diff] = ns; }); };
+  canvas.onpointercancel = () => { pointer = null; };
+  function draw() {
+    const width = canvas.clientWidth; if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
+    ctx.fillStyle = '#0b1020'; ctx.fillRect(0, 0, width, height); if (!chart) return;
+    const top = $('scroll').scrollTop, start = top / scale, end = (top + height) / scale, laneW = (width - 65) / laneCount, g = gridOptions();
+    if (wave) { ctx.fillStyle = '#4c647c'; for (let i = Math.floor(start * 50); i < Math.min(wave.length, end * 50); i++) { const y = i / 50 * scale - top; ctx.fillRect(32 - wave[i] * 28, y, wave[i] * 56, 2); } }
+    (chart.breaks || []).forEach(b => { ctx.fillStyle = '#676b8066'; ctx.fillRect(65, b[0] * scale - top, width - 65, (b[1] - b[0]) * scale); });
+    // 1/4や3連でも表拍・裏拍の目印は常に残す。スナップの分解能は変えない。
+    const drawDivision = g.division === 12 ? 24 : Math.max(8, g.division);
+    const step = 240 / g.bpm / drawDivision;
+    for (let i = Math.floor((start - g.offset) / step); i * step + g.offset <= end; i++) {
+      if (g.division === 12 && i % 2 !== 0 && i % 3 !== 0) continue;
+      const t = i * step + g.offset; if (t < 0) continue; const beat = i * 4 / drawDivision, whole = Math.abs(beat - Math.round(beat)) < 1e-6, half = Math.abs(beat * 2 - Math.round(beat * 2)) < 1e-6;
+      const y = t * scale - top; ctx.strokeStyle = whole ? '#5cc7ff' : half ? '#f1bd51' : '#66548d'; ctx.beginPath(); ctx.moveTo(65, y); ctx.lineTo(width, y); ctx.stroke(); if (whole) { ctx.fillStyle = '#d9e8ff'; ctx.fillText(t.toFixed(2), 3, y + 11); }
+    }
+    for (let i = 0; i <= laneCount; i++) { ctx.strokeStyle = '#34415a'; ctx.beginPath(); ctx.moveTo(65 + i * laneW, 0); ctx.lineTo(65 + i * laneW, height); ctx.stroke(); }
+    notes().forEach((n, i) => { const y = n.t * scale - top, d = n.type === 'hold' ? n.d * scale : 0; if (y + d < -10 || y > height + 10) return; const x = 65 + n.l * laneW + 8; ctx.fillStyle = selected.has(i) ? '#ffffff' : n.type === 'hold' ? '#a18aff' : n.type === 'flick' ? '#ffb55b' : '#64e1b2'; ctx.fillRect(x, y - 5, laneW - 16, Math.max(10, d)); ctx.strokeStyle = Math.abs(n.t - D.nearest(n.t, g.bpm, g.offset, g.division)) > g.tolerance + 1e-9 ? '#ff415b' : '#112639'; ctx.lineWidth = 3; ctx.strokeRect(x, y - 5, laneW - 16, Math.max(10, d)); ctx.lineWidth = 1; if (n.type === 'flick') { ctx.fillStyle = '#111'; ctx.fillText(n.dir < 0 ? '←' : '→', x + 12, y + 4); } });
+    ctx.strokeStyle = '#ff657c'; ctx.beginPath(); ctx.moveTo(65, audio.currentTime * scale - top); ctx.lineTo(width, audio.currentTime * scale - top); ctx.stroke();
+  }
+  $('scroll').onscroll = draw; window.addEventListener('resize', draw);
+  async function boot() {
+    try { const r = await fetch('charts/index.json'); if (!r.ok) throw new Error(`曲リスト HTTP ${r.status}`); songs = await r.json(); if (!Array.isArray(songs)) throw new Error('曲リストが不正です'); songs.forEach(s => { const o = document.createElement('option'); o.value = s.slug; o.textContent = s.title || s.slug; $('song').append(o); });
+      try { const saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved) { validateChart(saved.chart); if (![3, 5].includes(saved.laneCount) || !['easy','normal','hard'].includes(saved.diff) || !songs.some(s => s.slug === saved.slug)) throw new Error('保存データの曲指定が不正です'); restore(saved); status('自動保存した譜面を復元しました。「編集中の譜面を保って音声を読み込む」で再開できます。'); } }
+      catch (e) { status(`自動保存を復元できません: ${e.message}`); }
+    } catch (e) { status(e.message); }
+  }
+  boot();
+})();
+</script></html>
