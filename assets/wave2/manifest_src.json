@@ -1,0 +1,551 @@
+[
+  {
+    "id": "A2_1",
+    "file": "a2_balloon_small.png",
+    "idea": "A-2",
+    "desc": "小さな風船アイコン（赤色・丸型・紐付き・光沢ハイライト）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A2_2",
+    "file": "a2_balloon_medium.png",
+    "idea": "A-2",
+    "desc": "中くらいに膨らんだ風船アイコン（橙色・丸型・緊張感のあるハリ）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A2_3",
+    "file": "a2_balloon_large.png",
+    "idea": "A-2",
+    "desc": "破裂寸前の巨大風船＆弾ける紙吹雪エフェクト",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A3_1",
+    "file": "a3_cream_puff.png",
+    "idea": "A-3",
+    "desc": "美味しそうなシュークリームのアイコン（粉糖が乗ったサクサク生地）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A3_2",
+    "file": "a3_fuka_endure.png",
+    "idea": "A-3",
+    "desc": "長池風果の我慢顔デフォルメ表情アイコン（黒髪ストレート・紫リボン・涙目で辛さを我慢）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A3_3",
+    "file": "a3_ruri_endure.png",
+    "idea": "A-3",
+    "desc": "榎本るりの我慢顔デフォルメ表情アイコン（ピンクツインテール・黒リボン・あざとく我慢）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A3_4",
+    "file": "a3_aira_endure.png",
+    "idea": "A-3",
+    "desc": "鹿野愛良の我慢顔デフォルメ表情アイコン（こげ茶ウェーブ・オレンジ花飾り・耐えつつ汗）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A3_5",
+    "file": "a3_saaya_endure.png",
+    "idea": "A-3",
+    "desc": "高木紗彩の我慢顔デフォルメ表情アイコン（黒ロング・青クリップ・片目瞑って必死に耐える）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A3_6",
+    "file": "a3_neiro_endure.png",
+    "idea": "A-3",
+    "desc": "田中音色の我慢顔デフォルメ表情アイコン（茶髪・大きな赤チェックリボン・顔を真っ赤にして耐える）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A3_7",
+    "file": "a3_nana_endure.png",
+    "idea": "A-3",
+    "desc": "橋本ななの我慢顔デフォルメ表情アイコン（黒髪お団子2つ・白リボン・上品に耐えつつ涙目）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A3_8",
+    "file": "a3_arisu_endure.png",
+    "idea": "A-3",
+    "desc": "川松有珠の我慢顔デフォルメ表情アイコン（こげ茶低めツインテ・ミントリボン・うるうる目）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A4_1",
+    "file": "a4_bbq_grill_bg.png",
+    "idea": "A-4",
+    "desc": "BBQ網と炭火の背景（赤い炭火と鉄網、煙が立ち上るアウトドア背景）",
+    "w": 768,
+    "h": 1376,
+    "transparent": false
+  },
+  {
+    "id": "A4_2",
+    "file": "a4_meat_raw.png",
+    "idea": "A-4",
+    "desc": "新鮮な生肉スライスアイコン（サシの入った赤身肉）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A4_3",
+    "file": "a4_meat_cooked.png",
+    "idea": "A-4",
+    "desc": "美味しそうに焼けたジューシーな肉アイコン（焼き目とツヤ）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A4_4",
+    "file": "a4_meat_burnt.png",
+    "idea": "A-4",
+    "desc": "黒焦げになった肉アイコン（煙が少し出ている失敗肉）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A4_5",
+    "file": "a4_white_tshirt.png",
+    "idea": "A-4",
+    "desc": "真っ白で清潔なTシャツのアイコン（汚れなし）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A6_1",
+    "file": "a6_drive_thru_bg.png",
+    "idea": "A-6",
+    "desc": "ドライブスルーの車窓と注文カウンター背景",
+    "w": 768,
+    "h": 1376,
+    "transparent": false
+  },
+  {
+    "id": "A6_2",
+    "file": "a6_menu_burger.png",
+    "idea": "A-6",
+    "desc": "ハンバーガーのメニューアイコン（レタス・チーズ・パティ）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A6_3",
+    "file": "a6_menu_fries.png",
+    "idea": "A-6",
+    "desc": "フライドポテトのメニューアイコン（赤い紙パック入り）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A6_4",
+    "file": "a6_menu_shake.png",
+    "idea": "A-6",
+    "desc": "バニラシェイクのメニューアイコン（ストロー付きカップ）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A6_5",
+    "file": "a6_menu_sundae.png",
+    "idea": "A-6",
+    "desc": "ストロベリーサンデーのメニューアイコン（アイスとソース）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "A6_6",
+    "file": "a6_menu_nuggets.png",
+    "idea": "A-6",
+    "desc": "チキンナゲットのメニューアイコン（小箱に入ったナゲットとディップ）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B3_1",
+    "file": "b3_fuka_casual_full.png",
+    "idea": "B-3",
+    "desc": "長池風果の私服カジュアル全身立ち絵（黒髪ストレート・紫リボン・紫ニット＆白プリーツスカート）",
+    "w": 768,
+    "h": 1376,
+    "transparent": true
+  },
+  {
+    "id": "B3_2",
+    "file": "b3_ruri_casual_full.png",
+    "idea": "B-3",
+    "desc": "榎本るりの私服カジュアル全身立ち絵（ピンクツインテ・黒リボン・ピンクカーデ＆チェックフレア）",
+    "w": 768,
+    "h": 1376,
+    "transparent": true
+  },
+  {
+    "id": "B3_3",
+    "file": "b3_aira_casual_full.png",
+    "idea": "B-3",
+    "desc": "鹿野愛良の私服カジュアル全身立ち絵（こげ茶ウェーブ・オレンジ花飾り・オレンジパーカー＆デニムスカート）",
+    "w": 768,
+    "h": 1376,
+    "transparent": true
+  },
+  {
+    "id": "B3_4",
+    "file": "b3_saaya_casual_full.png",
+    "idea": "B-3",
+    "desc": "高木紗彩の私服カジュアル全身立ち絵（黒ロング・青クリップ・青チェックシャツ＆ショートパンツ）",
+    "w": 768,
+    "h": 1376,
+    "transparent": true
+  },
+  {
+    "id": "B3_5",
+    "file": "b3_neiro_casual_full.png",
+    "idea": "B-3",
+    "desc": "田中音色の私服カジュアル全身立ち絵（茶髪・大きな赤チェックリボン・赤ダッフルコート風ジャケット＆チェックスカート）",
+    "w": 768,
+    "h": 1376,
+    "transparent": true
+  },
+  {
+    "id": "B3_6",
+    "file": "b3_nana_casual_full.png",
+    "idea": "B-3",
+    "desc": "橋本ななの私服カジュアル全身立ち絵（黒髪お団子2つ・白リボン・純白ニットワンピ＆ベレー帽）",
+    "w": 768,
+    "h": 1376,
+    "transparent": true
+  },
+  {
+    "id": "B3_7",
+    "file": "b3_arisu_casual_full.png",
+    "idea": "B-3",
+    "desc": "川松有珠の私服カジュアル全身立ち絵（こげ茶低めツインテ・ミントリボン・ミントサロペットスカート）",
+    "w": 768,
+    "h": 1376,
+    "transparent": true
+  },
+  {
+    "id": "B3_8",
+    "file": "b3_acc_fuka_ribbon.png",
+    "idea": "B-3",
+    "desc": "風果の紫サテンリボン・アクセサリーアイコン",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B3_9",
+    "file": "b3_acc_ruri_cat_ears.png",
+    "idea": "B-3",
+    "desc": "るりのあざと可愛い猫耳カチューシャ・アクセサリーアイコン",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B3_10",
+    "file": "b3_acc_aira_glasses.png",
+    "idea": "B-3",
+    "desc": "愛良のスーツ眼鏡（さなえちゃん風）・アクセサリーアイコン",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B3_11",
+    "file": "b3_acc_saaya_clip.png",
+    "idea": "B-3",
+    "desc": "紗彩の青い星型ヘアクリップ・アクセサリーアイコン",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B3_12",
+    "file": "b3_acc_neiro_big_ribbon.png",
+    "idea": "B-3",
+    "desc": "音色の大きな赤チェックリボン・アクセサリーアイコン",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B3_13",
+    "file": "b3_acc_nana_beret.png",
+    "idea": "B-3",
+    "desc": "ななの純白ベレー帽・アクセサリーアイコン",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B3_14",
+    "file": "b3_acc_arisu_badge.png",
+    "idea": "B-3",
+    "desc": "有珠のミラクルエクスプレス機関車ブローチ・アクセサリーアイコン（濃紺×ミント×金縁・中央金星マーク）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B4_1",
+    "file": "b4_train_miracle_express.png",
+    "idea": "B-4",
+    "desc": "ミラクルエクスプレス列車アイコン（ジャケ写＆MV準拠：濃紺×金色装飾・前面MIRACLE EXPRESS金星3つヘッドマーク・丸ライト3灯・カウキャッチャー付きファンタジー蒸気機関車）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B4_2",
+    "file": "b4_stamp_fukuoka.png",
+    "idea": "B-4",
+    "desc": "福岡駅スタンプ（博多ラーメンと音色の赤音符）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B4_3",
+    "file": "b4_stamp_oita.png",
+    "idea": "B-4",
+    "desc": "大分駅スタンプ（温泉・かぼすと温泉マーク）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B4_4",
+    "file": "b4_stamp_osaka.png",
+    "idea": "B-4",
+    "desc": "大阪駅スタンプ（たこ焼きと大阪城シルエット）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B4_5",
+    "file": "b4_stamp_gifu.png",
+    "idea": "B-4",
+    "desc": "岐阜駅スタンプ（白川郷合掌造りと鵜飼い舟）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B4_6",
+    "file": "b4_stamp_aichi.png",
+    "idea": "B-4",
+    "desc": "愛知駅スタンプ（名古屋城の金のシャチホコ）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B4_7",
+    "file": "b4_stamp_kanagawa.png",
+    "idea": "B-4",
+    "desc": "神奈川駅スタンプ（横浜ベイブリッジと港のカモメ）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B4_8",
+    "file": "b4_stamp_tokyo.png",
+    "idea": "B-4",
+    "desc": "東京駅スタンプ（東京駅赤レンガ駅舎と輝く星）",
+    "w": 512,
+    "h": 512,
+    "transparent": true
+  },
+  {
+    "id": "B6_1",
+    "file": "b6_polaroid_first_lesson.png",
+    "idea": "B-6",
+    "desc": "初めてのダンスレッスン室のポラロイド風イラスト（鏡の前で並ぶ7人）",
+    "w": 1024,
+    "h": 1024,
+    "transparent": false
+  },
+  {
+    "id": "B6_2",
+    "file": "b6_polaroid_recording.png",
+    "idea": "B-6",
+    "desc": "レコーディングスタジオでのマイク前ポラロイド風イラスト（ヘッドホン姿）",
+    "w": 1024,
+    "h": 1024,
+    "transparent": false
+  },
+  {
+    "id": "B6_3",
+    "file": "b6_polaroid_flyer_dist.png",
+    "idea": "B-6",
+    "desc": "駅前でチラシ配りをするメンバーのポラロイド風イラスト",
+    "w": 1024,
+    "h": 1024,
+    "transparent": false
+  },
+  {
+    "id": "B6_4",
+    "file": "b6_polaroid_costume_fitting.png",
+    "idea": "B-6",
+    "desc": "衣装合わせで大はしゃぎするメンバーたちのポラロイド風イラスト",
+    "w": 1024,
+    "h": 1024,
+    "transparent": false
+  },
+  {
+    "id": "B6_5",
+    "file": "b6_polaroid_bus_tour.png",
+    "idea": "B-6",
+    "desc": "遠征ミニバン車内で仲良く眠るメンバーたちのポラロイド風イラスト",
+    "w": 1024,
+    "h": 1024,
+    "transparent": false
+  },
+  {
+    "id": "B6_6",
+    "file": "b6_polaroid_circle_cheer.png",
+    "idea": "B-6",
+    "desc": "円陣を組んで掛け声をかける舞台裏のポラロイド風イラスト",
+    "w": 1024,
+    "h": 1024,
+    "transparent": false
+  },
+  {
+    "id": "C3_1",
+    "file": "c3_summer_festival.png",
+    "idea": "C-3",
+    "desc": "夏祭りの夜店・花火と浴衣姿のメンバーたち（横長挿絵）",
+    "w": 1376,
+    "h": 768,
+    "transparent": false
+  },
+  {
+    "id": "C3_2",
+    "file": "c3_halloween_party.png",
+    "idea": "C-3",
+    "desc": "ハロウィンのカボチャランタンと可愛い仮装（横長挿絵）",
+    "w": 1376,
+    "h": 768,
+    "transparent": false
+  },
+  {
+    "id": "C3_3",
+    "file": "c3_theme_park.png",
+    "idea": "C-3",
+    "desc": "テーマパークの華やかなお城と観覧車・お出かけ（横長挿絵）",
+    "w": 1376,
+    "h": 768,
+    "transparent": false
+  },
+  {
+    "id": "C5_1",
+    "file": "c5_story_sub_1_taiban.png",
+    "idea": "C-5",
+    "desc": "幕間1 初対バンライブの熱気と緊張のステージ袖",
+    "w": 1376,
+    "h": 768,
+    "transparent": false
+  },
+  {
+    "id": "C5_2",
+    "file": "c5_story_sub_2_tworound.png",
+    "idea": "C-5",
+    "desc": "幕間2 初の1日2回回しライブの合間に楽屋でお弁当を食べる7人",
+    "w": 1376,
+    "h": 768,
+    "transparent": false
+  },
+  {
+    "id": "C5_3",
+    "file": "c5_story_sub_3_mv_watch.png",
+    "idea": "C-5",
+    "desc": "幕間3 初めて完成したMVをモニターで観て歓声をあげる7人",
+    "w": 1376,
+    "h": 768,
+    "transparent": false
+  },
+  {
+    "id": "C5_4",
+    "file": "c5_story_sub_4_feedback.png",
+    "idea": "C-5",
+    "desc": "幕間4 夜の練習室でお互いの改善点をノートに書いて励まし合う7人",
+    "w": 1376,
+    "h": 768,
+    "transparent": false
+  },
+  {
+    "id": "C5_5",
+    "file": "c5_story_sub_5_rainy_day.png",
+    "idea": "C-5",
+    "desc": "幕間5 雨の日のレッスン帰りに相合傘で笑顔で歩く7人",
+    "w": 1376,
+    "h": 768,
+    "transparent": false
+  },
+  {
+    "id": "C5_6",
+    "file": "c5_story_sub_6_pre_dome.png",
+    "idea": "C-5",
+    "desc": "幕間6 ドーム公演前夜の宿舎で決意を語り合う7人",
+    "w": 1376,
+    "h": 768,
+    "transparent": false
+  },
+  {
+    "id": "C6_1",
+    "file": "c6_tour_map_bg.png",
+    "idea": "C-6",
+    "desc": "全国凱旋ツアーの日本地図と光る航路の背景（縦長）",
+    "w": 768,
+    "h": 1376,
+    "transparent": false
+  },
+  {
+    "id": "C6_2",
+    "file": "c6_grand_finale.png",
+    "idea": "C-6",
+    "desc": "グランドフィナーレで7人が手をつなぎ満面の笑みで一礼する集合挿絵",
+    "w": 1376,
+    "h": 768,
+    "transparent": false
+  }
+]
