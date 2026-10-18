@@ -17,6 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
+<script>window.APP_VERSION = "9614ac9499";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -438,11 +439,18 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 #playboard{position:fixed;inset:0;z-index:45;overflow:auto;background:#201721;padding:22px max(18px,calc((100vw - 850px)/2));color:#fff}
 .playentries{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}.playcard,.wavepanel{border:1px solid #70596c;border-radius:16px;padding:16px;background:#302332;color:inherit}.playcard{font:inherit;cursor:pointer;text-align:left}.playcard:disabled{opacity:.5}.wavepanel{margin:14px 0}.wavepanel button{margin:5px}.wavepanel select,#supportpick{font:inherit;background:#35263a;color:white;padding:10px;border-radius:10px;max-width:100%}.minichoices{display:grid;grid-template-columns:1fr 1fr;gap:12px}.minichoices button{font:inherit;min-height:80px;background:#523b63;color:#fff;border:2px solid #ae8ab8;border-radius:14px;touch-action:manipulation}.mini-instruction{font-size:26px;font-weight:bold;padding:16px;background:#603d77;border-radius:12px}.mini-instruction.reverse{background:#245e67}.stamp{padding:12px;border:1px dashed #bb90bb;border-radius:10px;margin:8px 0}.stamp.done{background:#26574a}.wavefeedback{white-space:pre-wrap}.supportrow{margin:12px 0}#notice .sheet{max-width:460px}#live[data-special=true]:after{content:'🎂 BIRTHDAY LIVE';position:absolute;top:10px;left:30%;color:var(--mc);font-weight:bold;pointer-events:none;text-shadow:0 0 20px var(--mc)}#songs[data-special=true]{background:linear-gradient(150deg,color-mix(in srgb,var(--mc) 22%,#201721),#201721)}
 </style>
-<main id="home">
+<style>
+.dot{display:inline-block;width:9px;height:9px;background:#ff526e;border-radius:50%;margin-left:6px;box-shadow:0 0 8px #ff526e80}.newmark{font-size:10px;background:#ffcf4a;color:#28131c;border-radius:5px;padding:2px 5px;margin-left:5px}.primarylive{width:100%;margin:18px 0 6px;font-size:24px;min-height:68px}.todaylist{display:grid;gap:8px;margin:16px 0}.todaylist button{text-align:left;min-height:46px;background:#ffffff0d;border-radius:12px;padding:12px}.uxhint{color:var(--dim);font-size:13px}.uxsheet{display:grid;gap:14px}.uxsheet p{white-space:pre-line}.uxhead{display:flex;gap:8px;justify-content:flex-end}.uxbubble{border:1px solid #ffcf4a99;background:#312337;border-radius:18px;padding:18px}.uxphone{font-size:54px}#opening{position:fixed;inset:0;z-index:100;display:grid;place-content:center;gap:22px;text-align:center;background:radial-gradient(ellipse at center,#48253e,#140d11)}#opening .brand{padding:12px}#appversion{position:absolute;bottom:12px;right:12px;font-size:11px;color:var(--dim)}#guide{z-index:95}#liveintro{z-index:90}#clearstatus{position:absolute;z-index:9;left:12px;top:75px;display:grid;gap:6px;font-size:12px;padding:10px;border-radius:12px;background:#231923ed;max-width:29%;pointer-events:auto}#clearstatus button{min-height:36px;padding:5px 8px;font-size:13px}#countin{position:absolute;z-index:10;inset:28% 20%;text-align:center;pointer-events:none;color:var(--gold);font:80px var(--display);text-shadow:0 0 30px #ffd34b}#clearflash{position:absolute;z-index:11;inset:20% 10%;text-align:center;pointer-events:none;color:#fff7b5;font:clamp(30px,7vw,70px) var(--display);text-shadow:0 0 25px #ffcd42;animation:clear-shine 1.8s ease-out forwards}@keyframes clear-shine{0%{opacity:0;transform:scale(.75)}25%{opacity:1;filter:brightness(1.4)}100%{opacity:0;transform:scale(1.12)}}#clearflash:after{content:'✦　　✧　　✦';display:block;font-size:.5em;color:#ffcf4a}#homeupdate{font-size:12px}#centerpick{font:inherit;background:#35263a;color:white;padding:10px;border-radius:10px}.ux-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+@media(prefers-reduced-motion:reduce){#clearflash{animation:none;filter:none;transform:none;text-shadow:none}}
+</style>
+<section id="opening"><div class="brand">Re:IDOL<br><b>ライブ</b></div><button class="btn pri" id="openingstart" type="button">タップしてはじめる</button><button class="btn sec" id="openingupdate" type="button" hidden>アップデートがあります</button><p id="updatestatus" role="status"></p><small id="appversion"></small></section>
+<main id="home" hidden>
   <div class="hbg" id="hbg"></div>
   <div class="pad-x">
     <div class="brand">Re:IDOL<br><b>ライブ</b></div>
     <p class="tag">日本を景気良くするアイドル</p>
+    <div class="uxhead"><button id="homeupdate" class="quit" type="button" hidden>アップデートがあります <span class="dot"></span></button><button id="helpbtn" class="quit" type="button">あそびかた</button></div>
+    <button class="btn pri primarylive" id="livebtn" type="button">▶ ライブする<span id="livedot" class="dot" hidden></span></button>
     <section class="venue">
       <div class="lab">いまの会場</div>
       <div class="vname" id="hvenue">路上</div>
@@ -450,13 +458,14 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <div class="vsub" id="hsub"></div>
     </section>
     <div class="hbtns">
-      <button class="btn sec storybtn" id="playbtn" type="button">🎮 あそぶ</button>
-      <button class="btn sec storybtn" id="storybtn" type="button">📖 ストーリー</button>
+      <button class="btn sec storybtn" id="playbtn" type="button">🎮 あそぶ<span id="playdot" class="dot" hidden></span></button>
+      <button class="btn sec storybtn" id="storybtn" type="button">📖 ストーリー<span id="storydot" class="dot" hidden></span></button>
       <button class="btn sec storybtn" id="setbtn" type="button">⚙ 設定</button>
     </div>
-    <p class="lead">今日のセンターをえらんでね</p>
+    <div id="todaylist" class="todaylist" aria-label="今日やること"></div>
+    <p class="lead">メンバーを知ろう</p>
     <div class="grid" id="grid"></div>
-    <p class="foot">センターを選ぶと曲えらびに進みます。<br>ライブ中は画面の下半分をタップ。音が出ます。</p>
+    <p class="foot">カードでプロフィールが見られるよ。<br>「ライブする」から曲をえらんでね。</p>
   </div>
 </main>
 <section id="playboard" hidden aria-labelledby="playtitle">
@@ -465,6 +474,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   <div id="playcontent"></div><p id="wavefeedback" class="wavefeedback" role="status" aria-live="polite"></p>
 </section>
 <div id="notice" class="ovl" hidden><div class="sheet" role="dialog" aria-modal="true" aria-label="お知らせ"><p id="noticetext" role="status"></p><button class="btn sec" id="noticeclose" type="button">閉じる</button></div></div>
+<div id="guide" class="ovl" hidden><div class="sheet uxsheet" role="dialog" aria-modal="true" aria-labelledby="guidetitle"><h2 id="guidetitle"></h2><p id="guidetext" class="uxbubble"></p><small id="guidepage"></small><div class="btns"><button id="guidenext" class="btn pri" type="button">つぎへ</button><button id="guideskip" class="btn sec" type="button">スキップ</button></div></div></div>
+<div id="liveintro" class="ovl" hidden><div class="sheet uxsheet" role="dialog" aria-modal="true" aria-label="ライブをはじめる準備"><div class="uxphone" aria-hidden="true">📱 ↔️</div><p id="introorientation">ライブは横画面で遊ぶよ。スマホを横にしてね</p><p>両手の親指で、画面の下をタップしてね</p><label id="introskiplabel" hidden><input id="introskip" type="checkbox"> 次から出さない</label><button id="introgo" class="btn pri" type="button">はじめる</button><button id="introback" class="btn sec" type="button">もどる</button></div></div>
 
 <!-- ライブ -->
 <style>
@@ -483,7 +494,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 @media (prefers-reduced-motion:reduce) { #live.heart-break { animation:none; } #live.heart-break::before { animation:none; background:#ff234533; } }
 </style>
 <section id="live" hidden>
-  <div id="encore" hidden role="status"><div id="encoretext"></div><button id="encorestop" class="btn" type="button">ここで終わる</button></div>
+  <div id="encore" hidden role="status"><div id="encoretext"></div></div>
+  <div id="clearstatus" hidden><span>クリア済み ✓ いつでも終われる</span><button id="encorestop" class="btn" type="button">ここで終わる</button></div>
+  <div id="countin" hidden role="status"></div><div id="clearflash" hidden role="status"></div>
   <canvas id="stage" aria-label="リズムゲームの画面"></canvas>
   <div class="lhud">
     <div class="lrow">
@@ -511,7 +524,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <button class="quit" id="songback" type="button">戻る</button>
       <div class="who" id="swho"></div>
     </div>
-    <p class="lead">曲と難しさをえらんでね</p>
+    <p class="lead" id="songlead">曲と難しさをえらんでね</p>
+    <div class="supportrow"><label>センター <select id="centerpick"></select></label></div>
+    <div class="ux-actions"><button class="quit" id="shopopen" type="button">景気ショップ<span id="shopdot" class="dot" hidden></span></button><button class="quit" id="shopback" type="button" hidden>曲えらびへ</button><button class="quit" id="songhelp" type="button">あそびかた</button></div>
     <div class="supportrow"><label>サポート <select id="supportpick"></select></label><div id="supportinfo"></div></div>
     <div class="wallet" id="wallet"></div>
     <div class="songlist" id="songlist"></div>
@@ -573,6 +588,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <input type="range" id="setspeed" min="1" max="10" step="1">
       <small>1はゆっくり、10は速い。判定のタイミングは変わりません。次のライブから反映します。</small>
     </div>
+    <div class="setrow"><label for="setintro"><span>ライブ前の案内を出す</span><input id="setintro" type="checkbox"></label></div>
+    <button id="sethelp" class="btn sec" type="button">あそびかた</button>
     <div class="btns"><button class="btn sec" id="setclose" type="button">閉じる</button></div>
   </div>
 </div>
@@ -657,7 +674,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   const DEV = new URLSearchParams(location.search).get('dev') === '1';
   // BALANCE PURE BEGIN — 数値の変更先と、DOMに依存しない計算。
   const BALANCE = {
-    version: 4, maxLevel: 10, migrationBonus: 300,
+    version: 5, maxLevel: 10, migrationBonus: 300,
     score: { max: 1000000, judge: 900000, combo: 100000, good: .6 },
     ranks: [{ k: 'SS', at: 950000, exp: 50 }, { k: 'S', at: 850000, exp: 40 }, { k: 'A', at: 700000, exp: 30 }, { k: 'B', at: 500000, exp: 20 }, { k: 'C', at: 0, exp: 5 }],
     difficulty: { easy: 1, normal: 1.5, hard: 2 }, lanes: { 3: 1, 5: 1.3 }, length: { short: 1, full: 1.8 }, birthday: 2,
@@ -770,7 +787,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
   function migrateSave(raw, handles) {
     const old = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : null;
-    const current = old && [2, 3, BALANCE.version].includes(old.version);
+    const current = old && [2, 3, 4, BALANCE.version].includes(old.version);
     const d = { ...(old || {}), version: BALANCE.version,
       keiki: bounded(old && old.keiki, 0, Number.MAX_SAFE_INTEGER), plays: Math.floor(bounded(old && old.plays, 0, Number.MAX_SAFE_INTEGER)),
       wallet: current ? Math.floor(bounded(old.wallet, 0, Number.MAX_SAFE_INTEGER)) : old ? BALANCE.migrationBonus : 0,
@@ -780,10 +797,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     handles.forEach((h) => { const m = old && old.members && old.members[h] || {};
       d.members[h] = { ...m, lv: Math.floor(bounded(m.lv || 1, 1, BALANCE.maxLevel)), exp: bounded(m.exp, 0, Number.MAX_SAFE_INTEGER), plays: Math.floor(bounded(m.plays, 0, Number.MAX_SAFE_INTEGER)) }; });
     d.stageRecords = {};
-    if (old && old.version === BALANCE.version && old.stageRecords && typeof old.stageRecords === 'object') {
+    if (old && [4, BALANCE.version].includes(old.version) && old.stageRecords && typeof old.stageRecords === 'object') {
       for (const slug of Object.keys(BALANCE.prices)) d.stageRecords[slug] = Math.floor(bounded(old.stageRecords[slug], 0, slug === 'overture-01' ? 3 : 4));
     }
-    const w = old && [3, BALANCE.version].includes(old.version) ? old : {};
+    const w = old && [3, 4, BALANCE.version].includes(old.version) ? old : {};
     d.skills = Array.isArray(w.skills) ? [...new Set(w.skills.filter(id => BALANCE.wave1.cabinet.skills.some(s => s.id === id)))] : [];
     d.bonds = {};
     if (w.bonds && typeof w.bonds === 'object') for (const [key, value] of Object.entries(w.bonds)) {
@@ -791,7 +808,22 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     }
     const daily = w.daily;
     d.daily = daily && /^\d{4}-\d{2}-\d{2}$/.test(daily.date) ? { ...newDaily(daily.date), clear:Math.floor(bounded(daily.clear,0,9999)), mini:Math.floor(bounded(daily.mini,0,9999)), centers:Array.isArray(daily.centers) ? daily.centers.filter(h => handles.includes(h)) : [], boostUsed:daily.boostUsed === true, celebrated:daily.celebrated === true, miniRewarded:Math.floor(bounded(daily.miniRewarded,0,9999)) } : newDaily(localDay());
+    const ux = current && old.ux && typeof old.ux === 'object' ? old.ux : {};
+    d.ux = { read:ux.read && typeof ux.read === 'object' ? ux.read : {}, tips:ux.tips && typeof ux.tips === 'object' ? ux.tips : {}, center:handles.includes(ux.center) ? ux.center : handles[0], notesVersion:typeof ux.notesVersion === 'string' ? ux.notesVersion : '', pendingRelease:ux.pendingRelease && typeof ux.pendingRelease.version==='string' && typeof ux.pendingRelease.notes==='string' ? ux.pendingRelease : null };
     return d;
+  }
+  function countInPlan(bpm, anchor) {
+    const beat = 60 / bounded(bpm || 120, 30, 300);
+    return { beat, beats:[0,1,2,3].map(i => anchor+i*beat), start:anchor+4*beat };
+  }
+  function noticeState(tokens, read = {}) {
+    return tokens.filter(t => t.value && read[t.key] !== t.value).map(t => ({ ...t, fresh:true }));
+  }
+  function nextUnlock(progress = {}, hasFull = true) {
+    if ((progress.normal3 || 0) < BALANCE.unlock.hard) return 'ふつうでステージ3まで遊んでAを取ると、むずかしいが開くよ';
+    if ((progress.hard3 || 0) < BALANCE.unlock.lanes5) return '3レーンのむずかしいで、ステージ3までAを取ると5レーンが開くよ';
+    if (hasFull && (progress.short5 || 0) < BALANCE.unlock.full) return '5レーンでステージ3までSを取ると、最後のステージへ進めるよ';
+    return 'すべての遊び方が開いたよ。自己ベストに挑戦しよう';
   }
   // BALANCE PURE END
   const $ = (id) => document.getElementById(id);
@@ -841,7 +873,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 
   // ---- 設定・ベストスコア（localStorage。使えなくても動く）
   const CKEY = 'reidol.settings.v1', BKEY = 'reidol.best.v2';
-  const CFG = { call: true, se: 0.5, off: 0, bgm: 0.7, speed: 5 };
+  const CFG = { call: true, se: 0.5, off: 0, bgm: 0.7, speed: 5, intro:true, introVisits:0 };
   try {
     const r = JSON.parse(localStorage.getItem(CKEY) || 'null');
     if (r && typeof r === 'object') {
@@ -850,6 +882,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       if (typeof r.bgm === 'number' && isFinite(r.bgm)) CFG.bgm = clamp(r.bgm, 0, 1);
       if (typeof r.off === 'number' && isFinite(r.off)) CFG.off = clamp(Math.round(r.off), -150, 150);
       if (typeof r.speed === 'number' && Number.isFinite(r.speed)) CFG.speed = clamp(Math.round(r.speed), 1, 10);
+      if (typeof r.intro === 'boolean') CFG.intro = r.intro;
+      if (Number.isFinite(r.introVisits)) CFG.introVisits = Math.max(0, Math.floor(r.introVisits));
     }
   } catch (e) {}
   const saveCfg = () => { try { localStorage.setItem(CKEY, JSON.stringify(CFG)); } catch (e) {} };
@@ -861,6 +895,68 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   const bestKey = (slug, k, mode) => ['v2', slug, k, mode.lanes, mode.length].join(':');
   const bestOf = (slug, k, mode) => { const v = +BEST[bestKey(slug, k, mode)]; return v > 0 ? v : 0; };
   const saveBest = () => { try { localStorage.setItem(BKEY, JSON.stringify(BEST)); } catch (e) {} };
+
+  // ---- 案内と、開いた内容ごとの既読。日付や解放内容が変わった時だけ再通知する。
+  const TIP_PAGES = {
+    home:['「ライブする」から曲をえらぼう。センターは曲えらびの画面で変えられるよ。','今日やることから、ミッションやショップへ行けるよ。赤い点は、まだ見ていないお知らせ。'],
+    live:['両手の親指で、画面の下をタップしてね。ノーツが線に重なる時がチャンス。','ハートが0になると失敗。20コンボで1個回復するよ。','約30秒で最初のクリア。その後はアンコール！ クリアしたら、いつでも終われるよ。'],
+    mini:['しりとりは言葉をつなぎ、あべこべは指示をよく見て答えよう。','時間いっぱい遊ぶと、景気とEXPがもらえるよ。途中でもどると報酬はないよ。'],
+    shop:['ライブやミニゲームで景気をためよう。景気で新しい曲を買えるよ。','買った曲はずっと遊べるよ。残高を確かめてから「買う」を押してね。'],
+  };
+  const HELP_PAGES = ['ライブ：曲と難しさをえらんで、横画面でノーツをタップ。速さは設定で変えられるよ。','ハート：ミスで1個減るよ。20コンボとステージの区切りで1個回復。0で失敗だよ。','アンコール：約30秒でクリア！ 続けると報酬が増えるよ。「ここで終わる」で確定した報酬を持ち帰ろう。','景気とショップ：遊んでためた景気で、新しい曲を買えるよ。','レベルと会場：EXPでメンバーが育つと、大きな会場が開いていくよ。みんなを育てよう。','絆：センターとサポートで完走すると、2人の絆が育つよ。EXPは2人で分けるよ。','ミニゲーム：あそぶメニューから、しりとりとあべこべを遊べるよ。時間いっぱい挑戦しよう。'];
+  let guidePages = [], guideAt = 0, guideDone = null, guideKind = null, introAction = null;
+  const saveUx = () => { if (!DEV) save(); };
+  function showGuide(pages, title, done = null, kind = null) {
+    guidePages = pages; guideAt = 0; guideDone = done; guideKind = kind;
+    $('guidetitle').textContent = title; $('guide').hidden = false; renderGuide();
+  }
+  function renderGuide() { $('guidetext').textContent = guidePages[guideAt]; $('guidepage').textContent = `${guideAt+1} / ${guidePages.length}`; $('guidenext').textContent = guideAt === guidePages.length-1 ? 'わかった！' : 'つぎへ'; }
+  function closeGuide() { const done = guideDone; guideDone = null; if (guideKind) { S.ux.tips[guideKind] = true; saveUx(); } $('guide').hidden = true; if (done) done(); }
+  function withTip(kind, done) { if (S.ux.tips[kind]) done(); else showGuide(TIP_PAGES[kind], 'あそぶ前に', done, kind); }
+  $('guidenext').addEventListener('click', () => { if (++guideAt >= guidePages.length) closeGuide(); else renderGuide(); });
+  $('guideskip').addEventListener('click', closeGuide);
+  function showHelp() { showGuide(HELP_PAGES, 'あそびかた'); }
+  for (const id of ['helpbtn','songhelp','sethelp']) $(id).addEventListener('click', showHelp);
+  function availableCabinet() {
+    const points = cabinetPoints(MEMBERS.map(m => S.members[m.h].lv), S.skills);
+    return BALANCE.wave1.cabinet.skills.filter(s => !S.skills.includes(s.id) && s.cost <= points && s.requires.every(id => S.skills.includes(id)));
+  }
+  function notificationTokens() {
+    const items = [{key:'mini:shiritori',value:'1',group:'play'},{key:'mini:abekobe',value:'1',group:'play'}];
+    const pending = missionItems().map((m,i) => m.done ? '' : String(i)).filter(Boolean).join(',');
+    items.push({key:'missions',value:pending ? `${ensureDaily().date}:${pending}` : '',group:'play'});
+    items.push({key:'cabinet',value:availableCabinet().map(s=>s.id).sort().join(','),group:'play'});
+    items.push({key:'bonds',value:Object.entries(S.bonds).filter(([,v])=>bondLevel(v)>1).map(([k,v])=>`${k}:${bondLevel(v)}`).sort().join(','),group:'play'});
+    const affordable = Object.keys(BALANCE.prices).filter(slug=>!S.ownedSongs.includes(slug) && BALANCE.prices[slug]<=S.wallet).sort();
+    items.push({key:'shop',value:affordable.join(','),group:'songs'});
+    for (const slug of S.ownedSongs) {
+      items.push({key:`song:${slug}`,value:'owned',group:'songs'});
+      const p = S.progress[slug] || {};
+      for (const [kind,at,key] of [['hard',BALANCE.unlock.hard,'normal3'],['lanes5',BALANCE.unlock.lanes5,'hard3'],['full',BALANCE.unlock.full,'short5']]) {
+        if ((p[key]||0)>=at && !(kind==='full' && slug==='overture-01')) items.push({key:`song:${slug}:${kind}`,value:'1',group:'songs'});
+      }
+    }
+    for(let i=0;i<=Math.min(STORY.length-1,venueIdx()+1);i++) if (!seen.includes(i)) items.push({key:`story:${i}`,value:'1',group:'story'});
+    return items;
+  }
+  function unreadNotices() { return noticeState(notificationTokens(), S.ux.read); }
+  function acknowledge(prefix) { for(const t of notificationTokens()) if(t.key===prefix || t.key.startsWith(prefix+':')) S.ux.read[t.key]=t.value; saveUx(); }
+  function addBadge(el, fresh, isNew = false) { if (!fresh) return; const badge=document.createElement('span');badge.className=isNew?'newmark':'dot';badge.textContent=isNew?'NEW':'';badge.setAttribute('aria-label',isNew?'新しく使えるよ':'お知らせあり');el.appendChild(badge); }
+  function renderToday() {
+    const unread=unreadNotices(); $('livedot').hidden=!unread.some(n=>n.group==='songs');$('playdot').hidden=!unread.some(n=>n.group==='play');$('storydot').hidden=!unread.some(n=>n.group==='story');
+    const box=$('todaylist');box.textContent='';
+    const remaining=missionItems().filter(m=>!m.done).length, affordable=Object.keys(BALANCE.prices).filter(slug=>!S.ownedSongs.includes(slug)&&BALANCE.prices[slug]<=S.wallet);
+    const rows=[['今日のミッション：'+(remaining?`あと${remaining}つ`:'ぜんぶ達成！'),()=>{openPlay();renderPlayDetail('missions');},'missions'],[affordable.length?'買える曲があるよ':'景気をためて曲を増やそう',openShop,'shop'],[availableCabinet().length?'使える内閣ポイントがあるよ':'みんなを育てて内閣ポイントをためよう',()=>{openPlay();renderPlayDetail('cabinet');},'cabinet'],[unread.some(n=>n.group==='story')?'見ていない物語があるよ':'物語を見返そう',()=>{renderStoryList();$('slist').hidden=false;},'story']];
+    rows.forEach(([text,action,key])=>{const b=document.createElement('button');b.type='button';b.textContent=text;addBadge(b,unread.some(n=>n.key===key||n.key.startsWith(key+':')));b.addEventListener('click',action);box.appendChild(b);});
+  }
+  function beforeLive(action) {
+    withTip('live',()=>{
+      if(!CFG.intro){audio();tryLandscape();action();return;}
+      introAction=action;$('introorientation').textContent=innerWidth>=innerHeight?'横画面の準備OK！ はじめるを押してね':'ライブは横画面で遊ぶよ。スマホを横にしてね';$('introskip').checked=false;$('introskiplabel').hidden=CFG.introVisits<1;$('liveintro').hidden=false;
+    });
+  }
+  $('introgo').addEventListener('click',()=>{const action=introAction;introAction=null;$('liveintro').hidden=true;if(CFG.introVisits>0&&$('introskip').checked)CFG.intro=false;CFG.introVisits++;saveCfg();audio();tryLandscape();if(action)action();});
+  $('introback').addEventListener('click',()=>{introAction=null;$('liveintro').hidden=true;});
 
   // ---- 第1弾。入口は配列で追加でき、ミニゲームの画面とタイマーは本体から分離する。
   let supportH = null, miniCleanup = null, miniSequence = 0, wordsPromise = null;
@@ -893,9 +989,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   function renderPlayMenu() {
     stopMini(); $('playtitle').textContent = 'あそぶ'; $('playcontent').textContent = ''; $('wavefeedback').textContent = DEV ? '開発URLでは追加報酬・ミッション・絆は記録されません。' : `今日の最初の1曲: ${ensureDaily().boostUsed ? '受取済み' : 'EXP・景気 ×1.5'}`;
     const entries = document.createElement('div'); entries.className = 'playentries'; $('playcontent').appendChild(entries);
-    PLAY_ENTRIES.forEach(entry => { const b = waveButton(`${entry.title}\n${entry.text}`, () => { if (['shiritori','abekobe'].includes(entry.id)) launchMini(entry.id); else renderPlayDetail(entry.id); }, entries, !!entry.pending); b.className = 'playcard'; });
+    const unread = unreadNotices();
+    PLAY_ENTRIES.forEach(entry => { const key=['shiritori','abekobe'].includes(entry.id)?`mini:${entry.id}`:entry.id; const b = waveButton(`${entry.title}\n${entry.text}`, () => { acknowledge(key); if (['shiritori','abekobe'].includes(entry.id)) withTip('mini',()=>launchMini(entry.id)); else renderPlayDetail(entry.id); }, entries, !!entry.pending); b.className = 'playcard'; addBadge(b, unread.some(n=>n.key===key),key.startsWith('mini:')); });
   }
   function renderPlayDetail(kind) {
+    acknowledge(kind);
     stopMini(); $('playcontent').textContent = ''; waveButton('あそぶ一覧へ', renderPlayMenu, $('playcontent'));
     if (kind === 'missions') {
       const panel = wavePanel(`今日のミッション · ${ensureDaily().date}`);
@@ -1123,6 +1221,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     g.gain.exponentialRampToValueAtTime(vol, when + 0.008);
     g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
     o.connect(g).connect(dest); o.start(when); o.stop(when + dur + 0.03);
+    return o;
   }
   function noise(dest, when, dur, vol, ftype, ff) {
     const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
@@ -1226,6 +1325,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   const closeProfile = () => { $('prof').hidden = true; profH = null; };
   $('pclose').addEventListener('click', closeProfile);
   $('prof').addEventListener('click', (e) => { if (e.target === $('prof')) closeProfile(); });
+  $('plive').textContent = 'センターにして曲をえらぶ';
   $('plive').addEventListener('click', () => { const h = profH; closeProfile(); if (h) { audio(); openSongs(h); } });
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('prof').hidden) closeProfile(); });
 
@@ -1247,7 +1347,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       const b = document.createElement('button');
       b.className = 'card'; b.type = 'button'; b.style.setProperty('--mc', m.color);
       if (m.light) b.style.setProperty('--cm', '14%');
-      b.setAttribute('aria-label', `${m.name} をセンターにして曲えらび`);
+      b.setAttribute('aria-label', `${m.name} のプロフィールを見る`);
       const row = document.createElement('div'); row.className = 'crow';
       row.appendChild(avatar(m.h, 52));
       const lv = document.createElement('div'); lv.className = 'lvbadge'; lv.textContent = 'Lv' + st.lv;
@@ -1261,7 +1361,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       ex.innerHTML = '<span>EXP</span><span></span>';
       ex.lastChild.textContent = st.lv >= MAXLV ? 'MAX' : `${st.exp} / ${needExp(st.lv)}`;
       b.appendChild(ex);
-      b.addEventListener('click', () => { audio(); openSongs(m.h); });
+      b.addEventListener('click', () => { audio(); openProfile(m.h); });
       const pb = document.createElement('button');
       pb.className = 'profbtn'; pb.type = 'button'; pb.textContent = 'プロフ';
       pb.setAttribute('aria-label', `${m.name} のプロフィールを見る`);
@@ -1269,6 +1369,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       wrap.appendChild(b); wrap.appendChild(pb);
       g.appendChild(wrap);
     });
+    renderToday();
   }
 
   // PERSPECTIVE PURE BEGIN — 描画と入力が共用する、見本と同じ投影。
@@ -1366,18 +1467,22 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   });
   function pauseLive() {
     if (!live || live.done || live.paused) return;
-    live.pausedRaw = Math.max(0, songT()); live.paused = true; cancelAnimationFrame(raf);
+    live.pausedRaw = songT(); live.paused = true; cancelAnimationFrame(raf);
+    (live.countNodes||[]).forEach(node=>{try{node.stop();}catch(e){}});
     if (live.src) { try { live.src.stop(); } catch (e) {} }
     if (live.dest) live.dest.gain.value = 0;
   }
   function resumeLive() {
     if (!live || live.done || !live.paused) return;
-    audio(); live.t0 = ac ? ac.currentTime + .12 - live.pausedRaw : 0;
-    live.p0 = performance.now() + 120 - live.pausedRaw * 1000;
+    audio(); const counting=live.pausedRaw<0;
+    const plan=counting?countInPlan(live.bpm,(ac?ac.currentTime:0)+.12):null;
+    live.t0 = ac ? counting?plan.start:ac.currentTime+.12-live.pausedRaw : 0;
+    live.p0 = performance.now() + (counting?4*60/live.bpm+.12:.12-live.pausedRaw)*1000;
+    if(counting){live.countPlan=plan;scheduleCount();}
     live.paused = false;
     if (live.buf && ac) {
       const src = ac.createBufferSource(); src.buffer = live.buf; src.connect(live.dest);
-      src.start(ac.currentTime + .12, live.pausedRaw); src.stop(live.t0 + live.audioDur); live.src = src;
+      src.start(counting?live.t0:ac.currentTime+.12, counting?0:live.pausedRaw); src.stop(live.t0 + live.audioDur); live.src = src;
     }
     if (live.dest) live.dest.gain.value = 1;
     lastFrame = performance.now(); raf = requestAnimationFrame(liveFrame);
@@ -1389,7 +1494,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     cancelAnimationFrame(raf);
     const m = byH(h);
     audio();
-    const lead = so ? 1.2 : 0.15;
+    const bpm=bounded(so?(so.chart.bpm||120):120,30,300), plan=countInPlan(bpm,(ac?ac.currentTime:0)+.12);
+    const lead=.12+4*plan.beat;
     const mode = so ? so.mode : { diff: 'easy', lanes: 3, length: 'short' };
     const allStages = so ? (so.chart.stages || [Math.min(so.dev ? so.chart.duration : so.chart.short_end, so.buf.duration)]) : [];
     const fullUnlocked = !!so && (so.dev || (S.progress[so.s.slug]?.short5 || 0) >= BALANCE.unlock.full);
@@ -1405,6 +1511,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       : makeChart();
     live = {
       h, m, notes, step: 0, score: 0, combo: 0, maxCombo: 0, perfect: 0, good: 0, miss: 0,
+      bpm, countPlan:plan, countNodes:[],
       flash: Array(mode.lanes).fill(0), parts: [], done: false, dest: null, src: null, lastCall: -9,
       mode, approach:noteTravelSeconds(CFG.speed), dev: DEV || !!(so && so.dev), life: BALANCE.life.hearts[mode.diff], failed: false, paused: false, buf: so ? so.buf : null,
       support: so && !so.dev && supportH && supportH !== h ? supportH : null, skills:so && !so.dev ? [...S.skills] : [],
@@ -1419,6 +1526,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       p0: performance.now() + lead * 1000, t0: ac ? ac.currentTime + lead : 0,
     };
     notes.forEach(n => { n.stage = so ? allStages.findIndex(end => n.time < end) : -1; });
+    scheduleCount();
     live.img = new Image(); live.img.src = `assets/${h}_full.webp`;
     if (ac) {
       live.dest = ac.createGain(); live.dest.gain.value = so ? 1 : 0.85; live.dest.connect(comp);
@@ -1435,6 +1543,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     $('lscore').textContent = '0'; $('lcombo').textContent = ''; $('judge').classList.remove('show');
     $('lanehint').textContent = `${mode.lanes}レーン・${so ? '約30秒からアンコール' : '練習'}　画面下を両手でタップ`;
     $('encore').hidden = true; $('encorestop').hidden = false;
+    $('clearstatus').hidden=true;$('clearflash').hidden=true;$('countin').hidden=false;
     $('live').classList.remove('heart-break', 'danger');
     renderLife(); resize();
     window.scrollTo(0, 0);
@@ -1442,6 +1551,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     raf = requestAnimationFrame(liveFrame);
   }
   const songT = () => (ac && live.dest ? ac.currentTime - live.t0 : (performance.now() - live.p0) / 1000);
+  function scheduleCount() {
+    live.countNodes=[];
+    if(ac&&synGain)live.countPlan.beats.forEach((at,i)=>live.countNodes.push(osc(synGain,'sine',i===0?1000:750,at,.045,.09)));
+  }
   const gameT = () => songT() + CFG.off / 1000; // 判定・表示に使う時刻（タイミング調整つき）
   function renderLife() {
     const max = BALANCE.life.hearts[live.mode.diff];
@@ -1501,7 +1614,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     sfx('miss'); pop('ミス', '#c9a8ad');
   }
   function liveTap(e) {
-    if (!live || live.done || live.paused || e.clientY < H * 0.42 || innerWidth < innerHeight) return;
+    if (!live || live.done || live.paused || songT()<0 || e.clientY < H * 0.42 || innerWidth < innerHeight) return;
     e.preventDefault();
     const lane = laneAtHitX(e.clientX, laneGeo, live.mode.lanes);
     live.flash[lane] = 1;
@@ -1524,19 +1637,26 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   });
   $('quit').addEventListener('click', () => { if (live && live.song && live.completed.length) finishLive(); else { stopLive(); goHome(); } });
   $('encorestop').addEventListener('pointerdown', e => e.stopPropagation());
-  $('encorestop').addEventListener('click', e => { e.stopPropagation(); if (live && !live.done && !live.paused && songT() < live.stopUntil) finishLive(); });
+  $('encorestop').addEventListener('click', e => { e.stopPropagation(); if (live && !live.done && !live.paused && live.completed.length>0) { live.failed=false;finishLive(); } });
   function stopLive() {
     cancelAnimationFrame(raf);
     if (live && live.dest) { try { live.dest.gain.setTargetAtTime(0, ac.currentTime, 0.04); } catch (e) {} }
     if (live && live.src) { try { live.src.stop(ac.currentTime + 0.3); } catch (e) {} }
-    if (live) { live.done = true; clearTimeout(live.breakTimer); }
+    if (live) { live.done = true; clearTimeout(live.breakTimer);clearTimeout(live.clearTimer);(live.countNodes||[]).forEach(node=>{try{node.stop();}catch(e){}}); }
     $('encore').hidden = true; $('live').classList.remove('danger', 'heart-break');
+    $('clearstatus').hidden=true;$('clearflash').hidden=true;$('countin').hidden=true;
   }
 
   function liveFrame(now) {
     if (!live || live.done || live.paused) return;
     const dt = Math.min(0.05, (now - lastFrame) / 1000); lastFrame = now;
     const raw = songT(), t = raw + CFG.off / 1000;
+    if(raw<0){
+      const count=Math.floor((raw+4*live.countPlan.beat)/live.countPlan.beat);
+      $('countin').hidden=false;$('countin').textContent=count<0?'':String(Math.min(4,count+1));
+      $('lcombo').textContent='';drawLive(t,dt);raf=requestAnimationFrame(liveFrame);return;
+    }
+    $('countin').hidden=true;
     if (!live.song && ac && live.dest) { // 練習モードの合成ビート（曲の時計に合わせて少し先まで予約）
       while (live.step <= TOTAL_STEPS && live.step * STEP < raw + 0.3) {
         playStep(live.dest, live.step, live.t0 + live.step * STEP); live.step++;
@@ -1555,10 +1675,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if (live.stopUntil && raw >= live.stopUntil) { $('encore').hidden = true; live.stopUntil = 0; }
     heartbeat(raw);
     if (live.dest && live.song && (!live.mayUnlockFull || live.stageIndex >= 3)) live.dest.gain.value = clamp((live.dur - raw) / BALANCE.fade, 0, 1);
-    if (live.song ? raw < 0 : raw < 2) {
-      const c = Math.ceil((2 - raw) / 0.5);
-      $('lcombo').textContent = !live.song && raw > 0 ? `READY  ${c}` : 'READY';
-    } else $('lcombo').innerHTML = live.combo >= 2 ? `${live.combo}<small>COMBO</small>` : '';
+    $('lcombo').innerHTML = live.combo >= 2 ? `${live.combo}<small>COMBO</small>` : '';
     $('lprog').style.width = Math.max(0, Math.min(100, (raw / live.dur) * 100)) + '%';
     drawLive(t, dt);
     if (!live.song && raw >= live.end) { finishLive(); return; }
@@ -1575,6 +1692,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const recorded = !!L.song && !L.dev;
     const row = { stage:i+1, score, rank:rankOf(score).k, exp:recorded ? reward.exp : 0, supportExp:recorded ? reward.supportExp : 0, currency:recorded ? reward.currency : 0 };
     L.completed.push(row);
+    $('clearstatus').hidden=false;
+    const flash=$('clearflash');flash.textContent=i===0?'CLEAR!':`STAGE ${i+1} CLEAR!`;flash.hidden=false;
+    flash.style.animation='none';void flash.offsetWidth;flash.style.animation='';
+    clearTimeout(L.clearTimer);L.clearTimer=setTimeout(()=>{flash.hidden=true;},1800);
     L.earned.exp += row.exp; L.earned.supportExp += row.supportExp; L.earned.currency += row.currency;
     if (i === 2) {
       const notes = L.notes.filter(n => n.stage <= 2), stats = { perfect:0, good:0, maxCombo:0, total:notes.length }; let combo = 0;
@@ -1614,7 +1735,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     }
     renderLife();
     L.stopUntil = raw + BALANCE.encore.stopSeconds;
-    $('encoretext').textContent = 'アンコール！'; $('encore').hidden = false;
+    $('encoretext').textContent = i===0?'アンコール！':`STAGE ${i+1} CLEAR! アンコール！`; $('encore').hidden = false;
   }
 
   function drawLive(t, dt) {
@@ -1666,6 +1787,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     }
     // ノーツ
     for (const n of live.notes) {
+      if(songT()<0)break;
       const remaining = n.time - t, depth = remaining / live.approach;
       if (n.st !== 0 || depth > 1 || remaining < -0.25 || live.song && n.stage >= live.stages.length && !live.mayUnlockFull) continue;
       const p = projectLane(depth, (n.lane + .5) / live.mode.lanes, laneGeo);
@@ -1827,6 +1949,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     $('live').hidden = true; $('result').hidden = true; $('lvup').hidden = true; $('songs').hidden = true; $('loading').hidden = true; $('home').hidden = false;
     renderHome();
     flushStory();
+    checkForUpdate();
   }
   $('tohome').addEventListener('click', goHome);
   $('again').addEventListener('click', () => {
@@ -1836,7 +1959,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('tosongs').addEventListener('click', () => { resultId++; $('lvup').hidden = true; openSongs(live.h); });
 
   // ---- 曲えらび・読み込み
-  let pickH = null, SONGS = null;
+  let pickH = null, SONGS = null, shopOnly = false;
   const pickModes = {};
   let purchaseSong = null;
   const modeFor = (slug, df) => ({ ...(pickModes[slug] || { lanes: 3, length: 'short' }), diff: df.k });
@@ -1870,6 +1993,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   function openSongs(h) {
     if (pickH !== h) supportH = null;
     pickH = h;
+    S.ux.center=h;saveUx();shopOnly=false;
+    $('centerpick').textContent='';MEMBERS.forEach(member=>{const option=document.createElement('option');option.value=member.h;option.textContent=member.name;$('centerpick').appendChild(option);});$('centerpick').value=h;
     const m = byH(h);
     $('home').hidden = true; $('result').hidden = true; $('live').hidden = true; $('songs').hidden = false;
     $('songs').style.setProperty('--mc', m.color); $('songs').scrollTop = 0;
@@ -1879,6 +2004,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     renderSupport();
     renderSongs();
   }
+  $('livebtn').addEventListener('click',()=>{audio();openSongs(S.ux.center);});
+  $('centerpick').addEventListener('change',()=>openSongs($('centerpick').value));
+  function openShop() { withTip('shop',()=>{openSongs(S.ux.center);shopOnly=true;acknowledge('shop');renderSongs();}); }
+  $('shopopen').addEventListener('click',openShop);
+  $('shopback').addEventListener('click',()=>{shopOnly=false;renderSongs();});
   async function renderSongs() {
     if (!SONGS) {
       songNote('曲リストを読み込み中…');
@@ -1892,6 +2022,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       } catch (e) { songNote('この場所では曲が使えません。下の「練習モード」なら仮のビートで遊べます。'); return; }
     }
     const box = $('songlist'); box.textContent = '';
+    $('songlead').textContent=shopOnly?'景気で新しい曲を買おう':'曲と難しさをえらんでね';$('shopback').hidden=!shopOnly;
+    $('shopdot').hidden=!unreadNotices().some(n=>n.key==='shop');
     renderDevButton(box);
     MEMBERS.filter(m => birthdayWindow(PROFILES[m.h].bd)).forEach(m => {
       const special = document.createElement('div'); special.className = 'wavepanel'; special.style.setProperty('--mc',m.color); special.style.borderColor=m.color;
@@ -1902,13 +2034,17 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     });
     $('wallet').textContent = `景気残高 ${fmt(S.wallet)} ／ 累計 ${fmt(S.keiki)}`;
     [...SONGS].sort((a, b) => BALANCE.prices[a.slug] - BALANCE.prices[b.slug]).forEach((s) => {
+      if(shopOnly&&S.ownedSongs.includes(s.slug))return;
       const card = document.createElement('div'); card.className = 'song';
       const h3 = document.createElement('h3'); h3.textContent = s.title || s.slug; card.appendChild(h3);
+      const fresh=unreadNotices().filter(n=>n.key===`song:${s.slug}`||n.key.startsWith(`song:${s.slug}:`));
+      addBadge(h3,fresh.length>0,true);
       const meta = document.createElement('div'); meta.className = 'meta';
       const stageCount = s.stages?.length || (s.slug === 'overture-01' ? 3 : 4);
       const reached = Math.min(S.stageRecords[s.slug] || 0, stageCount);
       meta.textContent = `BPM ${Math.round(+s.bpm || 0)}　約30秒からアンコール ／ ${stageCount}ステージ · ${'★'.repeat(reached)}${'☆'.repeat(stageCount-reached)}`; card.appendChild(meta);
       if (!S.ownedSongs.includes(s.slug)) {
+        const hint=document.createElement('p');hint.className='uxhint';hint.textContent=S.wallet>=BALANCE.prices[s.slug]?'この曲を買えるよ':`あと${fmt(BALANCE.prices[s.slug]-S.wallet)}景気で買えるよ`;card.appendChild(hint);
         const buy = document.createElement('button'); buy.type = 'button'; buy.className = 'btn sec';
         buy.textContent = `${fmt(BALANCE.prices[s.slug])} 景気で買う`;
         buy.disabled = S.wallet < BALANCE.prices[s.slug];
@@ -1940,15 +2076,16 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
         b.disabled = !modeUnlocked(progress, mode);
         b.setAttribute('aria-label', `${s.title} ${df.label} ${n}ノーツ` + (best ? ` ベスト${best}` : ''));
         const l1 = document.createElement('b'); l1.textContent = df.label;
+        addBadge(l1,df.k==='hard'&&fresh.some(n=>n.key.endsWith(':hard')),true);
         const l2 = document.createElement('small'); l2.textContent = b.disabled ? 'ふつう Aで解放' : '約30秒からスタート';
         const l3 = document.createElement('small'); l3.className = 'bst'; l3.textContent = best ? `BEST ${fmt(best)}` : '—';
         b.appendChild(l1); b.appendChild(l2); b.appendChild(l3);
-        b.addEventListener('click', () => { audio(); beginSong(pickH, s, df, mode); });
+        b.addEventListener('click', () => { acknowledge(`song:${s.slug}`);audio(); beginSong(pickH, s, df, mode); });
         row.appendChild(b);
       });
       card.appendChild(row);
       const note = document.createElement('div'); note.className = 'locknote';
-      note.textContent = 'ステージ3までの成績: ふつうA → むずかしい ／ 3レーンむずかしいA → 5レーン ／ 5レーンS → ステージ4' + (stageCount === 4 ? ` · ステージ4${(progress.short5 || 0) >= BALANCE.unlock.full ? '解放済み' : 'は未解放（ステージ3で完走）'}` : ' · この曲は3ステージで完走');
+      note.textContent = nextUnlock(progress,stageCount===4);
       card.appendChild(note); box.appendChild(card);
     });
   }
@@ -1959,9 +2096,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const price = BALANCE.prices[s.slug];
     if (!Number.isFinite(price) || S.wallet < price) { $('purchaseerror').textContent = '景気が足りません'; return; }
     S.wallet -= price; S.ownedSongs.push(s.slug); save();
-    purchaseSong = null; $('purchase').hidden = true; renderSongs();
+    purchaseSong = null; $('purchase').hidden = true;if(shopOnly)acknowledge('shop');renderSongs();
   });
-  $('practice').addEventListener('click', () => { audio(); tryLandscape(); requestLive(pickH); });
+  $('practice').addEventListener('click', () => beforeLive(()=>requestLive(pickH)));
 
   let loadSeq = 0, loadCtl = null;
   function showLoading(title, msg) {
@@ -1989,11 +2126,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     chunks.forEach((c) => { out.set(c, o); o += c.length; });
     return out.buffer;
   }
-  async function beginSong(h, s, df, selectedMode, draft = null) {
+  function beginSong(h,s,df,selectedMode,draft=null) { beforeLive(()=>loadSong(h,s,df,selectedMode,draft)); }
+  async function loadSong(h, s, df, selectedMode, draft = null) {
     const mode = { ...(selectedMode || modeFor(s.slug, df)), diff: df.k };
     const dev = DEV && draft && draft.slug === s.slug;
     if (!dev && (!S.ownedSongs.includes(s.slug) || !modeUnlocked(S.progress[s.slug], mode))) { renderSongs(); return; }
-    tryLandscape();
     const id = ++loadSeq;
     if (loadCtl) { try { loadCtl.abort(); } catch (e) {} }
     const ctl = loadCtl = new AbortController();
@@ -2093,6 +2230,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('setbtn').addEventListener('click', () => {
     $('setcall').checked = CFG.call; $('setbgm').value = Math.round(CFG.bgm * 100); $('setse').value = Math.round(CFG.se * 100); $('setoff').value = CFG.off;
     $('setspeed').value = CFG.speed;
+    $('setintro').checked=CFG.intro;
     syncSet(); $('settings').hidden = false; $('settings').querySelector('.sheet').scrollTop = 0;
   });
   $('setcall').addEventListener('change', (e) => { CFG.call = e.target.checked; saveCfg(); });
@@ -2101,6 +2239,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('setbgm').addEventListener('input', (e) => { CFG.bgm = clamp((+e.target.value || 0) / 100, 0, 1); applyVol(); syncSet(); saveCfg(); bgmSync(); });
   $('setoff').addEventListener('input', (e) => { CFG.off = clamp(Math.round(+e.target.value || 0), -150, 150); syncSet(); saveCfg(); });
   $('setspeed').addEventListener('input', (e) => { CFG.speed = clamp(Math.round(+e.target.value || 5), 1, 10); syncSet(); saveCfg(); });
+  $('setintro').addEventListener('change',e=>{CFG.intro=e.target.checked;saveCfg();});
   $('setclose').addEventListener('click', closeSettings);
   $('settings').addEventListener('click', (e) => { if (e.target === $('settings')) closeSettings(); });
 
@@ -2126,6 +2265,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if (seen.includes(i)) return;
     seen.push(i);
     try { localStorage.setItem(SKEY, JSON.stringify(seen)); } catch (e) {}
+    acknowledge(`story:${i}`);
+    if(!$('slist').hidden)renderStoryList();
   }
   let storyQ = [], storyDone = null, storyId = 0, storyAt = 0, pendingStory = [];
   function playStory(ids, done) { storyQ = ids.slice(); storyDone = done || null; nextStory(); }
@@ -2161,16 +2302,16 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   function renderStoryList() {
     const box = $('slitems'); box.textContent = '';
     STORY.forEach((sc, i) => {
-      const ok = seen.includes(i);
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'sli'; b.disabled = !ok;
+      const ok = seen.includes(i), available=i<=venueIdx()+1;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'sli'; b.disabled = !available;
       if (ok) {
         const im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; im.src = `assets/story_${i}.jpg`; b.appendChild(im);
       } else { const ph = document.createElement('div'); ph.className = 'slph'; ph.textContent = '?'; b.appendChild(ph); }
       const tx = document.createElement('div');
-      const bb = document.createElement('b'); bb.textContent = ok ? `${i} ${sc.t}` : `${i} ？？？`;
-      const sm = document.createElement('small'); sm.textContent = ok ? 'タップで見返す' : 'まだ見ていないお話';
+      const bb = document.createElement('b'); bb.textContent = available ? `${i} ${sc.t}` : `${i} ？？？`;addBadge(bb,available&&!ok,true);
+      const sm = document.createElement('small'); sm.textContent = ok ? 'タップで見返す' : available?'タップして読んでね':'会場が大きくなると読めるよ';
       tx.appendChild(bb); tx.appendChild(sm); b.appendChild(tx);
-      if (ok) b.addEventListener('click', () => playStory([i]));
+      if (available) b.addEventListener('click', () => playStory([i]));
       box.appendChild(b);
     });
   }
@@ -2179,9 +2320,56 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('slclose').addEventListener('click', closeSlist);
   $('slist').addEventListener('click', (e) => { if (e.target === $('slist')) closeSlist(); });
 
-  renderHome();
-  // 初めての起動：場面0 → 場面1
-  playStory([0, 1].filter((i) => !seen.includes(i)));
+  // ---- 起動と、利用者が選んだ時だけ切り替える更新。
+  const APP_VERSION=typeof window.APP_VERSION==='string'?window.APP_VERSION:'dev';
+  let latestVersion=null, updateRegistration=null, lastVersionCheck=-Infinity, checkingUpdate=false, updating=false, reloadRequested=false, updateTimer=0;
+  const watchedRegistrations=new WeakSet();
+  function watchRegistration(registration) {
+    updateRegistration=registration;
+    if(!watchedRegistrations.has(registration)){watchedRegistrations.add(registration);registration.addEventListener('updatefound',()=>{const worker=registration.installing;if(worker)worker.addEventListener('statechange',renderUpdateButtons);});}
+    renderUpdateButtons();
+  }
+  function updateBusy() { return !$('live').hidden || !!miniCleanup || !$('loading').hidden || !!pendingLive || !!introAction; }
+  function renderUpdateButtons() {
+    const available=!!(latestVersion&&latestVersion.version!==APP_VERSION)||!!(updateRegistration&&updateRegistration.waiting);
+    for(const id of ['openingupdate','homeupdate']){$(id).hidden=!available;$(id).disabled=updating||updateBusy();}
+    $('openingstart').disabled=updating;$('livebtn').disabled=updating;
+  }
+  async function checkForUpdate(force=false) {
+    if(checkingUpdate || !force&&Date.now()-lastVersionCheck<3600000)return;
+    checkingUpdate=true;lastVersionCheck=Date.now();
+    try {
+      if('serviceWorker' in navigator){const registration=await navigator.serviceWorker.getRegistration();if(registration){watchRegistration(registration);try{await registration.update();}catch(e){}}}
+      try{const r=await fetch('version.json',{cache:'no-store',credentials:'same-origin'});if(r.ok){const v=await r.json();if(typeof v.version==='string'&&v.version.length<=128)latestVersion={version:v.version,notes:typeof v.notes==='string'?v.notes:''};}}catch(e){}
+    }catch(e){}finally{checkingUpdate=false;renderUpdateButtons();if($('opening').hidden&&!$('home').hidden&&$('guide').hidden)releaseNotes(()=>{});}
+  }
+  function reloadUpdatedPage() { if(reloadRequested||updateBusy())return;reloadRequested=true;clearTimeout(updateTimer);location.reload(); }
+  async function updateFallback() {
+    if(!updating||reloadRequested)return;
+    if(updateBusy()){updating=false;$('updatestatus').textContent='遊び終わってから、もう一度更新してね。';renderUpdateButtons();return;}
+    try{if('caches' in window){const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('reidol-')).map(k=>caches.delete(k)));}}catch(e){}
+    reloadUpdatedPage();
+  }
+  async function applyUpdate() {
+    if(updating||updateBusy())return;
+    updating=true;renderUpdateButtons();$('updatestatus').textContent='アップデートしています…';
+    if(latestVersion){S.ux.pendingRelease=latestVersion;saveUx();}
+    updateTimer=setTimeout(updateFallback,8000);
+    try {
+      if('serviceWorker' in navigator){updateRegistration=await navigator.serviceWorker.getRegistration();if(updateRegistration){const activate=()=>{if(updating&&updateRegistration.waiting)updateRegistration.waiting.postMessage({type:'SKIP_WAITING'});};updateRegistration.addEventListener('updatefound',()=>{const worker=updateRegistration.installing;if(worker)worker.addEventListener('statechange',activate);});await updateRegistration.update();activate();if(updateRegistration.waiting||updateRegistration.installing)return;}}
+    }catch(e){}
+    await updateFallback();
+  }
+  if('serviceWorker' in navigator){navigator.serviceWorker.addEventListener('controllerchange',()=>{if(updating)reloadUpdatedPage();});navigator.serviceWorker.ready.then(watchRegistration).catch(()=>{});}
+  for(const id of ['openingupdate','homeupdate'])$(id).addEventListener('click',applyUpdate);
+  function releaseNotes(done) {
+    const release=[S.ux.pendingRelease,latestVersion].find(r=>r&&r.version===APP_VERSION);
+    const key=release?release.version+'|'+release.notes:'';
+    if(release&&release.version===APP_VERSION&&release.notes&&S.ux.notesVersion!==key){showGuide([release.notes],'新しくなったこと',()=>{S.ux.notesVersion=key;S.ux.pendingRelease=null;saveUx();done();});}else done();
+  }
+  $('openingstart').addEventListener('click',()=>{audio();$('opening').hidden=true;goHome();bgmSync();releaseNotes(()=>withTip('home',()=>{}));});
+  $('appversion').textContent=`バージョン ${APP_VERSION}`;
+  renderHome();checkForUpdate(true);
 })();
 </script>
 
