@@ -542,6 +542,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <input type="range" id="setse" min="0" max="100" step="5">
     </div>
     <div class="setrow">
+      <label for="setbgm"><span>BGM（ホーム・曲えらびなど）</span><output id="setbgmv"></output></label>
+      <input type="range" id="setbgm" min="0" max="100" step="5">
+    </div>
+    <div class="setrow">
       <label for="setoff"><span>タイミング調整</span><output id="setoffv"></output></label>
       <input type="range" id="setoff" min="-150" max="150" step="5">
       <small>音が遅れて聞こえる時は「−」に。ノーツの判定と表示がいっしょにずれます。</small>
@@ -814,12 +818,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 
   // ---- 設定・ベストスコア（localStorage。使えなくても動く）
   const CKEY = 'reidol.settings.v1', BKEY = 'reidol.best.v2';
-  const CFG = { call: true, se: 0.5, off: 0 };
+  const CFG = { call: true, se: 0.5, off: 0, bgm: 0.7 };
   try {
     const r = JSON.parse(localStorage.getItem(CKEY) || 'null');
     if (r && typeof r === 'object') {
       if (typeof r.call === 'boolean') CFG.call = r.call;
       if (typeof r.se === 'number' && isFinite(r.se)) CFG.se = clamp(r.se, 0, 1);
+      if (typeof r.bgm === 'number' && isFinite(r.bgm)) CFG.bgm = clamp(r.bgm, 0, 1);
       if (typeof r.off === 'number' && isFinite(r.off)) CFG.off = clamp(Math.round(r.off), -150, 150);
     }
   } catch (e) {}
@@ -929,7 +934,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
 
   // ---- 音（最初のタップから鳴らす）
-  let ac = null, comp = null, noiseBuf = null, seGain = null, synGain = null, sePromise = null;
+  let ac = null, comp = null, noiseBuf = null, seGain = null, synGain = null, sePromise = null, bgmGain = null;
   const SEB = {};
   const SE_NAMES = ['clap', 'hai', 'haihai', 'oi', 'fuffu', 'kira', 'perfect', 'tap', 'tap_hi'];
   const CALLS = ['hai', 'haihai', 'oi', 'fuffu'];
@@ -940,6 +945,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   function applyVol() {
     if (seGain) seGain.gain.value = CFG.se;
     if (synGain) synGain.gain.value = Math.min(1, CFG.se * 2); // 合成音は従来の音量(0.5で1.0)
+    if (bgmGain) bgmGain.gain.value = CFG.bgm;
   }
   function loadSE() {
     if (sePromise || !ac) return sePromise;
@@ -960,6 +966,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
         comp.connect(ac.destination);
         seGain = ac.createGain(); seGain.connect(comp);
         synGain = ac.createGain(); synGain.connect(comp);
+        bgmGain = ac.createGain(); bgmGain.connect(ac.destination); // BGMは公式曲・効果音とは別系統
         applyVol();
         noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
         const d = noiseBuf.getChannelData(0);
@@ -967,10 +974,122 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       } catch (e) { ac = null; }
     }
     if (ac && ac.state === 'suspended') { try { ac.resume(); } catch (e) {} }
-    if (ac) loadSE();
+    if (ac) { loadSE(); bgmSync(); }
     return ac;
   }
   addEventListener('pointerdown', () => audio(), { passive: true });
+
+  // ---- BGM（画面ごと。ライブ中は止める。公式曲・効果音とは別の GainNode）
+  let storyCur = -1;
+  const bgmBufs = {}, bgmLoading = {};
+  let bgmCfg = null, bgmCfgP = null, bgmCur = null, bgmWant = null, bgmSeq = 0, bgmHiddenPos = null;
+  let jingleSrc = null, jingleBusy = false;
+  function bgmLoadCfg() {
+    bgmCfgP ||= fetch('bgm/bgm.json', { credentials: 'same-origin' }).then((r) => { if (!r.ok) throw new Error('bgm.json'); return r.json(); })
+      .then((j) => { bgmCfg = j; return j; }).catch((e) => { bgmCfgP = null; throw e; });
+    return bgmCfgP;
+  }
+  function bgmLoad(name) {
+    if (bgmBufs[name]) return Promise.resolve(bgmBufs[name]);
+    return bgmLoading[name] ||= (async () => {
+      try {
+        const cfg = (await bgmLoadCfg())[name];
+        if (!cfg || !ac) return null;
+        const r = await fetch(cfg.file, { credentials: 'same-origin' });
+        if (!r.ok) return null;
+        return (bgmBufs[name] = await decode(await r.arrayBuffer()));
+      } catch (e) { return null; } finally { delete bgmLoading[name]; }
+    })();
+  }
+  const bgmCurve = (up) => { const n = 64, a = new Float32Array(n); for (let i = 0; i < n; i++) { const x = i / (n - 1); a[i] = up ? Math.sin(x * Math.PI / 2) : Math.cos(x * Math.PI / 2); } return a; };
+  function bgmSchedule(tr) {
+    const body = tr.cfg.loopEnd - tr.cf;
+    while (tr.nextT < ac.currentTime + 3) {
+      const t = tr.nextT, prev = tr.nodes[tr.nodes.length - 1];
+      const src = ac.createBufferSource(), g = ac.createGain();
+      src.buffer = tr.buf; src.connect(g); g.connect(tr.master);
+      g.gain.setValueAtTime(0, t); g.gain.setValueCurveAtTime(bgmCurve(true), t, tr.cf);
+      src.start(t, 0); tr.nodes.push({ src, g, t });
+      if (prev) {
+        prev.g.gain.setValueAtTime(1, t); prev.g.gain.setValueCurveAtTime(bgmCurve(false), t, tr.cf);
+        try { prev.src.stop(t + tr.cf + 0.05); } catch (e) {}
+      }
+      tr.nextT = t + body;
+    }
+    if (tr.nodes.length > 4) tr.nodes.splice(0, tr.nodes.length - 4);
+  }
+  function bgmStart(name, offset) {
+    const seq = ++bgmSeq;
+    bgmLoad(name).then((buf) => {
+      if (!buf || seq !== bgmSeq || !ac || document.hidden) return;
+      const cfg = bgmCfg[name], cf = Math.min(cfg.crossfade || 2.5, cfg.loopEnd / 4), body = cfg.loopEnd - cf;
+      const off = Math.min(Math.max(0, offset || 0), body - 1);
+      const t0 = ac.currentTime + 0.05, master = ac.createGain();
+      master.gain.setValueAtTime(0, t0); master.gain.linearRampToValueAtTime(cfg.gain == null ? 0.45 : cfg.gain, t0 + 1);
+      master.connect(bgmGain);
+      const src = ac.createBufferSource(), g = ac.createGain();
+      src.buffer = buf; src.connect(g); g.connect(master); src.start(t0, off);
+      const tr = { name, cfg, cf, buf, master, nodes: [{ src, g, t: t0 - off }], nextT: t0 + (cfg.loopEnd - off) - cf, timer: 0 };
+      tr.timer = setInterval(() => { try { bgmSchedule(tr); } catch (e) {} }, 500);
+      bgmCur = tr;
+    });
+  }
+  function bgmStop(fade) {
+    const tr = bgmCur; bgmCur = null; bgmSeq++;
+    if (!tr) return 0;
+    clearInterval(tr.timer);
+    const now = ac.currentTime, last = tr.nodes[tr.nodes.length - 1];
+    const pos = last ? Math.max(0, now - last.t) % (tr.cfg.loopEnd - tr.cf) : 0;
+    try {
+      const v = tr.master.gain.value;
+      tr.master.gain.cancelScheduledValues(now); tr.master.gain.setValueAtTime(v, now);
+      tr.master.gain.linearRampToValueAtTime(0, now + fade);
+    } catch (e) {}
+    tr.nodes.forEach((n) => { try { n.src.stop(now + fade + 0.05); } catch (e) {} });
+    setTimeout(() => { try { tr.master.disconnect(); } catch (e) {} }, (fade + 0.3) * 1000);
+    return pos;
+  }
+  function bgmTarget() {
+    const vis = (id) => { const e = $(id); return !!e && !e.hidden; };
+    if (vis('live')) return null;
+    if (vis('result')) return jingleBusy ? null : 'bgm_select';
+    if (vis('story')) return storyCur >= 3 ? 'bgm_story_hope' : 'bgm_story_calm';
+    if (vis('playboard')) return miniCleanup ? 'bgm_minigame' : 'bgm_select';
+    if (vis('songs')) return $('songs').getAttribute('data-special') === 'true' ? 'bgm_special' : 'bgm_select';
+    if (vis('home')) return 'bgm_home';
+    return null;
+  }
+  function bgmSync() {
+    if (!ac || document.hidden) return;
+    if (jingleSrc && $('result').hidden) { try { jingleSrc.stop(); } catch (e) {} jingleSrc = null; jingleBusy = false; }
+    const want = CFG.bgm > 0 ? bgmTarget() : null;
+    if (want === bgmWant) return;
+    bgmWant = want;
+    bgmStop(1);
+    if (want) bgmStart(want, 0);
+  }
+  function bgmJingle(name) {
+    if (!ac || CFG.bgm <= 0) return;
+    jingleBusy = true; bgmSync();
+    bgmLoad(name).then((buf) => {
+      if (!buf || !ac || $('result').hidden) { jingleBusy = false; bgmSync(); return; }
+      const src = ac.createBufferSource(), g = ac.createGain();
+      src.buffer = buf; g.gain.value = (bgmCfg[name].gain == null ? 0.6 : bgmCfg[name].gain);
+      src.connect(g); g.connect(bgmGain); jingleSrc = src;
+      src.onended = () => { if (jingleSrc === src) { jingleSrc = null; jingleBusy = false; bgmSync(); } };
+      src.start();
+    });
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (!ac) return;
+    if (document.hidden) { const pos = bgmStop(0.15); bgmHiddenPos = bgmWant ? { name: bgmWant, pos } : null; bgmWant = null; }
+    else {
+      const h = bgmHiddenPos; bgmHiddenPos = null;
+      const want = CFG.bgm > 0 ? bgmTarget() : null;
+      bgmWant = want; if (want) bgmStart(want, h && h.name === want ? h.pos : 0);
+    }
+  });
+  setInterval(bgmSync, 300);
   const hz = (semi, base = 261.63) => base * Math.pow(2, semi / 12);
   function osc(dest, type, f, when, dur, vol, slideTo) {
     const o = ac.createOscillator(), g = ac.createGain();
@@ -1545,6 +1664,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   async function showResult(r) {
     const id = ++resultId, m = r.m;
     $('live').hidden = true; $('home').hidden = true; $('result').hidden = false;
+    if (r.failed) bgmJingle('jingle_fail'); else if (r.clear) bgmJingle('jingle_clear');
     releaseLandscape(); $('rotate').hidden = true;
     $('result').style.setProperty('--mc', m.color); $('result').scrollTop = 0;
     const av = $('rav'); av.textContent = ''; av.appendChild(avatar(r.h, 84));
@@ -1905,16 +2025,18 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   // ---- 設定
   function syncSet() {
     $('setsev').textContent = Math.round(CFG.se * 100) + '%';
+    $('setbgmv').textContent = Math.round(CFG.bgm * 100) + '%';
     $('setoffv').textContent = (CFG.off > 0 ? '+' : '') + CFG.off + 'ms';
   }
   function closeSettings() { $('settings').hidden = true; }
   $('setbtn').addEventListener('click', () => {
-    $('setcall').checked = CFG.call; $('setse').value = Math.round(CFG.se * 100); $('setoff').value = CFG.off;
+    $('setcall').checked = CFG.call; $('setbgm').value = Math.round(CFG.bgm * 100); $('setse').value = Math.round(CFG.se * 100); $('setoff').value = CFG.off;
     syncSet(); $('settings').hidden = false; $('settings').querySelector('.sheet').scrollTop = 0;
   });
   $('setcall').addEventListener('change', (e) => { CFG.call = e.target.checked; saveCfg(); });
   $('setse').addEventListener('input', (e) => { CFG.se = clamp((+e.target.value || 0) / 100, 0, 1); applyVol(); syncSet(); saveCfg(); });
   $('setse').addEventListener('change', () => { audio(); playSE('clap'); }); // 音量の試し聞き
+  $('setbgm').addEventListener('input', (e) => { CFG.bgm = clamp((+e.target.value || 0) / 100, 0, 1); applyVol(); syncSet(); saveCfg(); bgmSync(); });
   $('setoff').addEventListener('input', (e) => { CFG.off = clamp(Math.round(+e.target.value || 0), -150, 150); syncSet(); saveCfg(); });
   $('setclose').addEventListener('click', closeSettings);
   $('settings').addEventListener('click', (e) => { if (e.target === $('settings')) closeSettings(); });
@@ -1951,6 +2073,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       return;
     }
     const i = storyQ.shift(), sc = STORY[i], id = ++storyId;
+    storyCur = i;
     markSeen(i);
     const box = $('stext'); box.textContent = '';
     const no = document.createElement('div'); no.className = 'sno'; no.textContent = `${i} ${sc.t}`; box.appendChild(no);

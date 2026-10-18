@@ -1,0 +1,48 @@
+{
+ "bgm_home": {
+  "file": "bgm/bgm_home.mp3",
+  "loopEnd": 71.0,
+  "crossfade": 2.5,
+  "gain": 0.45
+ },
+ "bgm_select": {
+  "file": "bgm/bgm_select.mp3",
+  "loopEnd": 50.0,
+  "crossfade": 2.5,
+  "gain": 0.45
+ },
+ "bgm_minigame": {
+  "file": "bgm/bgm_minigame.mp3",
+  "loopEnd": 63.5,
+  "crossfade": 2.5,
+  "gain": 0.45
+ },
+ "bgm_special": {
+  "file": "bgm/bgm_special.mp3",
+  "loopEnd": 58.0,
+  "crossfade": 2.5,
+  "gain": 0.45
+ },
+ "bgm_story_calm": {
+  "file": "bgm/bgm_story_calm.mp3",
+  "loopEnd": 77.5,
+  "crossfade": 2.5,
+  "gain": 0.45
+ },
+ "bgm_story_hope": {
+  "file": "bgm/bgm_story_hope.mp3",
+  "loopEnd": 80.0,
+  "crossfade": 2.5,
+  "gain": 0.45
+ },
+ "jingle_clear": {
+  "file": "bgm/jingle_clear.wav",
+  "oneShot": true,
+  "gain": 0.6
+ },
+ "jingle_fail": {
+  "file": "bgm/jingle_fail.wav",
+  "oneShot": true,
+  "gain": 0.6
+ }
+}
