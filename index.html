@@ -416,6 +416,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 </style>
 
 <!-- ホーム -->
+<style>
+#playboard{position:fixed;inset:0;z-index:45;overflow:auto;background:#201721;padding:22px max(18px,calc((100vw - 850px)/2));color:#fff}
+.playentries{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}.playcard,.wavepanel{border:1px solid #70596c;border-radius:16px;padding:16px;background:#302332;color:inherit}.playcard{font:inherit;cursor:pointer;text-align:left}.playcard:disabled{opacity:.5}.wavepanel{margin:14px 0}.wavepanel button{margin:5px}.wavepanel select,#supportpick{font:inherit;background:#35263a;color:white;padding:10px;border-radius:10px;max-width:100%}.minichoices{display:grid;grid-template-columns:1fr 1fr;gap:12px}.minichoices button{font:inherit;min-height:80px;background:#523b63;color:#fff;border:2px solid #ae8ab8;border-radius:14px;touch-action:manipulation}.mini-instruction{font-size:26px;font-weight:bold;padding:16px;background:#603d77;border-radius:12px}.mini-instruction.reverse{background:#245e67}.stamp{padding:12px;border:1px dashed #bb90bb;border-radius:10px;margin:8px 0}.stamp.done{background:#26574a}.wavefeedback{white-space:pre-wrap}.supportrow{margin:12px 0}#notice .sheet{max-width:460px}#live[data-special=true]:after{content:'🎂 BIRTHDAY LIVE';position:absolute;top:10px;left:30%;color:var(--mc);font-weight:bold;pointer-events:none;text-shadow:0 0 20px var(--mc)}#songs[data-special=true]{background:linear-gradient(150deg,color-mix(in srgb,var(--mc) 22%,#201721),#201721)}
+</style>
 <main id="home">
   <div class="hbg" id="hbg"></div>
   <div class="pad-x">
@@ -428,6 +432,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <div class="vsub" id="hsub"></div>
     </section>
     <div class="hbtns">
+      <button class="btn sec storybtn" id="playbtn" type="button">🎮 あそぶ</button>
       <button class="btn sec storybtn" id="storybtn" type="button">📖 ストーリー</button>
       <button class="btn sec storybtn" id="setbtn" type="button">⚙ 設定</button>
     </div>
@@ -436,6 +441,12 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     <p class="foot">センターを選ぶと曲えらびに進みます。<br>ライブ中は画面の下半分をタップ。音が出ます。</p>
   </div>
 </main>
+<section id="playboard" hidden aria-labelledby="playtitle">
+  <button class="btn sec" id="playback" type="button">ホームへ戻る</button>
+  <h1 id="playtitle">あそぶ</h1><label>ミニゲームのセンター <select id="minicenter"></select></label>
+  <div id="playcontent"></div><p id="wavefeedback" class="wavefeedback" role="status" aria-live="polite"></p>
+</section>
+<div id="notice" class="ovl" hidden><div class="sheet" role="dialog" aria-modal="true" aria-label="お知らせ"><p id="noticetext" role="status"></p><button class="btn sec" id="noticeclose" type="button">閉じる</button></div></div>
 
 <!-- ライブ -->
 <section id="live" hidden>
@@ -467,6 +478,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <div class="who" id="swho"></div>
     </div>
     <p class="lead">曲と難しさをえらんでね</p>
+    <div class="supportrow"><label>サポート <select id="supportpick"></select></label><div id="supportinfo"></div></div>
     <div class="wallet" id="wallet"></div>
     <div class="songlist" id="songlist"></div>
     <button class="btn sec" id="practice" type="button" style="width:100%;margin-top:14px">練習モード（仮のビート・景気とEXPなし）</button>
@@ -594,12 +606,14 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 <canvas id="fx"></canvas>
 
 <script src="difficulty.js"></script>
+<script src="minigames/shiritori.js"></script>
+<script src="minigames/abekobe.js"></script>
 <script>
 (() => {
   const DEV = new URLSearchParams(location.search).get('dev') === '1';
   // BALANCE PURE BEGIN — 数値の変更先と、DOMに依存しない計算。
   const BALANCE = {
-    version: 2, maxLevel: 10, migrationBonus: 300,
+    version: 3, maxLevel: 10, migrationBonus: 300,
     score: { max: 1000000, judge: 900000, combo: 100000, good: .6 },
     ranks: [{ k: 'SS', at: 950000, exp: 50 }, { k: 'S', at: 850000, exp: 40 }, { k: 'A', at: 700000, exp: 30 }, { k: 'B', at: 500000, exp: 20 }, { k: 'C', at: 0, exp: 5 }],
     difficulty: { easy: 1, normal: 1.5, hard: 2 }, lanes: { 3: 1, 5: 1.3 }, length: { short: 1, full: 1.8 }, birthday: 2,
@@ -609,6 +623,20 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     prices: { 'overture-01': 0, 'miracle-express': 150, 'chokkan-aisho-chekira': 250, hometive: 350, 'super-energy': 450, 'peaceful-cabinet': 600, 'saikyo-louder': 800, 're-start': 1000 },
     venues: [{ n: '路上', at: 7 }, { n: '小さなライブハウス', at: 12 }, { n: 'SHIBUYA DIVE', at: 20 }, { n: 'ホール', at: 32 }, { n: 'アリーナ', at: 47 }, { n: 'ドーム', at: 63, min: 8 }],
     calls: { first: 25, every: 50, gap: 1.25 }, fade: 2,
+    wave1: {
+      daily: { firstSong: 1.5, targets: [1, 2] }, support: { share: .2, improvedShare: .25 },
+      bond: { perLive: 1, perLevel: 5, maxLevel: 10, improved: 2 },
+      mini: { shiritori: { seconds: 60, currency: [30, 100], exp: [10, 25], target: 20 }, abekobe: { seconds: 45, currency: [20, 80], exp: [0, 15], target: 25 } },
+      cabinet: { startSum: 7, pointsPerLevel: 1, easyExp: .2, normalExp: .05, missFactor: .9, currencyFactor: 1.1,
+        skills: [
+          { id:'easy', label:'練習を応援', detail:'かんたんのEXP倍率 +0.2', cost:6, requires:[] },
+          { id:'life', label:'安心のステージ', detail:'ミスのライフ減少 −10%', cost:8, requires:[] },
+          { id:'currency', label:'景気をあと押し', detail:'獲得景気 +10%', cost:9, requires:['easy'] },
+          { id:'support', label:'相棒を応援', detail:'サポートへの分配 20%→25%（総EXPは同じ）', cost:10, requires:['life'] },
+          { id:'normal', label:'みんなで成長', detail:'ふつうのEXP +5%', cost:11, requires:['currency'] },
+          { id:'bond', label:'絆をつなぐ', detail:'完走ライブの絆 +1→+2', cost:12, requires:['support'] },
+        ] }, birthdayWindowDays: 7,
+    },
   };
   const bounded = (v, a, b) => Math.max(a, Math.min(b, Number.isFinite(+v) ? +v : a));
   const needExp = (lv) => BALANCE.exp.base + BALANCE.exp.step * (lv - 1);
@@ -623,7 +651,36 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const rank = rankOf(score), mult = modeMult(mode);
     return { rank: rank.k, exp: Math.floor(rank.exp * mult * (birthday ? BALANCE.birthday : 1) + 1e-9), currency: Math.floor(score / BALANCE.currencyDivisor * mult + 1e-9), mult };
   }
-  const lifeAfter = (life, grade, diff) => bounded(life + (grade === 'perfect' ? BALANCE.life.perfect : grade === 'miss' ? -BALANCE.life.miss * (diff === 'easy' ? BALANCE.life.easyMiss : 1) : 0), 0, BALANCE.life.max);
+  const lifeAfter = (life, grade, diff, skills = []) => bounded(life + (grade === 'perfect' ? BALANCE.life.perfect : grade === 'miss' ? -BALANCE.life.miss * (diff === 'easy' ? BALANCE.life.easyMiss : 1) * (skills.includes('life') ? BALANCE.wave1.cabinet.missFactor : 1) : 0), 0, BALANCE.life.max);
+  const localDay = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  function dailyPlan(date, handles) {
+    let hash = 0; for (const c of date) hash = (hash * 31 + c.charCodeAt(0)) >>> 0;
+    const targets = BALANCE.wave1.daily.targets;
+    return { clear:targets[hash % targets.length], mini:targets[(hash >>> 3) % targets.length], center:handles[(hash >>> 5) % handles.length] };
+  }
+  function newDaily(date) { return { date, clear:0, mini:0, centers:[], boostUsed:false, celebrated:false, miniRewarded:0 }; }
+  function calcWaveRewards(score, mode, { first = false, birthday = false, skills = [], support = false } = {}) {
+    const w = BALANCE.wave1, base = calcRewards(score, mode, birthday), daily = first ? w.daily.firstSong : 1;
+    const expFactor = mode.diff === 'easy' && skills.includes('easy') ? (BALANCE.difficulty.easy + w.cabinet.easyExp) / BALANCE.difficulty.easy : mode.diff === 'normal' && skills.includes('normal') ? 1 + w.cabinet.normalExp : 1;
+    const totalExp = Math.floor(rankOf(score).exp * base.mult * (birthday ? BALANCE.birthday : 1) * daily * expFactor + 1e-9);
+    const supportExp = support ? Math.floor(totalExp * (skills.includes('support') ? w.support.improvedShare : w.support.share)) : 0;
+    return { ...base, totalExp, exp:totalExp - supportExp, supportExp, currency:Math.floor(score / BALANCE.currencyDivisor * base.mult * daily * (skills.includes('currency') ? w.cabinet.currencyFactor : 1) + 1e-9), daily };
+  }
+  function calcMiniReward(kind, correct, attempts, skills = []) {
+    const rule = BALANCE.wave1.mini[kind], progress = bounded(correct / rule.target, 0, 1), accuracy = attempts ? bounded(correct / attempts, 0, 1) : 0;
+    const strength = Math.min(progress, accuracy);
+    return { currency:Math.floor((rule.currency[0] + (rule.currency[1] - rule.currency[0]) * strength) * (skills.includes('currency') ? BALANCE.wave1.cabinet.currencyFactor : 1) + 1e-9), exp:Math.floor(rule.exp[0] + (rule.exp[1] - rule.exp[0]) * strength + 1e-9) };
+  }
+  const bondKey = (a, b) => [a, b].sort().join(':');
+  const bondLevel = points => Math.min(BALANCE.wave1.bond.maxLevel, 1 + Math.floor(points / BALANCE.wave1.bond.perLevel));
+  function cabinetPoints(levels, skills) {
+    return Math.max(0, (levels.reduce((a,b) => a+b,0) - BALANCE.wave1.cabinet.startSum) * BALANCE.wave1.cabinet.pointsPerLevel - BALANCE.wave1.cabinet.skills.filter(s => skills.includes(s.id)).reduce((a,s) => a+s.cost,0));
+  }
+  function birthdayWindow(md, today = new Date()) {
+    if (!/^\d{2}-\d{2}$/.test(md)) return false;
+    const [month, day] = md.split('-').map(Number), t = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+    return [-1,0,1].some(y => Math.abs(Date.UTC(today.getFullYear()+y, month-1, day) - t) / 86400000 <= BALANCE.wave1.birthdayWindowDays);
+  }
   const isClear = (score, life, finished) => finished && life > 0 && score >= BALANCE.ranks.find((r) => r.k === 'B').at;
   function growMember(member, gain) {
     let lv = member.lv, exp = member.exp + gain;
@@ -644,7 +701,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
   function migrateSave(raw, handles) {
     const old = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : null;
-    const current = old && old.version === BALANCE.version;
+    const current = old && [2, BALANCE.version].includes(old.version);
     const d = { ...(old || {}), version: BALANCE.version,
       keiki: bounded(old && old.keiki, 0, Number.MAX_SAFE_INTEGER), plays: Math.floor(bounded(old && old.plays, 0, Number.MAX_SAFE_INTEGER)),
       wallet: current ? Math.floor(bounded(old.wallet, 0, Number.MAX_SAFE_INTEGER)) : old ? BALANCE.migrationBonus : 0,
@@ -653,6 +710,14 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if (!d.ownedSongs.includes('overture-01')) d.ownedSongs.push('overture-01');
     handles.forEach((h) => { const m = old && old.members && old.members[h] || {};
       d.members[h] = { ...m, lv: Math.floor(bounded(m.lv || 1, 1, BALANCE.maxLevel)), exp: bounded(m.exp, 0, Number.MAX_SAFE_INTEGER), plays: Math.floor(bounded(m.plays, 0, Number.MAX_SAFE_INTEGER)) }; });
+    const w = old && old.version === BALANCE.version ? old : {};
+    d.skills = Array.isArray(w.skills) ? [...new Set(w.skills.filter(id => BALANCE.wave1.cabinet.skills.some(s => s.id === id)))] : [];
+    d.bonds = {};
+    if (w.bonds && typeof w.bonds === 'object') for (const [key, value] of Object.entries(w.bonds)) {
+      const pair = key.split(':'); if (pair.length === 2 && pair[0] !== pair[1] && pair.every(h => handles.includes(h))) d.bonds[bondKey(...pair)] = Math.floor(bounded(value, 0, (BALANCE.wave1.bond.maxLevel - 1) * BALANCE.wave1.bond.perLevel));
+    }
+    const daily = w.daily;
+    d.daily = daily && /^\d{4}-\d{2}-\d{2}$/.test(daily.date) ? { ...newDaily(daily.date), clear:Math.floor(bounded(daily.clear,0,9999)), mini:Math.floor(bounded(daily.mini,0,9999)), centers:Array.isArray(daily.centers) ? daily.centers.filter(h => handles.includes(h)) : [], boostUsed:daily.boostUsed === true, celebrated:daily.celebrated === true, miniRewarded:Math.floor(bounded(daily.miniRewarded,0,9999)) } : newDaily(localDay());
     return d;
   }
   // BALANCE PURE END
@@ -721,6 +786,83 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   const bestKey = (slug, k, mode) => ['v2', slug, k, mode.lanes, mode.length].join(':');
   const bestOf = (slug, k, mode) => { const v = +BEST[bestKey(slug, k, mode)]; return v > 0 ? v : 0; };
   const saveBest = () => { try { localStorage.setItem(BKEY, JSON.stringify(BEST)); } catch (e) {} };
+
+  // ---- 第1弾。入口は配列で追加でき、ミニゲームの画面とタイマーは本体から分離する。
+  let supportH = null, miniCleanup = null, miniSequence = 0, wordsPromise = null;
+  const PLAY_ENTRIES = [
+    { id:'shiritori', title:'限界しりとりパズル', text:'60秒・2文字から8文字へ' },
+    { id:'abekobe', title:'あべこべ早打ち', text:'45秒・10秒ごとに指示が反転' },
+    { id:'missions', title:'ほめてぃぶ ミッション', text:'毎日3つのスタンプ' },
+    { id:'bonds', title:'2人の絆', text:'センターとサポートの記録' },
+    { id:'cabinet', title:'ピースフル内閣', text:'7人の成長で公約を解放' },
+    { id:'collection', title:'図鑑', text:'準備中・第2弾', pending:true },
+    { id:'story', title:'物語の追加', text:'準備中・第2〜3弾', pending:true },
+  ];
+  function showNotice(message) { $('noticetext').textContent = message; $('notice').hidden = false; }
+  $('noticeclose').addEventListener('click', () => { $('notice').hidden = true; });
+  function ensureDaily() { const date = localDay(); if (S.daily.date !== date) S.daily = newDaily(date); return S.daily; }
+  function missionItems() {
+    const d = ensureDaily(), plan = dailyPlan(d.date, MEMBERS.map(m => m.h));
+    return [ { text:`曲を${plan.clear}曲クリア`, done:d.clear >= plan.clear }, { text:`ミニゲームを${plan.mini}回最後まで遊ぶ`, done:d.mini >= plan.mini }, { text:`${byH(plan.center).name}をセンターにして曲を完走`, done:d.centers.includes(plan.center) } ];
+  }
+  function celebrateMissions(h) {
+    if (DEV || ensureDaily().celebrated || !missionItems().every(m => m.done)) return;
+    S.daily.celebrated = true;
+    showNotice(`${byH(h).name}と今日の目標を達成！\n「よくできました！ 今日もおつかれさま！」\n🌸 🌸 🌸`);
+  }
+  function queueVenues(before) { for (let k = before + 1; k <= venueIdx(); k++) pendingStory.push(k + 1); }
+  function stopMini() { miniSequence++; if (miniCleanup) miniCleanup(); miniCleanup = null; }
+  function waveButton(text, action, parent, disabled = false) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sec'; b.textContent = text; b.disabled = disabled; b.addEventListener('click', action); parent.appendChild(b); return b; }
+  function wavePanel(title) { const box = document.createElement('section'); box.className = 'wavepanel'; const h = document.createElement('h2'); h.textContent = title; box.appendChild(h); $('playcontent').appendChild(box); return box; }
+  function openPlay() { stopMini(); $('home').hidden = true; $('playboard').hidden = false; renderPlayMenu(); }
+  function renderPlayMenu() {
+    stopMini(); $('playtitle').textContent = 'あそぶ'; $('playcontent').textContent = ''; $('wavefeedback').textContent = DEV ? '開発URLでは追加報酬・ミッション・絆は記録されません。' : `今日の最初の1曲: ${ensureDaily().boostUsed ? '受取済み' : 'EXP・景気 ×1.5'}`;
+    const entries = document.createElement('div'); entries.className = 'playentries'; $('playcontent').appendChild(entries);
+    PLAY_ENTRIES.forEach(entry => { const b = waveButton(`${entry.title}\n${entry.text}`, () => { if (['shiritori','abekobe'].includes(entry.id)) launchMini(entry.id); else renderPlayDetail(entry.id); }, entries, !!entry.pending); b.className = 'playcard'; });
+  }
+  function renderPlayDetail(kind) {
+    stopMini(); $('playcontent').textContent = ''; waveButton('あそぶ一覧へ', renderPlayMenu, $('playcontent'));
+    if (kind === 'missions') {
+      const panel = wavePanel(`今日のミッション · ${ensureDaily().date}`);
+      missionItems().forEach(m => { const row = document.createElement('div'); row.className = 'stamp' + (m.done ? ' done' : ''); row.textContent = `${m.done ? '🌸 達成' : '○ あと少し'} · ${m.text}`; panel.appendChild(row); });
+      const p = document.createElement('p'); p.textContent = '3つ達成でほめる演出。最初の1曲×1.5はミッションの達成前から受け取れます。'; panel.appendChild(p);
+    } else if (kind === 'bonds') {
+      const panel = wavePanel('2人の絆');
+      MEMBERS.forEach((a,i) => MEMBERS.slice(i+1).forEach(b => { const points = S.bonds[bondKey(a.h,b.h)] || 0, p = document.createElement('p'); p.textContent = `${a.name}と${b.name} · 絆Lv${bondLevel(points)} · ${points} / ${(BALANCE.wave1.bond.maxLevel-1)*BALANCE.wave1.bond.perLevel}`; panel.appendChild(p); const meter = document.createElement('progress'); meter.max = (BALANCE.wave1.bond.maxLevel-1)*BALANCE.wave1.bond.perLevel; meter.value = points; meter.setAttribute('aria-label', `${a.name}と${b.name}の絆`); panel.appendChild(meter); }));
+    } else if (kind === 'cabinet') {
+      const points = cabinetPoints(MEMBERS.map(m => S.members[m.h].lv), S.skills), panel = wavePanel(`ピースフル内閣 · 残り${points}ポイント`);
+      BALANCE.wave1.cabinet.skills.forEach(skill => { const owned = S.skills.includes(skill.id), prereq = skill.requires.every(id => S.skills.includes(id)); const p = document.createElement('p'); p.textContent = `${skill.label}: ${skill.detail}（${skill.cost}pt）` + (skill.requires.length ? ` / 前提: ${skill.requires.map(id => BALANCE.wave1.cabinet.skills.find(s => s.id === id).label).join('・')}` : ''); panel.appendChild(p); waveButton(owned ? '解放済み' : '解放する', () => { if (DEV) return; const now = cabinetPoints(MEMBERS.map(m => S.members[m.h].lv),S.skills); if (S.skills.includes(skill.id) || now < skill.cost || !skill.requires.every(id => S.skills.includes(id))) return; S.skills.push(skill.id); save(); renderPlayDetail('cabinet'); },panel, DEV || owned || !prereq || points < skill.cost); });
+    }
+  }
+  async function launchMini(kind) {
+    stopMini(); const token = miniSequence, h = $('minicenter').value;
+    $('playcontent').textContent = ''; $('wavefeedback').textContent = '読み込み中…';
+    try {
+      let words;
+      if (kind === 'shiritori') { wordsPromise ||= fetch('minigames/words_ja.json').then(r => { if (!r.ok) throw new Error('単語リストを読み込めません。'); return r.json(); }).catch(e => { wordsPromise = null; throw e; }); words = await wordsPromise; }
+      if (token !== miniSequence || $('playboard').hidden) return;
+      $('wavefeedback').textContent = `${byH(h).name}がセンター。途中で戻ると報酬はありません。`;
+      let awarded = false;
+      miniCleanup = ReidolGames[kind].mount($('playcontent'), { seconds:BALANCE.wave1.mini[kind].seconds, words, onCancel:renderPlayMenu, onFinish:result => {
+        if (awarded || token !== miniSequence) return; awarded = true;
+        const reward = calcMiniReward(kind,result.correct,result.attempts,S.skills), before = venueIdx();
+        if (!DEV) { S.members[h] = growMember(S.members[h],reward.exp); S.wallet += reward.currency; S.keiki += reward.currency; ensureDaily().mini++; S.daily.miniRewarded++; celebrateMissions(h); save(); queueVenues(before); }
+        $('playcontent').textContent = ''; const panel = wavePanel('ミニゲーム結果'); const p = document.createElement('p'); p.textContent = `正解 ${result.correct} / ${result.attempts} · ${DEV ? '記録なし' : `景気 +${reward.currency} ／ ${byH(h).name} EXP +${reward.exp}`}`; panel.appendChild(p); waveButton('あそぶ一覧へ',renderPlayMenu,panel);
+        $('wavefeedback').textContent = DEV ? '開発URLのため報酬なし。' : '報酬とミッションを保存しました。';
+      } });
+    } catch (e) { if (token === miniSequence) { $('wavefeedback').textContent = e.message; waveButton('あそぶ一覧へ',renderPlayMenu,$('playcontent')); } }
+  }
+  MEMBERS.forEach(m => { const o = document.createElement('option'); o.value=m.h; o.textContent=m.name; $('minicenter').appendChild(o); });
+  $('playbtn').addEventListener('click',openPlay);
+  $('playback').addEventListener('click',() => { stopMini(); $('playboard').hidden=true; goHome(); });
+  function renderSupport() {
+    if (supportH === pickH) supportH = null;
+    $('supportpick').textContent = ''; const none = document.createElement('option'); none.value=''; none.textContent='なし（センターに全EXP）'; $('supportpick').appendChild(none);
+    MEMBERS.filter(m => m.h !== pickH).forEach(m => { const o = document.createElement('option'); o.value=m.h; o.textContent=m.name; $('supportpick').appendChild(o); }); $('supportpick').value=supportH || '';
+    const points = supportH ? S.bonds[bondKey(pickH,supportH)] || 0 : 0;
+    $('supportinfo').textContent = supportH ? `${byH(pickH).name}と${byH(supportH).name} · 絆Lv${bondLevel(points)} · EXPの${(S.skills.includes('support') ? BALANCE.wave1.support.improvedShare : BALANCE.wave1.support.share)*100}%をサポートへ分配` : '完走すると選んだ2人の絆が育ちます。';
+  }
+  $('supportpick').addEventListener('change',() => { supportH=$('supportpick').value || null; renderSupport(); });
 
   // ---- アバター（顔画像 → 失敗時SVG → 色丸＋1文字）
   function avatar(h, px) {
@@ -1034,6 +1176,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       h, m, notes, step: 0, score: 0, combo: 0, maxCombo: 0, perfect: 0, good: 0, miss: 0,
       flash: Array(mode.lanes).fill(0), parts: [], done: false, dest: null, src: null, lastCall: -9,
       mode, dev: !!(so && so.dev), life: BALANCE.life.max, failed: false, paused: false, buf: so ? so.buf : null,
+      support: so && !so.dev && supportH && supportH !== h ? supportH : null, skills:so && !so.dev ? [...S.skills] : [],
+      draft: so && so.dev ? so.draft : null,
       song: so ? { s: so.s, df: so.df, title: so.chart.title || so.s.title } : null,
       dur, end: so ? dur : SONG_END,
       p0: performance.now() + lead * 1000, t0: ac ? ac.currentTime + lead : 0,
@@ -1047,6 +1191,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     }
     $('home').hidden = true; $('result').hidden = true; $('songs').hidden = true; $('live').hidden = false;
     $('live').style.setProperty('--mc', m.color);
+    $('live').setAttribute('data-special', String(!!so && birthdayWindow(PROFILES[h].bd)));
     $('lprog').style.background = m.color;
     const who = $('lwho'); who.textContent = ''; who.appendChild(avatar(h, 40));
     const nm = document.createElement('span'); nm.textContent = m.name; who.appendChild(nm);
@@ -1082,7 +1227,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     live.combo++; live.maxCombo = Math.max(live.maxCombo, live.combo);
     live[grade]++;
     live.score = calcScore({ ...live, total: live.notes.length });
-    live.life = lifeAfter(live.life, grade, live.mode.diff); renderLife();
+    live.life = lifeAfter(live.life, grade, live.mode.diff, live.skills); renderLife();
     hitSE(grade, live.combo); buzz(grade === 'perfect' ? 12 : 6);
     burst(n.lane, grade === 'perfect' ? 14 : 6);
     pop(grade === 'perfect' ? 'ぴったり！' : 'いいね', grade === 'perfect' ? '#ffcf4a' : '#3fe0b0');
@@ -1090,7 +1235,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
   function missNote(n) {
     n.st = 3; live.miss++; live.combo = 0;
-    live.life = lifeAfter(live.life, 'miss', live.mode.diff); renderLife();
+    live.life = lifeAfter(live.life, 'miss', live.mode.diff, live.skills); renderLife();
     if (live.life <= 0) live.failed = true;
     sfx('miss'); pop('ミス', '#c9a8ad');
   }
@@ -1224,7 +1369,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const vBefore = venueIdx();
     const bday = isBirthday(L.h);
     L.score = calcScore({ ...L, total: L.notes.length });
-    const reward = calcRewards(L.score, L.mode, bday);
+    const first = !!L.song && !L.dev && !ensureDaily().boostUsed;
+    const reward = calcWaveRewards(L.score, L.mode, { birthday:bday, first, skills:L.skills || [], support:!!L.support });
     const clear = isClear(L.score, L.life, !L.failed);
     const gain = L.song && !L.dev ? reward.exp : 0, currency = L.song && !L.dev ? reward.currency : 0, mult = reward.mult;
     let best = null;
@@ -1242,6 +1388,16 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if (!L.dev) S.members[L.h] = grown;
     const { lv, exp } = grown;
     if (!L.dev) {
+      if (L.song) {
+        const daily = ensureDaily(); daily.boostUsed = true;
+        if (clear) daily.clear++;
+        if (!L.failed && !daily.centers.includes(L.h)) daily.centers.push(L.h);
+        if (L.support) {
+          S.members[L.support] = growMember(S.members[L.support],reward.supportExp);
+          if (!L.failed) { const key = bondKey(L.h,L.support), w = BALANCE.wave1.bond; S.bonds[key] = Math.min((w.maxLevel-1)*w.perLevel,(S.bonds[key] || 0) + (S.skills.includes('bond') ? w.improved : w.perLive)); }
+        }
+        celebrateMissions(L.h);
+      }
       S.keiki += currency; S.wallet += currency; S.plays++;
       save();
     }
@@ -1249,6 +1405,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if (CFG.call && !L.failed && L.miss === 0 && L.perfect + L.good === L.notes.length) playSE('clap');
     const r = { bday, clear, rank: reward.rank, currency, mode: L.mode, failed: L.failed, h: L.h, m: L.m, score: L.score, perfect: L.perfect, good: L.good, miss: L.miss, maxCombo: L.maxCombo, gain, mult, song: L.song, best, before, after: { lv, exp }, vBefore, vAfter: venueIdx() };
     showResult(r);
+    if (L.song && !L.dev) $('rgain').textContent += `${first ? ' ／ 今日の最初 ×1.5' : ''}${L.support ? ` ／ ${byH(L.support).name} +${reward.supportExp} EXP` : ''}`;
     if (L.dev) $('rsong').textContent = `${L.song.title} ［開発中の譜面・記録なし］`;
   }
   let resultId = 0;
@@ -1349,6 +1506,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
 
   function goHome() {
+    stopMini(); $('playboard').hidden = true;
     resultId++;
     pendingLive = null; $('rotate').hidden = true; releaseLandscape();
     $('live').hidden = true; $('result').hidden = true; $('lvup').hidden = true; $('songs').hidden = true; $('loading').hidden = true; $('home').hidden = false;
@@ -1358,7 +1516,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('tohome').addEventListener('click', goHome);
   $('again').addEventListener('click', () => {
     resultId++; $('lvup').hidden = true; audio();
-    if (live.song) beginSong(live.h, live.song.s, live.song.df, live.mode); else { tryLandscape(); requestLive(live.h); }
+    if (live.song) beginSong(live.h, live.song.s, live.song.df, live.mode, live.draft); else { tryLandscape(); requestLive(live.h); }
   });
   $('tosongs').addEventListener('click', () => { resultId++; $('lvup').hidden = true; openSongs(live.h); });
 
@@ -1389,18 +1547,21 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
           audio();
           beginSong(pickH, s, DIFFS.find(d => d.k === draft.diff), { lanes:draft.lanes, length:'full' }, draft);
           devButton.title = `難易度レベル ${measured.level}`;
-        } catch (e) { alert(e.message); }
+        } catch (e) { showNotice(e.message); }
       });
       box.appendChild(devButton);
     }
   }
   function openSongs(h) {
+    if (pickH !== h) supportH = null;
     pickH = h;
     const m = byH(h);
     $('home').hidden = true; $('result').hidden = true; $('live').hidden = true; $('songs').hidden = false;
     $('songs').style.setProperty('--mc', m.color); $('songs').scrollTop = 0;
     const who = $('swho'); who.textContent = ''; who.appendChild(avatar(h, 40));
     const nm = document.createElement('span'); nm.textContent = `センター　${m.name}`; who.appendChild(nm);
+    $('songs').setAttribute('data-special', String(birthdayWindow(PROFILES[h].bd)));
+    renderSupport();
     renderSongs();
   }
   async function renderSongs() {
@@ -1417,6 +1578,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     }
     const box = $('songlist'); box.textContent = '';
     renderDevButton(box);
+    MEMBERS.filter(m => birthdayWindow(PROFILES[m.h].bd)).forEach(m => {
+      const special = document.createElement('div'); special.className = 'wavepanel'; special.style.setProperty('--mc',m.color); special.style.borderColor=m.color;
+      const text = document.createElement('p'); text.textContent = `🎂 ${m.name} 誕生日スペシャルライブ · ${PROFILES[m.h].bd.replace('-','/')} 前後1週間` + (isBirthday(m.h) ? ' · 当日はEXP×2！' : ''); special.appendChild(text);
+      if (pickH !== m.h) waveButton('この子をセンターにする',() => openSongs(m.h),special);
+      else { const s = SONGS.find(s => S.ownedSongs.includes(s.slug)); if (s) waveButton('特別ライブを始める（かんたん・ショート）',() => { audio(); beginSong(m.h,s,DIFFS[0],{lanes:3,length:'short'}); },special); }
+      box.appendChild(special);
+    });
     $('wallet').textContent = `景気残高 ${fmt(S.wallet)} ／ 累計 ${fmt(S.keiki)}`;
     [...SONGS].sort((a, b) => BALANCE.prices[a.slug] - BALANCE.prices[b.slug]).forEach((s) => {
       const card = document.createElement('div'); card.className = 'song';
@@ -1515,7 +1683,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if (loadCtl) { try { loadCtl.abort(); } catch (e) {} }
     const ctl = loadCtl = new AbortController();
     if (!audio()) {
-      if (dev) { releaseLandscape(); alert('音声を再生できません。開発用プレイは開始していません。'); }
+      if (dev) { releaseLandscape(); showNotice('音声を再生できません。開発用プレイは開始していません。'); }
       else fallbackPractice(h, id);
       return;
     }
@@ -1548,11 +1716,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       loadCtl = null; hideLoading();
       if (ac.state === 'suspended') { try { await ac.resume(); } catch (e) {} }
       if (id !== loadSeq) return;
-      requestLive(h, { s, df, chart, buf, mode, dev });
+      requestLive(h, { s, df, chart, buf, mode, dev, draft:dev ? draft : null });
     } catch (e) {
       if (id !== loadSeq) return; // やめる で中断された
       if (e && (e.status === 403 || e.status === 401)) { hideLoading(); releaseLandscape(); askPass(() => beginSong(h, s, df, mode, draft)); return; }
-      if (dev) { hideLoading(); releaseLandscape(); alert('開発用の曲を読み込めませんでした。音声の配置と合言葉を確認してください。'); return; }
+      if (dev) { hideLoading(); releaseLandscape(); showNotice('開発用の曲を読み込めませんでした。音声の配置と合言葉を確認してください。'); return; }
       fallbackPractice(h, id);
     }
   }
