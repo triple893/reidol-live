@@ -449,7 +449,23 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 <div id="notice" class="ovl" hidden><div class="sheet" role="dialog" aria-modal="true" aria-label="お知らせ"><p id="noticetext" role="status"></p><button class="btn sec" id="noticeclose" type="button">閉じる</button></div></div>
 
 <!-- ライブ -->
+<style>
+#llife { color:var(--coral); font-size:24px; letter-spacing:4px; white-space:nowrap; }
+#lstage { margin-left:auto; color:var(--gold); }
+#live.danger::after { content:''; position:fixed; inset:0; pointer-events:none; box-shadow:inset 0 0 60px 12px #ff234588; z-index:5; }
+#live.heart-break { animation:heart-break .28s ease-out; }
+#live.heart-break::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:6; animation:heart-flash .28s ease-out; }
+@keyframes heart-flash { from { background:#ff234577; } to { background:transparent; } }
+@keyframes heart-break { 0% { box-shadow:inset 0 0 100px 60px #ff2345bb; transform:translateX(-7px); } 35% { transform:translateX(7px); } 70% { transform:translateX(-4px); } 100% { transform:none; box-shadow:inset 0 0 0 transparent; } }
+#encore { position:absolute; z-index:8; left:50%; top:30%; transform:translateX(-50%); text-align:center; pointer-events:none; width:min(90%,560px); }
+#encoretext { font-family:var(--display); font-size:clamp(26px,6vw,54px); color:var(--gold); text-shadow:0 3px 20px #000; }
+#encorestop { pointer-events:auto; margin-top:12px; background:var(--gold); color:#1a0f13; }
+#rstage { margin:14px auto; max-width:640px; text-align:left; }
+#rstage p { padding:10px; background:var(--card); border-radius:10px; }
+@media (prefers-reduced-motion:reduce) { #live.heart-break { animation:none; } #live.heart-break::before { animation:none; background:#ff234533; } }
+</style>
 <section id="live" hidden>
+  <div id="encore" hidden role="status"><div id="encoretext"></div><button id="encorestop" class="btn" type="button">ここで終わる</button></div>
   <canvas id="stage" aria-label="リズムゲームの画面"></canvas>
   <div class="lhud">
     <div class="lrow">
@@ -460,7 +476,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <div class="bar"><i id="lprog"></i></div>
       <button class="quit" id="quit" type="button">やめる</button>
     </div>
-    <div class="life-row"><span id="llifelabel">ライフ 100</span><div class="bar"><i id="llife"></i></div></div>
+    <div class="life-row"><span id="llifelabel">ハート</span><span id="llife" aria-live="polite"></span><span id="lstage"></span></div>
   </div>
   <div class="judge" id="judge"></div>
   <div class="lcombo" id="lcombo"></div>
@@ -542,6 +558,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     <div class="rscorelab" id="rrank">スコア</div>
     <div class="rscore"><span id="rscore">0</span><small>pt</small></div>
     <div class="rbest" id="rbest"></div>
+    <div id="rstage"></div>
     <div class="stats">
       <div class="stat"><b id="sPerfect">0</b><span>ぴったり</span></div>
       <div class="stat"><b id="sGood">0</b><span>いいね</span></div>
@@ -613,11 +630,12 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   const DEV = new URLSearchParams(location.search).get('dev') === '1';
   // BALANCE PURE BEGIN — 数値の変更先と、DOMに依存しない計算。
   const BALANCE = {
-    version: 3, maxLevel: 10, migrationBonus: 300,
+    version: 4, maxLevel: 10, migrationBonus: 300,
     score: { max: 1000000, judge: 900000, combo: 100000, good: .6 },
     ranks: [{ k: 'SS', at: 950000, exp: 50 }, { k: 'S', at: 850000, exp: 40 }, { k: 'A', at: 700000, exp: 30 }, { k: 'B', at: 500000, exp: 20 }, { k: 'C', at: 0, exp: 5 }],
     difficulty: { easy: 1, normal: 1.5, hard: 2 }, lanes: { 3: 1, 5: 1.3 }, length: { short: 1, full: 1.8 }, birthday: 2,
-    life: { max: 100, miss: 10, easyMiss: .5, perfect: 1.5 },
+    life: { hearts: { easy: 5, normal: 4, hard: 3 }, combo: 20, recovery: 1, shields: 1 },
+    encore: { bonus: [1, 1.1, 1.2, 1.3], stopSeconds: 2, stage3Target: 1 },
     exp: { base: 50, step: 25 }, currencyDivisor: 10000,
     unlock: { hard: 700000, lanes5: 700000, full: 850000 },
     prices: { 'overture-01': 0, 'miracle-express': 150, 'chokkan-aisho-chekira': 250, hometive: 350, 'super-energy': 450, 'peaceful-cabinet': 600, 'saikyo-louder': 800, 're-start': 1000 },
@@ -630,7 +648,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       cabinet: { startSum: 7, pointsPerLevel: 1, easyExp: .2, normalExp: .05, missFactor: .9, currencyFactor: 1.1,
         skills: [
           { id:'easy', label:'練習を応援', detail:'かんたんのEXP倍率 +0.2', cost:6, requires:[] },
-          { id:'life', label:'安心のステージ', detail:'ミスのライフ減少 −10%', cost:8, requires:[] },
+          { id:'life', label:'安心のステージ', detail:'各ステージの最初のミス1回はハートを守る', cost:8, requires:[] },
           { id:'currency', label:'景気をあと押し', detail:'獲得景気 +10%', cost:9, requires:['easy'] },
           { id:'support', label:'相棒を応援', detail:'サポートへの分配 20%→25%（総EXPは同じ）', cost:10, requires:['life'] },
           { id:'normal', label:'みんなで成長', detail:'ふつうのEXP +5%', cost:11, requires:['currency'] },
@@ -651,7 +669,31 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const rank = rankOf(score), mult = modeMult(mode);
     return { rank: rank.k, exp: Math.floor(rank.exp * mult * (birthday ? BALANCE.birthday : 1) + 1e-9), currency: Math.floor(score / BALANCE.currencyDivisor * mult + 1e-9), mult };
   }
-  const lifeAfter = (life, grade, diff, skills = []) => bounded(life + (grade === 'perfect' ? BALANCE.life.perfect : grade === 'miss' ? -BALANCE.life.miss * (diff === 'easy' ? BALANCE.life.easyMiss : 1) * (skills.includes('life') ? BALANCE.wave1.cabinet.missFactor : 1) : 0), 0, BALANCE.life.max);
+  function heartAfter(life, event, diff, { combo = 0, shield = false } = {}) {
+    const protectedMiss = event === 'miss' && shield;
+    const delta = event === 'miss' ? protectedMiss ? 0 : -1 : event === 'boundary' || event === 'hit' && combo > 0 && combo % BALANCE.life.combo === 0 ? BALANCE.life.recovery : 0;
+    return { life: bounded(life + delta, 0, BALANCE.life.hearts[diff]), shield: event === 'miss' ? false : shield, protectedMiss };
+  }
+  function stageFactors(stages) {
+    const spans = stages.map((end, i) => end - (stages[i-1] || 0));
+    const denominator = spans.slice(0, 3).reduce((sum, span, i) => sum + span * BALANCE.encore.bonus[i], 0);
+    return spans.map((span, i) => span * BALANCE.encore.bonus[i] / denominator * BALANCE.encore.stage3Target);
+  }
+  function stageRewardRaw(score, mode, factor, { first = false, birthday = false, skills = [] } = {}) {
+    const w = BALANCE.wave1, mult = BALANCE.difficulty[mode.diff] * BALANCE.lanes[mode.lanes] * factor;
+    const daily = first ? w.daily.firstSong : 1;
+    const expFactor = mode.diff === 'easy' && skills.includes('easy') ? (BALANCE.difficulty.easy + w.cabinet.easyExp) / BALANCE.difficulty.easy : mode.diff === 'normal' && skills.includes('normal') ? 1 + w.cabinet.normalExp : 1;
+    return { exp:rankOf(score).exp * mult * (birthday ? BALANCE.birthday : 1) * daily * expFactor,
+      currency:score / BALANCE.currencyDivisor * mult * daily * (skills.includes('currency') ? w.cabinet.currencyFactor : 1) };
+  }
+  // 累積の端数を次区間へ繰り越す。ランクが変わった区間も、それまでの確定額を取り消さない。
+  function stageRewardDelta(previous, raw, support = false, skills = []) {
+    const total = { exp:previous.exp + raw.exp, currency:previous.currency + raw.currency };
+    const share = support ? (skills.includes('support') ? BALANCE.wave1.support.improvedShare : BALANCE.wave1.support.share) : 0;
+    const supportExp = Math.floor((Math.floor(total.exp + 1e-9)) * share) - Math.floor(Math.floor(previous.exp + 1e-9) * share);
+    return { total, exp:Math.floor(total.exp + 1e-9) - Math.floor(previous.exp + 1e-9) - supportExp, supportExp,
+      currency:Math.floor(total.currency + 1e-9) - Math.floor(previous.currency + 1e-9) };
+  }
   const localDay = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   function dailyPlan(date, handles) {
     let hash = 0; for (const c of date) hash = (hash * 31 + c.charCodeAt(0)) >>> 0;
@@ -701,7 +743,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
   function migrateSave(raw, handles) {
     const old = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : null;
-    const current = old && [2, BALANCE.version].includes(old.version);
+    const current = old && [2, 3, BALANCE.version].includes(old.version);
     const d = { ...(old || {}), version: BALANCE.version,
       keiki: bounded(old && old.keiki, 0, Number.MAX_SAFE_INTEGER), plays: Math.floor(bounded(old && old.plays, 0, Number.MAX_SAFE_INTEGER)),
       wallet: current ? Math.floor(bounded(old.wallet, 0, Number.MAX_SAFE_INTEGER)) : old ? BALANCE.migrationBonus : 0,
@@ -710,7 +752,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if (!d.ownedSongs.includes('overture-01')) d.ownedSongs.push('overture-01');
     handles.forEach((h) => { const m = old && old.members && old.members[h] || {};
       d.members[h] = { ...m, lv: Math.floor(bounded(m.lv || 1, 1, BALANCE.maxLevel)), exp: bounded(m.exp, 0, Number.MAX_SAFE_INTEGER), plays: Math.floor(bounded(m.plays, 0, Number.MAX_SAFE_INTEGER)) }; });
-    const w = old && old.version === BALANCE.version ? old : {};
+    d.stageRecords = {};
+    if (old && old.version === BALANCE.version && old.stageRecords && typeof old.stageRecords === 'object') {
+      for (const slug of Object.keys(BALANCE.prices)) d.stageRecords[slug] = Math.floor(bounded(old.stageRecords[slug], 0, slug === 'overture-01' ? 3 : 4));
+    }
+    const w = old && [3, BALANCE.version].includes(old.version) ? old : {};
     d.skills = Array.isArray(w.skills) ? [...new Set(w.skills.filter(id => BALANCE.wave1.cabinet.skills.some(s => s.id === id)))] : [];
     d.bonds = {};
     if (w.bonds && typeof w.bonds === 'object') for (const [key, value] of Object.entries(w.bonds)) {
@@ -803,7 +849,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   function ensureDaily() { const date = localDay(); if (S.daily.date !== date) S.daily = newDaily(date); return S.daily; }
   function missionItems() {
     const d = ensureDaily(), plan = dailyPlan(d.date, MEMBERS.map(m => m.h));
-    return [ { text:`曲を${plan.clear}曲クリア`, done:d.clear >= plan.clear }, { text:`ミニゲームを${plan.mini}回最後まで遊ぶ`, done:d.mini >= plan.mini }, { text:`${byH(plan.center).name}をセンターにして曲を完走`, done:d.centers.includes(plan.center) } ];
+    return [ { text:`ステージ1を${plan.clear}回クリア`, done:d.clear >= plan.clear }, { text:`ミニゲームを${plan.mini}回最後まで遊ぶ`, done:d.mini >= plan.mini }, { text:`${byH(plan.center).name}をセンターにして曲を完走`, done:d.centers.includes(plan.center) } ];
   }
   function celebrateMissions(h) {
     if (DEV || ensureDaily().celebrated || !missionItems().every(m => m.done)) return;
@@ -1153,7 +1199,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     live.paused = false;
     if (live.buf && ac) {
       const src = ac.createBufferSource(); src.buffer = live.buf; src.connect(live.dest);
-      src.start(ac.currentTime + .12, live.pausedRaw); src.stop(live.t0 + live.dur); live.src = src;
+      src.start(ac.currentTime + .12, live.pausedRaw); src.stop(live.t0 + live.audioDur); live.src = src;
     }
     if (live.dest) live.dest.gain.value = 1;
     lastFrame = performance.now(); raf = requestAnimationFrame(liveFrame);
@@ -1167,26 +1213,39 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     audio();
     const lead = so ? 1.2 : 0.15;
     const mode = so ? so.mode : { diff: 'easy', lanes: 3, length: 'short' };
-    const dur = so ? mode.length === 'full' ? Math.min(so.chart.duration, so.buf.duration) : Math.min(so.chart.short_end, so.buf.duration) : 40;
+    const allStages = so ? (so.chart.stages || [Math.min(so.dev ? so.chart.duration : so.chart.short_end, so.buf.duration)]) : [];
+    const fullUnlocked = !!so && (so.dev || (S.progress[so.s.slug]?.short5 || 0) >= BALANCE.unlock.full);
+    const stages = fullUnlocked ? allStages : allStages.slice(0, 3);
+    if (so && (!stages.length || allStages.some((end, i) => !Number.isFinite(end) || end <= (allStages[i-1] || 0) || end > so.buf.duration))) {
+      releaseLandscape(); openSongs(h); showNotice('曲の区切りを読み込めません。曲と譜面の長さを確認してください。'); return;
+    }
+    const dur = so ? stages[stages.length - 1] : 40;
+    const audioDur = so ? allStages[allStages.length - 1] : 40;
     const notes = so
       // type欠落はtap。hold/flickも今は開始時刻の単発tapとして描画・判定する。
-      ? (mode.lanes === 5 ? so.chart.charts5 : so.chart.charts)[so.df.k].filter((n) => n.t < dur - .3).map((n) => ({ time: +n.t, lane: clamp(n.l | 0, 0, mode.lanes - 1), st: 0 })).sort((a, b) => a.time - b.time)
+      ? (mode.lanes === 5 ? so.chart.charts5 : so.chart.charts)[so.df.k].filter((n) => n.t < audioDur - .3).map((n) => ({ time: +n.t, lane: clamp(n.l | 0, 0, mode.lanes - 1), st: 0 })).sort((a, b) => a.time - b.time)
       : makeChart();
     live = {
       h, m, notes, step: 0, score: 0, combo: 0, maxCombo: 0, perfect: 0, good: 0, miss: 0,
       flash: Array(mode.lanes).fill(0), parts: [], done: false, dest: null, src: null, lastCall: -9,
-      mode, dev: !!(so && so.dev), life: BALANCE.life.max, failed: false, paused: false, buf: so ? so.buf : null,
+      mode, dev: DEV || !!(so && so.dev), life: BALANCE.life.hearts[mode.diff], failed: false, paused: false, buf: so ? so.buf : null,
       support: so && !so.dev && supportH && supportH !== h ? supportH : null, skills:so && !so.dev ? [...S.skills] : [],
       draft: so && so.dev ? so.draft : null,
       song: so ? { s: so.s, df: so.df, title: so.chart.title || so.s.title } : null,
-      dur, end: so ? dur : SONG_END,
+      stages, allStages, factors:so ? stageFactors(allStages) : [], completed:[], stageIndex:0,
+      stats:allStages.map(() => ({ perfect:0, good:0, miss:0, combo:0, maxCombo:0 })),
+      shields:allStages.map(() => !!so && !so.dev && S.skills.includes('life')),
+      rewardRaw:{ exp:0, currency:0 }, earned:{ exp:0, supportExp:0, currency:0 },
+      first:!!so && !ensureDaily().boostUsed, birthday:isBirthday(h), before:{ lv:S.members[h].lv, exp:S.members[h].exp }, vBefore:venueIdx(),
+      stopUntil:0, nextHeartbeat:0, audioDur, mayUnlockFull:!fullUnlocked && mode.lanes === 5 && allStages.length === 4, dur, end: so ? dur : SONG_END,
       p0: performance.now() + lead * 1000, t0: ac ? ac.currentTime + lead : 0,
     };
+    notes.forEach(n => { n.stage = so ? allStages.findIndex(end => n.time < end) : -1; });
     live.img = new Image(); live.img.src = `assets/${h}_full.webp`;
     if (ac) {
       live.dest = ac.createGain(); live.dest.gain.value = so ? 1 : 0.85; live.dest.connect(comp);
       if (so) { // 曲はここで予約する。以降の時刻はすべて AudioContext の時計が基準
-        const src = ac.createBufferSource(); src.buffer = so.buf; src.connect(live.dest); src.start(live.t0); src.stop(live.t0 + dur); live.src = src;
+        const src = ac.createBufferSource(); src.buffer = so.buf; src.connect(live.dest); src.start(live.t0); src.stop(live.t0 + audioDur); live.src = src;
       }
     }
     $('home').hidden = true; $('result').hidden = true; $('songs').hidden = true; $('live').hidden = false;
@@ -1196,7 +1255,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const who = $('lwho'); who.textContent = ''; who.appendChild(avatar(h, 40));
     const nm = document.createElement('span'); nm.textContent = m.name; who.appendChild(nm);
     $('lscore').textContent = '0'; $('lcombo').textContent = ''; $('judge').classList.remove('show');
-    $('lanehint').textContent = `${mode.lanes}レーン・${mode.length === 'full' ? 'フル' : 'ショート'}　画面下を両手でタップ`;
+    $('lanehint').textContent = `${mode.lanes}レーン・${so ? '約30秒からアンコール' : '練習'}　画面下を両手でタップ`;
+    $('encore').hidden = true; $('encorestop').hidden = false;
+    $('live').classList.remove('heart-break', 'danger');
     renderLife(); resize();
     window.scrollTo(0, 0);
     lastFrame = performance.now();
@@ -1205,9 +1266,30 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   const songT = () => (ac && live.dest ? ac.currentTime - live.t0 : (performance.now() - live.p0) / 1000);
   const gameT = () => songT() + CFG.off / 1000; // 判定・表示に使う時刻（タイミング調整つき）
   function renderLife() {
-    $('llife').style.width = live.life / BALANCE.life.max * 100 + '%';
-    $('llife').style.background = live.life <= 25 ? '#ff5a6e' : '#3fe0b0';
-    $('llifelabel').textContent = 'ライフ ' + Math.ceil(live.life);
+    const max = BALANCE.life.hearts[live.mode.diff];
+    $('llife').textContent = '♥'.repeat(live.life) + '♡'.repeat(max - live.life);
+    $('llifelabel').textContent = `ハート ${live.life}/${max}`;
+    $('live').classList.toggle('danger', live.life === 1);
+    $('lstage').textContent = live.song ? `STAGE ${Math.min(live.stageIndex + 1, live.stages.length)}/${live.stages.length}` : '練習';
+  }
+
+  function updateHearts(event, n = null) {
+    const stage = n ? n.stage : live.stageIndex;
+    const before = live.life;
+    const changed = heartAfter(before, event, live.mode.diff, { combo:live.combo, shield:live.shields[stage] });
+    live.life = changed.life; live.shields[stage] = changed.shield;
+    if (live.life < before) {
+      $('live').classList.remove('heart-break'); void $('live').offsetWidth; $('live').classList.add('heart-break');
+      clearTimeout(live.breakTimer); live.breakTimer = setTimeout(() => $('live').classList.remove('heart-break'), 300);
+    } else if (changed.protectedMiss) pop('ハートを守った！', '#3fe0b0');
+    renderLife();
+    if (live.life === 0) live.failed = true;
+  }
+  function heartbeat(raw) {
+    if (live.life !== 1 || !ac || raw < 0 || raw < live.nextHeartbeat) return;
+    live.nextHeartbeat = raw + .8;
+    osc(synGain, 'sine', 75, ac.currentTime, .12, CFG.se * .25, 45);
+    osc(synGain, 'sine', 65, ac.currentTime + .18, .12, CFG.se * .18, 40);
   }
 
   function pop(text, color) {
@@ -1226,8 +1308,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     n.st = grade === 'perfect' ? 1 : 2;
     live.combo++; live.maxCombo = Math.max(live.maxCombo, live.combo);
     live[grade]++;
-    live.score = calcScore({ ...live, total: live.notes.length });
-    live.life = lifeAfter(live.life, grade, live.mode.diff, live.skills); renderLife();
+    if (live.song) { const st = live.stats[n.stage]; st[grade]++; st.combo++; st.maxCombo = Math.max(st.maxCombo, st.combo); }
+    live.score = live.song ? calcScore({ ...live.stats[n.stage], total:live.notes.filter(note => note.stage === n.stage).length }) : calcScore({ ...live, total: live.notes.length });
+    updateHearts('hit', n);
     hitSE(grade, live.combo); buzz(grade === 'perfect' ? 12 : 6);
     burst(n.lane, grade === 'perfect' ? 14 : 6);
     pop(grade === 'perfect' ? 'ぴったり！' : 'いいね', grade === 'perfect' ? '#ffcf4a' : '#3fe0b0');
@@ -1235,8 +1318,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
   function missNote(n) {
     n.st = 3; live.miss++; live.combo = 0;
-    live.life = lifeAfter(live.life, 'miss', live.mode.diff, live.skills); renderLife();
-    if (live.life <= 0) live.failed = true;
+    if (live.song) { live.stats[n.stage].miss++; live.stats[n.stage].combo = 0; }
+    updateHearts('miss', n);
     sfx('miss'); pop('ミス', '#c9a8ad');
   }
   function liveTap(e) {
@@ -1247,7 +1330,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const t = gameT();
     let best = null;
     for (const n of live.notes) {
-      if (n.st !== 0 || n.lane !== lane) continue;
+      if (n.st !== 0 || n.lane !== lane || live.song && n.stage >= live.stages.length && !live.mayUnlockFull) continue;
       const d = Math.abs(n.time - t);
       if (d <= GOOD && (!best || d < Math.abs(best.time - t))) best = n;
     }
@@ -1261,12 +1344,15 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if (lane === undefined || e.repeat) return;
     liveTap({ clientX: sx + laneW * (lane + 0.5), clientY: H * 0.8, preventDefault() {} });
   });
-  $('quit').addEventListener('click', () => { stopLive(); goHome(); });
+  $('quit').addEventListener('click', () => { if (live && live.song && live.completed.length) finishLive(); else { stopLive(); goHome(); } });
+  $('encorestop').addEventListener('pointerdown', e => e.stopPropagation());
+  $('encorestop').addEventListener('click', e => { e.stopPropagation(); if (live && !live.done && !live.paused && songT() < live.stopUntil) finishLive(); });
   function stopLive() {
     cancelAnimationFrame(raf);
     if (live && live.dest) { try { live.dest.gain.setTargetAtTime(0, ac.currentTime, 0.04); } catch (e) {} }
     if (live && live.src) { try { live.src.stop(ac.currentTime + 0.3); } catch (e) {} }
-    if (live) live.done = true;
+    if (live) { live.done = true; clearTimeout(live.breakTimer); }
+    $('encore').hidden = true; $('live').classList.remove('danger', 'heart-break');
   }
 
   function liveFrame(now) {
@@ -1279,18 +1365,78 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       }
     }
     for (const n of live.notes) {
+      // 境界より後のミスを先に処理して、直前のクリアを取り消さない。
+      if (live.song && n.stage > live.stageIndex) continue;
       if (n.st === 0 && t - n.time > GOOD) missNote(n);
       if (live.failed) { finishLive(); return; }
     }
-    if (live.dest && live.song && live.mode.length === 'short') live.dest.gain.value = clamp((live.dur - raw) / BALANCE.fade, 0, 1);
+    if (live.song && raw >= live.stages[live.stageIndex] && t >= live.stages[live.stageIndex] + GOOD) {
+      settleStage(raw);
+      if (live.done) return;
+    }
+    if (live.stopUntil && raw >= live.stopUntil) { $('encore').hidden = true; live.stopUntil = 0; }
+    heartbeat(raw);
+    if (live.dest && live.song && (!live.mayUnlockFull || live.stageIndex >= 3)) live.dest.gain.value = clamp((live.dur - raw) / BALANCE.fade, 0, 1);
     if (live.song ? raw < 0 : raw < 2) {
       const c = Math.ceil((2 - raw) / 0.5);
       $('lcombo').textContent = !live.song && raw > 0 ? `READY  ${c}` : 'READY';
     } else $('lcombo').innerHTML = live.combo >= 2 ? `${live.combo}<small>COMBO</small>` : '';
     $('lprog').style.width = Math.max(0, Math.min(100, (raw / live.dur) * 100)) + '%';
     drawLive(t, dt);
-    if (raw >= live.end) { finishLive(); return; }
+    if (!live.song && raw >= live.end) { finishLive(); return; }
     raf = requestAnimationFrame(liveFrame);
+  }
+
+  function settleStage(raw) {
+    const L = live, i = L.stageIndex;
+    if (L.completed[i] || L.life <= 0) return;
+    const total = L.notes.filter(n => n.stage === i).length;
+    const score = calcScore({ ...L.stats[i], total });
+    const reward = stageRewardDelta(L.rewardRaw, stageRewardRaw(score, L.mode, L.factors[i], { first:L.first, birthday:L.birthday, skills:L.skills }), !!L.support, L.skills);
+    L.rewardRaw = reward.total;
+    const recorded = !!L.song && !L.dev;
+    const row = { stage:i+1, score, rank:rankOf(score).k, exp:recorded ? reward.exp : 0, supportExp:recorded ? reward.supportExp : 0, currency:recorded ? reward.currency : 0 };
+    L.completed.push(row);
+    L.earned.exp += row.exp; L.earned.supportExp += row.supportExp; L.earned.currency += row.currency;
+    if (i === 2) {
+      const notes = L.notes.filter(n => n.stage <= 2), stats = { perfect:0, good:0, maxCombo:0, total:notes.length }; let combo = 0;
+      for (const n of notes) { if (n.st === 1 || n.st === 2) { stats[n.st === 1 ? 'perfect' : 'good']++; stats.maxCombo = Math.max(stats.maxCombo, ++combo); } else combo = 0; }
+      L.shortScore = calcScore(stats);
+      // 今回初めて条件を満たした時も、曲を止めずに第4区間へ進む。
+      if (L.mode.lanes === 5 && L.shortScore >= BALANCE.unlock.full && L.allStages.length === 4) {
+        L.stages = L.allStages; L.dur = L.audioDur; L.end = L.audioDur;
+      }
+    }
+    if (recorded) {
+      const before = S.members[L.h];
+      S.members[L.h] = { ...growMember(before, row.exp), plays:before.plays + (i === 0 ? 1 : 0) };
+      if (L.support) { const support = S.members[L.support]; S.members[L.support] = { ...growMember(support, row.supportExp), plays:support.plays + (i === 0 ? 1 : 0) }; }
+      S.wallet += row.currency; S.keiki += row.currency;
+      S.stageRecords[L.song.s.slug] = Math.max(S.stageRecords[L.song.s.slug] || 0, i+1);
+      const daily = ensureDaily();
+      if (i === 0) { S.plays++; daily.clear++; daily.boostUsed = true; }
+      // 旧ショート相当（第3区間）までの点数だけを旧解放条件に使う。
+      if (i === 2) {
+        const shortScore = L.shortScore, p = S.progress[L.song.s.slug] || (S.progress[L.song.s.slug] = {});
+        const gate = L.mode.lanes === 5 ? 'short5' : L.mode.diff === 'normal' ? 'normal3' : L.mode.diff === 'hard' ? 'hard3' : null;
+        if (gate) p[gate] = Math.max(p[gate] || 0, shortScore);
+        const key = bestKey(L.song.s.slug, L.song.df.k, { ...L.mode, length:'short' });
+        BEST[key] = Math.max(+BEST[key] || 0, shortScore); saveBest();
+      }
+      if (i === L.stages.length - 1) {
+        if (!daily.centers.includes(L.h)) daily.centers.push(L.h);
+        if (L.support) { const key = bondKey(L.h,L.support), w = BALANCE.wave1.bond; S.bonds[key] = Math.min((w.maxLevel-1)*w.perLevel, (S.bonds[key] || 0) + (L.skills.includes('bond') ? w.improved : w.perLive)); }
+      }
+      save();
+    }
+    updateHearts('boundary');
+    L.stageIndex++;
+    if (L.stageIndex >= L.stages.length) {
+      pop('完走！', '#ffcf4a'); finishLive(); return;
+    }
+    renderLife();
+    L.stopUntil = raw + BALANCE.encore.stopSeconds;
+    $('encoretext').textContent = 'アンコール！'; $('encore').hidden = false;
   }
 
   function drawLive(t, dt) {
@@ -1342,7 +1488,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     // ノーツ
     for (const n of live.notes) {
       const d = n.time - t;
-      if (n.st !== 0 || d > APPROACH || d < -0.25) continue;
+      if (n.st !== 0 || d > APPROACH || d < -0.25 || live.song && n.stage >= live.stages.length && !live.mayUnlockFull) continue;
       const y = hitY - (d / APPROACH) * (hitY - topY), cx = sx + laneW * (n.lane + 0.5), c = LANE_COLORS[n.lane];
       const rg = ctx.createRadialGradient(cx, y, r * 0.2, cx, y, r * 1.7);
       rg.addColorStop(0, rgba(c, 0.5)); rg.addColorStop(1, rgba(c, 0));
@@ -1365,48 +1511,31 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if (!live || live.done) return;
     stopLive();
     const L = live, st = S.members[L.h];
-    const before = { lv: st.lv, exp: st.exp };
-    const vBefore = venueIdx();
-    const bday = isBirthday(L.h);
-    L.score = calcScore({ ...L, total: L.notes.length });
-    const first = !!L.song && !L.dev && !ensureDaily().boostUsed;
-    const reward = calcWaveRewards(L.score, L.mode, { birthday:bday, first, skills:L.skills || [], support:!!L.support });
-    const clear = isClear(L.score, L.life, !L.failed);
-    const gain = L.song && !L.dev ? reward.exp : 0, currency = L.song && !L.dev ? reward.currency : 0, mult = reward.mult;
+    const before = L.before;
+    const vBefore = L.vBefore;
+    const bday = L.birthday;
+    L.score = L.song ? L.completed.length ? Math.round(L.completed.reduce((sum, row) => sum + row.score, 0) / L.completed.length) : calcScore({ ...L.stats[0], total:L.notes.filter(n => n.stage === 0).length }) : calcScore({ ...L, total: L.notes.length });
+    const clear = L.song ? L.completed.length > 0 : isClear(L.score, L.life, !L.failed);
+    const gain = L.earned.exp, currency = L.earned.currency, mult = 1;
     let best = null;
     if (L.song && !L.dev) {
-      const key = bestKey(L.song.s.slug, L.song.df.k, L.mode), prev = bestOf(L.song.s.slug, L.song.df.k, L.mode);
-      best = { prev, isNew: L.score > prev };
-      if (best.isNew) { BEST[key] = L.score; saveBest(); }
-      if (clear && L.mode.length === 'short') {
-        const p = S.progress[L.song.s.slug] || (S.progress[L.song.s.slug] = {});
-        const gate = L.mode.lanes === 5 ? 'short5' : L.mode.diff === 'normal' ? 'normal3' : L.mode.diff === 'hard' ? 'hard3' : null;
-        if (gate) p[gate] = Math.max(+p[gate] || 0, L.score);
+      if (L.completed.length) {
+        const key = bestKey(L.song.s.slug, L.song.df.k, { ...L.mode, length:`stage${L.completed.length}` });
+        const prev = +BEST[key] || 0;
+        const scored = L.completed.reduce((sum,r) => sum+r.score,0) / L.completed.length;
+        best = { prev, isNew:scored > prev };
+        if (best.isNew) { BEST[key] = scored; saveBest(); }
       }
     }
-    const grown = L.song && !L.dev ? growMember(st, gain) : st;
-    if (!L.dev) S.members[L.h] = grown;
+    const grown = st;
     const { lv, exp } = grown;
-    if (!L.dev) {
-      if (L.song) {
-        const daily = ensureDaily(); daily.boostUsed = true;
-        if (clear) daily.clear++;
-        if (!L.failed && !daily.centers.includes(L.h)) daily.centers.push(L.h);
-        if (L.support) {
-          S.members[L.support] = growMember(S.members[L.support],reward.supportExp);
-          if (!L.failed) { const key = bondKey(L.h,L.support), w = BALANCE.wave1.bond; S.bonds[key] = Math.min((w.maxLevel-1)*w.perLevel,(S.bonds[key] || 0) + (S.skills.includes('bond') ? w.improved : w.perLive)); }
-        }
-        celebrateMissions(L.h);
-      }
-      S.keiki += currency; S.wallet += currency; S.plays++;
-      save();
-    }
+    if (L.song && !L.dev) { celebrateMissions(L.h); save(); }
     for (let k = vBefore + 1; k <= venueIdx(); k++) pendingStory.push(k + 1);
     if (CFG.call && !L.failed && L.miss === 0 && L.perfect + L.good === L.notes.length) playSE('clap');
-    const r = { bday, clear, rank: reward.rank, currency, mode: L.mode, failed: L.failed, h: L.h, m: L.m, score: L.score, perfect: L.perfect, good: L.good, miss: L.miss, maxCombo: L.maxCombo, gain, mult, song: L.song, best, before, after: { lv, exp }, vBefore, vAfter: venueIdx() };
+    const r = { bday, clear, rank:rankOf(L.score).k, currency, stages:L.completed, stageCount:L.stages.length, dev:L.dev, mode: L.mode, failed: L.failed, h: L.h, m: L.m, score: L.score, perfect: L.perfect, good: L.good, miss: L.miss, maxCombo: L.maxCombo, gain, mult, song: L.song, best, before, after: { lv, exp }, vBefore, vAfter: venueIdx() };
     showResult(r);
-    if (L.song && !L.dev) $('rgain').textContent += `${first ? ' ／ 今日の最初 ×1.5' : ''}${L.support ? ` ／ ${byH(L.support).name} +${reward.supportExp} EXP` : ''}`;
-    if (L.dev) $('rsong').textContent = `${L.song.title} ［開発中の譜面・記録なし］`;
+    if (L.song && !L.dev) $('rgain').textContent += `${L.first && L.completed.length ? ' ／ 今日の最初 ×1.5' : ''}${L.support ? ` ／ ${byH(L.support).name} +${L.earned.supportExp} EXP` : ''}`;
+    if (L.dev && L.song) $('rsong').textContent = `${L.song.title} ［開発URL・記録なし］`;
   }
   let resultId = 0;
   const setBar = (el, pct, anim) => {
@@ -1422,10 +1551,16 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const rf = $('rfull'); rf.hidden = false; rf.onerror = () => { rf.hidden = true; }; rf.src = `assets/${r.h}_full.webp`;
     $('rname').textContent = `センター　${m.name}`;
     $('rscore').textContent = '0';
-    $('rrank').textContent = `${r.rank}　${r.clear ? 'クリア！' : r.failed ? 'ライフ0・失敗' : '失敗'}　スコア`;
+    $('rrank').textContent = `${r.failed ? 'LIVE FAILED' : r.stages.length === r.stageCount && r.song ? '完走！' : r.clear ? 'クリア！' : '終了'}　${r.song && r.stages.length ? '確定ステージ平均スコア' : 'スコア'}`;
+    $('rstage').textContent = '';
+    if (r.song) {
+      const heading = document.createElement('p'); heading.textContent = `クリア ${r.stages.length}/${r.stageCount}ステージ${r.failed ? ' · 次のステージで失敗しても確定報酬は残ります' : ''}${r.dev ? ' · 開発URL・記録なし' : ''}`; $('rstage').appendChild(heading);
+      r.stages.forEach(stage => { const p = document.createElement('p'); p.textContent = `STAGE ${stage.stage} · ${stage.rank} · ${fmt(stage.score)}pt ／ 確定 EXP +${stage.exp}${stage.supportExp ? `（相棒 +${stage.supportExp}）` : ''} ／ 景気 +${stage.currency}`; $('rstage').appendChild(p); });
+      if (r.failed) { const p = document.createElement('p'); p.textContent = `STAGE ${r.stages.length+1} · 未クリア・報酬なし`; $('rstage').appendChild(p); }
+    }
     $('sPerfect').textContent = r.perfect; $('sGood').textContent = r.good; $('sMiss').textContent = r.miss; $('sCombo').textContent = r.maxCombo;
     $('rgain').textContent = `+${r.gain} EXP` + (r.mult !== 1 ? `（×${r.mult}）` : '');
-    $('rsong').textContent = r.song ? `${r.song.title}　［${r.song.df.label}・${r.mode.lanes}レーン・${r.mode.length === 'full' ? 'フル' : 'ショート'}］` : '練習モード（仮のビート）';
+    $('rsong').textContent = r.song ? `${r.song.title}　［${r.song.df.label}・${r.mode.lanes}レーン・アンコール］` : '練習モード（仮のビート）';
     $('rbest').textContent = !r.best ? '' : r.best.isNew ? 'ベストスコア更新！' : `ベスト ${fmt(r.best.prev)}`;
     $('rbday').hidden = !r.bday;
     $('rsay').hidden = false; $('rsay').textContent = `「${sayFor(r.h)}」`;
@@ -1582,7 +1717,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       const special = document.createElement('div'); special.className = 'wavepanel'; special.style.setProperty('--mc',m.color); special.style.borderColor=m.color;
       const text = document.createElement('p'); text.textContent = `🎂 ${m.name} 誕生日スペシャルライブ · ${PROFILES[m.h].bd.replace('-','/')} 前後1週間` + (isBirthday(m.h) ? ' · 当日はEXP×2！' : ''); special.appendChild(text);
       if (pickH !== m.h) waveButton('この子をセンターにする',() => openSongs(m.h),special);
-      else { const s = SONGS.find(s => S.ownedSongs.includes(s.slug)); if (s) waveButton('特別ライブを始める（かんたん・ショート）',() => { audio(); beginSong(m.h,s,DIFFS[0],{lanes:3,length:'short'}); },special); }
+      else { const s = SONGS.find(s => S.ownedSongs.includes(s.slug)); if (s) waveButton('特別ライブを始める（かんたん・アンコール）',() => { audio(); beginSong(m.h,s,DIFFS[0],{lanes:3,length:'short'}); },special); }
       box.appendChild(special);
     });
     $('wallet').textContent = `景気残高 ${fmt(S.wallet)} ／ 累計 ${fmt(S.keiki)}`;
@@ -1590,7 +1725,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       const card = document.createElement('div'); card.className = 'song';
       const h3 = document.createElement('h3'); h3.textContent = s.title || s.slug; card.appendChild(h3);
       const meta = document.createElement('div'); meta.className = 'meta';
-      meta.textContent = `BPM ${Math.round(+s.bpm || 0)}　ショート ${fmtDur(+s.short_end || 0)} ／ フル ${fmtDur(+s.duration || 0)}`; card.appendChild(meta);
+      const stageCount = s.stages?.length || (s.slug === 'overture-01' ? 3 : 4);
+      const reached = Math.min(S.stageRecords[s.slug] || 0, stageCount);
+      meta.textContent = `BPM ${Math.round(+s.bpm || 0)}　約30秒からアンコール ／ ${stageCount}ステージ · ${'★'.repeat(reached)}${'☆'.repeat(stageCount-reached)}`; card.appendChild(meta);
       if (!S.ownedSongs.includes(s.slug)) {
         const buy = document.createElement('button'); buy.type = 'button'; buy.className = 'btn sec';
         buy.textContent = `${fmt(BALANCE.prices[s.slug])} 景気で買う`;
@@ -1604,10 +1741,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       const progress = S.progress[s.slug] || {};
       const selected = pickModes[s.slug] || (pickModes[s.slug] = { lanes: 3, length: 'short' });
       const modes = document.createElement('div'); modes.className = 'mode-pick';
-      // ショート版が曲の長さと同じ曲（OVERTURE 01）はフル版を出さない（倍率だけ上がる穴になるため）
-      const hasFull = !(+s.short_end >= +s.duration - 1);
-      if (!hasFull) selected.length = 'short';
-      for (const [key, options] of [['lanes', [3, 5]], ['length', hasFull ? ['short', 'full'] : ['short']]]) {
+      selected.length = 'short'; // 終了位置はライブ中に選ぶ。旧lengthは保存済みベストの参照にのみ使う。
+      for (const [key, options] of [['lanes', [3, 5]]]) {
         for (const option of options) {
           const choice = document.createElement('button'); choice.type = 'button';
           const allowed = key === 'lanes' ? option === 3 || (progress.hard3 || 0) >= BALANCE.unlock.lanes5 : option === 'short' || (progress.short5 || 0) >= BALANCE.unlock.full;
@@ -1625,7 +1760,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
         b.disabled = !modeUnlocked(progress, mode);
         b.setAttribute('aria-label', `${s.title} ${df.label} ${n}ノーツ` + (best ? ` ベスト${best}` : ''));
         const l1 = document.createElement('b'); l1.textContent = df.label;
-        const l2 = document.createElement('small'); l2.textContent = b.disabled ? 'ふつう Aで解放' : mode.length === 'full' ? `${n}ノーツ` : 'ショート版';
+        const l2 = document.createElement('small'); l2.textContent = b.disabled ? 'ふつう Aで解放' : '約30秒からスタート';
         const l3 = document.createElement('small'); l3.className = 'bst'; l3.textContent = best ? `BEST ${fmt(best)}` : '—';
         b.appendChild(l1); b.appendChild(l2); b.appendChild(l3);
         b.addEventListener('click', () => { audio(); beginSong(pickH, s, df, mode); });
@@ -1633,7 +1768,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       });
       card.appendChild(row);
       const note = document.createElement('div'); note.className = 'locknote';
-      note.textContent = 'この曲のふつうA → むずかしい ／ 3レーンむずかしいA → 5レーン ／ 5レーンS → フル';
+      note.textContent = 'ステージ3までの成績: ふつうA → むずかしい ／ 3レーンむずかしいA → 5レーン ／ 5レーンS → ステージ4' + (stageCount === 4 ? ` · ステージ4${(progress.short5 || 0) >= BALANCE.unlock.full ? '解放済み' : 'は未解放（ステージ3で完走）'}` : ' · この曲は3ステージで完走');
       card.appendChild(note); box.appendChild(card);
     });
   }
