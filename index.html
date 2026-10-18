@@ -19,6 +19,7 @@ img { max-width: 100%; }
 </style>
 </head>
 <body>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Re:IDOL ライブ</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -388,6 +389,32 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 }
 </style>
 
+<style>
+/* ライブは両手で叩く横画面。他の画面は縦でも横でもスクロール可能。 */
+.lhud { width: 100%; max-width: none; padding: 8px max(16px, env(safe-area-inset-right)); }
+.life-row { display: flex; gap: 10px; align-items: center; font-size: 12px; margin-top: 4px; }
+.life-row .bar { flex: 1; height: 10px; }
+#llife { background: var(--mint); }
+.mode-pick { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+.mode-pick button { padding: 10px 14px; border: 1px solid #66505a; border-radius: 12px; }
+.mode-pick button[aria-pressed="true"] { background: #594022; border-color: var(--gold); }
+.wallet { color: var(--gold); margin: 12px 0; }
+.locknote { color: var(--dim); font-size: 12px; margin: 8px 0; }
+.diff:disabled { opacity: .45; cursor: default; }
+#rotate { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; background: #140d11f5; padding: 24px; text-align: center; }
+#rotate p { font-size: 22px; }
+#live .hintbar { bottom: max(4px, env(safe-area-inset-bottom)); font-size: 11px; pointer-events: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #live .lhud { top: 0; font-size: 12px; }
+  #live .who .av { width: 28px !important; height: 28px !important; }
+  #live .lscore { font-size: 24px; }
+  #live .lcombo { top: 27%; font-size: 24px; }
+  #live .judge { top: 39%; font-size: 24px; }
+  .sheet { max-height: 94dvh; overflow-y: auto; }
+  #story .simg { max-height: 35dvh; }
+}
+</style>
+
 <!-- ホーム -->
 <main id="home">
   <div class="hbg" id="hbg"></div>
@@ -422,11 +449,15 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <div class="bar"><i id="lprog"></i></div>
       <button class="quit" id="quit" type="button">やめる</button>
     </div>
+    <div class="life-row"><span id="llifelabel">ライフ 100</span><div class="bar"><i id="llife"></i></div></div>
   </div>
   <div class="judge" id="judge"></div>
   <div class="lcombo" id="lcombo"></div>
-  <div class="hintbar">画面の下半分をタップ（左・中・右の3レーン）</div>
+  <div class="hintbar" id="lanehint">画面下のレーンを両手でタップ</div>
 </section>
+<div id="rotate" hidden role="dialog" aria-modal="true" aria-label="横画面の案内">
+  <div><p>スマホを横にしてね</p><div>横になったらライブを始めるよ</div><button class="btn sec" id="rotatecancel" type="button">曲えらびにもどる</button></div>
+</div>
 
 <!-- 曲えらび -->
 <section id="songs" hidden>
@@ -436,10 +467,17 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <div class="who" id="swho"></div>
     </div>
     <p class="lead">曲と難しさをえらんでね</p>
+    <div class="wallet" id="wallet"></div>
     <div class="songlist" id="songlist"></div>
-    <button class="btn sec" id="practice" type="button" style="width:100%;margin-top:14px">練習モード（仮のビート）</button>
+    <button class="btn sec" id="practice" type="button" style="width:100%;margin-top:14px">練習モード（仮のビート・景気とEXPなし）</button>
   </div>
 </section>
+<div id="purchase" class="ovl" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="purchaseh">
+    <div class="slhead" id="purchaseh">曲を買う</div><p id="purchaseinfo"></p><p id="purchaseerror" role="status"></p>
+    <div class="btns"><button class="btn pri" id="purchaseok" type="button">買う</button><button class="btn sec" id="purchasecancel" type="button">やめる</button></div>
+  </div>
+</div>
 
 <!-- 曲の読み込み -->
 <div id="loading" hidden>
@@ -489,7 +527,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   <div class="pad-x">
     <div class="rwho"><div id="rav"></div><div class="rname" id="rname"></div><div class="rsong" id="rsong"></div></div>
     <div class="rrow"><img class="rfull" id="rfull" alt="" hidden><div class="say" id="rsay" hidden></div></div>
-    <div class="rscorelab">景気ポイント</div>
+    <div class="rscorelab" id="rrank">スコア</div>
     <div class="rscore"><span id="rscore">0</span><small>pt</small></div>
     <div class="rbest" id="rbest"></div>
     <div class="stats">
@@ -557,6 +595,65 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 
 <script>
 (() => {
+  // BALANCE PURE BEGIN — 数値の変更先と、DOMに依存しない計算。
+  const BALANCE = {
+    version: 2, maxLevel: 10, migrationBonus: 300,
+    score: { max: 1000000, judge: 900000, combo: 100000, good: .6 },
+    ranks: [{ k: 'SS', at: 950000, exp: 50 }, { k: 'S', at: 850000, exp: 40 }, { k: 'A', at: 700000, exp: 30 }, { k: 'B', at: 500000, exp: 20 }, { k: 'C', at: 0, exp: 5 }],
+    difficulty: { easy: 1, normal: 1.5, hard: 2 }, lanes: { 3: 1, 5: 1.3 }, length: { short: 1, full: 1.8 }, birthday: 2,
+    life: { max: 100, miss: 10, easyMiss: .5, perfect: 1.5 },
+    exp: { base: 50, step: 25 }, currencyDivisor: 10000,
+    unlock: { hard: 700000, lanes5: 700000, full: 850000 },
+    prices: { 'overture-01': 0, 'miracle-express': 150, 'chokkan-aisho-chekira': 250, hometive: 350, 'super-energy': 450, 'peaceful-cabinet': 600, 'saikyo-louder': 800, 're-start': 1000 },
+    venues: [{ n: '路上', at: 7 }, { n: '小さなライブハウス', at: 12 }, { n: 'SHIBUYA DIVE', at: 20 }, { n: 'ホール', at: 32 }, { n: 'アリーナ', at: 47 }, { n: 'ドーム', at: 63, min: 8 }],
+    calls: { first: 25, every: 50, gap: 1.25 }, fade: 2,
+  };
+  const bounded = (v, a, b) => Math.max(a, Math.min(b, Number.isFinite(+v) ? +v : a));
+  const needExp = (lv) => BALANCE.exp.base + BALANCE.exp.step * (lv - 1);
+  function calcScore({ perfect, good, maxCombo, total }) {
+    if (!total) return 0;
+    const p = bounded(perfect, 0, total), g = bounded(good, 0, total - p);
+    return Math.round(bounded((p + g * BALANCE.score.good) / total * BALANCE.score.judge + bounded(maxCombo, 0, p + g) / total * BALANCE.score.combo, 0, BALANCE.score.max));
+  }
+  const rankOf = (score) => BALANCE.ranks.find((r) => score >= r.at) || BALANCE.ranks[BALANCE.ranks.length - 1];
+  const modeMult = (mode) => BALANCE.difficulty[mode.diff] * BALANCE.lanes[mode.lanes] * BALANCE.length[mode.length];
+  function calcRewards(score, mode, birthday = false) {
+    const rank = rankOf(score), mult = modeMult(mode);
+    return { rank: rank.k, exp: Math.floor(rank.exp * mult * (birthday ? BALANCE.birthday : 1) + 1e-9), currency: Math.floor(score / BALANCE.currencyDivisor * mult + 1e-9), mult };
+  }
+  const lifeAfter = (life, grade, diff) => bounded(life + (grade === 'perfect' ? BALANCE.life.perfect : grade === 'miss' ? -BALANCE.life.miss * (diff === 'easy' ? BALANCE.life.easyMiss : 1) : 0), 0, BALANCE.life.max);
+  const isClear = (score, life, finished) => finished && life > 0 && score >= BALANCE.ranks.find((r) => r.k === 'B').at;
+  function growMember(member, gain) {
+    let lv = member.lv, exp = member.exp + gain;
+    while (lv < BALANCE.maxLevel && exp >= needExp(lv)) { exp -= needExp(lv); lv++; }
+    return { ...member, lv, exp: lv >= BALANCE.maxLevel ? 0 : exp, plays: member.plays + 1 };
+  }
+  function venueFromLevels(levels) {
+    const sum = levels.reduce((a, b) => a + b, 0);
+    let index = 0;
+    BALANCE.venues.forEach((v, i) => { if (sum >= v.at && (!v.min || levels.every((lv) => lv >= v.min))) index = i; });
+    return index;
+  }
+  function modeUnlocked(progress, mode) {
+    const p = progress || {};
+    if (mode.lanes === 5 && (p.hard3 || 0) < BALANCE.unlock.lanes5) return false;
+    if (mode.diff === 'hard' && (p.normal3 || 0) < BALANCE.unlock.hard) return false;
+    return mode.length !== 'full' || (p.short5 || 0) >= BALANCE.unlock.full;
+  }
+  function migrateSave(raw, handles) {
+    const old = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : null;
+    const current = old && old.version === BALANCE.version;
+    const d = { ...(old || {}), version: BALANCE.version,
+      keiki: bounded(old && old.keiki, 0, Number.MAX_SAFE_INTEGER), plays: Math.floor(bounded(old && old.plays, 0, Number.MAX_SAFE_INTEGER)),
+      wallet: current ? Math.floor(bounded(old.wallet, 0, Number.MAX_SAFE_INTEGER)) : old ? BALANCE.migrationBonus : 0,
+      ownedSongs: current && Array.isArray(old.ownedSongs) ? old.ownedSongs.filter((s) => Object.hasOwn(BALANCE.prices, s)) : ['overture-01'],
+      progress: current && old.progress && typeof old.progress === 'object' ? old.progress : {}, members: {} };
+    if (!d.ownedSongs.includes('overture-01')) d.ownedSongs.push('overture-01');
+    handles.forEach((h) => { const m = old && old.members && old.members[h] || {};
+      d.members[h] = { ...m, lv: Math.floor(bounded(m.lv || 1, 1, BALANCE.maxLevel)), exp: bounded(m.exp, 0, Number.MAX_SAFE_INTEGER), plays: Math.floor(bounded(m.plays, 0, Number.MAX_SAFE_INTEGER)) }; });
+    return d;
+  }
+  // BALANCE PURE END
   const $ = (id) => document.getElementById(id);
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sleep = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? Math.min(ms, 30) : ms));
@@ -576,51 +673,34 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     'ひよっこ練習生', '路上のきらめき', 'ステージ見習い', 'ファンの人気者', 'センター候補',
     '景気づけ隊長', '会場をゆらす人', '笑顔の大黒柱', '日本を明るく照らす人', '景気の主役',
   ];
-  const MAXLV = 10;
-  const needExp = (lv) => 60 + 40 * lv;
-  const VENUES = [
-    { n: '路上', at: 0 },
-    { n: '小さなライブハウス', at: 5000 },
-    { n: 'SHIBUYA DIVE', at: 20000 },
-    { n: 'ホール', at: 60000 },
-    { n: 'アリーナ', at: 150000 },
-    { n: 'ドーム', at: 350000 },
-  ];
-  const venueIdx = (k) => { let r = 0; VENUES.forEach((v, i) => { if (k >= v.at) r = i; }); return r; };
-  const LANE_COLORS = ['#ff5a6e', '#ffcf4a', '#3fe0b0'];
+  const MAXLV = BALANCE.maxLevel, VENUES = BALANCE.venues;
+  const venueIdx = () => venueFromLevels(MEMBERS.map((m) => S.members[m.h].lv));
+  const levelSum = () => MEMBERS.reduce((n, m) => n + S.members[m.h].lv, 0);
+  const LANE_COLORS = ['#ff5a6e', '#ffcf4a', '#3fe0b0', '#a86bff', '#4a90ff'];
   const fmt = (n) => Math.round(n).toLocaleString('ja-JP');
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const DIFFS = [
-    { k: 'easy', label: 'かんたん', mult: 1, c: '#3fe0b0' },
-    { k: 'normal', label: 'ふつう', mult: 1.5, c: '#ffcf4a' },
-    { k: 'hard', label: 'むずかしい', mult: 2, c: '#ff5a6e' },
+    { k: 'easy', label: 'かんたん', mult: BALANCE.difficulty.easy, c: '#3fe0b0' },
+    { k: 'normal', label: 'ふつう', mult: BALANCE.difficulty.normal, c: '#ffcf4a' },
+    { k: 'hard', label: 'むずかしい', mult: BALANCE.difficulty.hard, c: '#ff5a6e' },
   ];
   const NOSONG = 'この場所では曲が使えません。練習モード（仮のビート）で遊びます';
 
   // ---- 保存（使えない環境でも動く）
   const KEY = 'reidol.live.v1';
   function load() {
-    const d = { keiki: 0, plays: 0, members: {} };
+    let r = null;
     try {
-      const r = JSON.parse(localStorage.getItem(KEY) || 'null');
-      if (r && typeof r === 'object') {
-        d.keiki = Math.max(0, +r.keiki || 0);
-        d.plays = Math.max(0, +r.plays || 0);
-        const rm = r.members || {};
-        MEMBERS.forEach((m) => {
-          const x = rm[m.h];
-          if (x) d.members[m.h] = { lv: Math.min(MAXLV, Math.max(1, x.lv | 0 || 1)), exp: Math.max(0, +x.exp || 0), plays: Math.max(0, x.plays | 0) };
-        });
-      }
+      r = JSON.parse(localStorage.getItem(KEY) || 'null');
     } catch (e) {}
-    MEMBERS.forEach((m) => { if (!d.members[m.h]) d.members[m.h] = { lv: 1, exp: 0, plays: 0 }; });
-    return d;
+    return migrateSave(r, MEMBERS.map((m) => m.h));
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
   let S = load();
+  save(); // 移行ボーナスをリロードごとに再付与しない。
 
   // ---- 設定・ベストスコア（localStorage。使えなくても動く）
-  const CKEY = 'reidol.settings.v1', BKEY = 'reidol.best.v1';
+  const CKEY = 'reidol.settings.v1', BKEY = 'reidol.best.v2';
   const CFG = { call: true, se: 0.5, off: 0 };
   try {
     const r = JSON.parse(localStorage.getItem(CKEY) || 'null');
@@ -636,7 +716,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const r = JSON.parse(localStorage.getItem(BKEY) || 'null');
     if (r && typeof r === 'object' && !Array.isArray(r)) BEST = r;
   } catch (e) {}
-  const bestOf = (slug, k) => { const v = +BEST[slug + ':' + k]; return v > 0 ? v : 0; };
+  const bestKey = (slug, k, mode) => ['v2', slug, k, mode.lanes, mode.length].join(':');
+  const bestOf = (slug, k, mode) => { const v = +BEST[bestKey(slug, k, mode)]; return v > 0 ? v : 0; };
   const saveBest = () => { try { localStorage.setItem(BKEY, JSON.stringify(BEST)); } catch (e) {} };
 
   // ---- アバター（顔画像 → 失敗時SVG → 色丸＋1文字）
@@ -660,7 +741,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   // ---- 音（最初のタップから鳴らす）
   let ac = null, comp = null, noiseBuf = null, seGain = null, synGain = null, sePromise = null;
   const SEB = {};
-  const SE_NAMES = ['clap', 'hai', 'haihai', 'oi', 'fuffu', 'kira', 'perfect'];
+  const SE_NAMES = ['clap', 'hai', 'haihai', 'oi', 'fuffu', 'kira', 'perfect', 'tap', 'tap_hi'];
   const CALLS = ['hai', 'haihai', 'oi', 'fuffu'];
   const decode = (ab) => new Promise((res, rej) => {
     const p = ac.decodeAudioData(ab, res, rej);
@@ -762,9 +843,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   // 叩いた時の効果音。WAVが読めていない時は合成音で代用する
   function hitSE(grade, combo) {
     if (!audio()) return;
-    const ok = grade === 'perfect' ? playSE(Math.random() < 0.5 ? 'perfect' : 'kira') : playSE('clap');
-    if (!ok) sfx(grade);
-    if (CFG.call && combo > 0 && combo % 10 === 0 && live && ac.currentTime - live.lastCall >= 0.4) {
+    const ok = playSE(grade === 'perfect' ? 'tap_hi' : 'tap');
+    if (!ok) osc(synGain, 'sine', grade === 'perfect' ? 1650 : 850, ac.currentTime, .05, .1);
+    if (CFG.call && (combo === BALANCE.calls.first || combo > 0 && combo % BALANCE.calls.every === 0) && live && ac.currentTime - live.lastCall >= BALANCE.calls.gap) {
       if (playSE(CALLS[Math.floor(Math.random() * CALLS.length)])) live.lastCall = ac.currentTime;
     }
   }
@@ -818,14 +899,14 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   // ---- ホーム
   let hbgCur = '';
   function renderHome() {
-    const vi = venueIdx(S.keiki), v = VENUES[vi], nx = VENUES[vi + 1];
+    const vi = venueIdx(), v = VENUES[vi], nx = VENUES[vi + 1], sum = levelSum();
     $('hvenue').textContent = v.n;
     const bgSrc = `assets/bg_${vi + 1}.jpg`;
     if (hbgCur !== bgSrc) { hbgCur = bgSrc; $('hbg').style.backgroundImage = `url("${bgSrc}")`; }
-    $('hbar').style.width = nx ? Math.min(100, ((S.keiki - v.at) / (nx.at - v.at)) * 100) + '%' : '100%';
+    $('hbar').style.width = nx ? clamp((sum - v.at) / (nx.at - v.at) * 100, 0, 100) + '%' : '100%';
     $('hsub').textContent = nx
-      ? `景気 ${fmt(S.keiki)}　次の会場「${nx.n}」まであと ${fmt(nx.at - S.keiki)}`
-      : `景気 ${fmt(S.keiki)}　最高の会場に到達！`;
+      ? `7人のLv合計 ${sum}　次は${nx.at}以上` + (nx.min ? `・全員Lv${nx.min}以上` : '') + `　景気残高 ${fmt(S.wallet)}`
+      : `7人のLv合計 ${sum}　最高の会場に到達！　景気残高 ${fmt(S.wallet)}`;
     const g = $('grid'); g.textContent = '';
     MEMBERS.forEach((m) => {
       const st = S.members[m.h];
@@ -859,19 +940,19 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 
   // ---- ライブ
   const cv = $('stage'), ctx = cv.getContext('2d');
+  let live = null, raf = 0, lastFrame = 0, pendingLive = null;
   let W = 0, H = 0, DPR = 1, stageW = 0, sx = 0, laneW = 0, hitY = 0, topY = 0;
   function resize() {
     DPR = Math.min(window.devicePixelRatio || 1, 2.5);
     W = window.innerWidth; H = window.innerHeight;
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
-    stageW = Math.min(W, 520); sx = (W - stageW) / 2; laneW = stageW / 3;
-    hitY = H * 0.7; topY = H * 0.17;
+    stageW = W; sx = 0; laneW = stageW / (live ? live.mode.lanes : 3);
+    hitY = H * .78; topY = Math.max(H * .22, 82);
     const fx = $('fx'); fx.width = Math.round(W * DPR); fx.height = Math.round(H * DPR);
   }
-  resize(); addEventListener('resize', resize);
+  resize(); addEventListener('resize', () => { resize(); syncOrientation(); });
 
   const APPROACH = 1.4, PERFECT = 0.07, GOOD = 0.16, SONG_END = 41.5;
-  let live = null, raf = 0, lastFrame = 0;
   const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
 
   function makeChart() {
@@ -886,27 +967,79 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     return notes;
   }
   // so が無ければ練習モード（合成ビート）。so = { s: 曲, df: 難易度, chart, buf }
+  function tryLandscape() {
+    // ユーザー操作の直後に呼ぶ。拒否・未対応でも横向き案内で継続する。
+    try {
+      const p = !document.fullscreenElement && document.documentElement.requestFullscreen ? document.documentElement.requestFullscreen() : Promise.resolve();
+      Promise.resolve(p).then(() => screen.orientation && screen.orientation.lock ? screen.orientation.lock('landscape') : null).catch(() => {});
+    } catch (e) {}
+  }
+  function releaseLandscape() {
+    try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
+    try { if (document.fullscreenElement && document.exitFullscreen) Promise.resolve(document.exitFullscreen()).catch(() => {}); } catch (e) {}
+  }
+  function requestLive(h, so) {
+    if (innerWidth < innerHeight) { pendingLive = { h, so }; $('rotate').hidden = false; return; }
+    $('rotate').hidden = true; pendingLive = null; startLive(h, so);
+  }
+  function syncOrientation() {
+    if (innerWidth >= innerHeight) {
+      $('rotate').hidden = true;
+      if (pendingLive) { const p = pendingLive; pendingLive = null; startLive(p.h, p.so); }
+      else if (live && !live.done && live.paused) resumeLive();
+    } else if (live && !live.done) {
+      pauseLive(); $('rotate').hidden = false;
+    }
+  }
+  $('rotatecancel').addEventListener('click', () => {
+    const h = pendingLive ? pendingLive.h : live && live.h;
+    pendingLive = null; $('rotate').hidden = true; stopLive(); releaseLandscape();
+    if (h) openSongs(h); else goHome();
+  });
+  function pauseLive() {
+    if (!live || live.done || live.paused) return;
+    live.pausedRaw = Math.max(0, songT()); live.paused = true; cancelAnimationFrame(raf);
+    if (live.src) { try { live.src.stop(); } catch (e) {} }
+    if (live.dest) live.dest.gain.value = 0;
+  }
+  function resumeLive() {
+    if (!live || live.done || !live.paused) return;
+    audio(); live.t0 = ac ? ac.currentTime + .12 - live.pausedRaw : 0;
+    live.p0 = performance.now() + 120 - live.pausedRaw * 1000;
+    live.paused = false;
+    if (live.buf && ac) {
+      const src = ac.createBufferSource(); src.buffer = live.buf; src.connect(live.dest);
+      src.start(ac.currentTime + .12, live.pausedRaw); src.stop(live.t0 + live.dur); live.src = src;
+    }
+    if (live.dest) live.dest.gain.value = 1;
+    lastFrame = performance.now(); raf = requestAnimationFrame(liveFrame);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseLive(); else if (live && live.paused && innerWidth >= innerHeight) resumeLive();
+  });
   function startLive(h, so) {
     cancelAnimationFrame(raf);
     const m = byH(h);
     audio();
     const lead = so ? 1.2 : 0.15;
+    const mode = so ? so.mode : { diff: 'easy', lanes: 3, length: 'short' };
+    const dur = so ? mode.length === 'full' ? Math.min(so.chart.duration, so.buf.duration) : Math.min(so.chart.short_end, so.buf.duration) : 40;
     const notes = so
-      ? so.chart.charts[so.df.k].map((n) => ({ time: +n.t, lane: clamp(n.l | 0, 0, 2), st: 0 })).sort((a, b) => a.time - b.time)
+      ? (mode.lanes === 5 ? so.chart.charts5 : so.chart.charts)[so.df.k].filter((n) => n.t < dur - .3).map((n) => ({ time: +n.t, lane: clamp(n.l | 0, 0, mode.lanes - 1), st: 0 })).sort((a, b) => a.time - b.time)
       : makeChart();
-    const dur = so ? (+so.chart.duration || so.buf.duration) : 40;
     live = {
       h, m, notes, step: 0, score: 0, combo: 0, maxCombo: 0, perfect: 0, good: 0, miss: 0,
-      flash: [0, 0, 0], parts: [], done: false, dest: null, src: null, lastCall: -9,
+      flash: Array(mode.lanes).fill(0), parts: [], done: false, dest: null, src: null, lastCall: -9,
+      mode, life: BALANCE.life.max, failed: false, paused: false, buf: so ? so.buf : null,
       song: so ? { s: so.s, df: so.df, title: so.chart.title || so.s.title } : null,
-      dur, end: so ? dur + 0.6 : SONG_END,
+      dur, end: so ? dur : SONG_END,
       p0: performance.now() + lead * 1000, t0: ac ? ac.currentTime + lead : 0,
     };
     live.img = new Image(); live.img.src = `assets/${h}_full.webp`;
     if (ac) {
       live.dest = ac.createGain(); live.dest.gain.value = so ? 1 : 0.85; live.dest.connect(comp);
       if (so) { // 曲はここで予約する。以降の時刻はすべて AudioContext の時計が基準
-        const src = ac.createBufferSource(); src.buffer = so.buf; src.connect(live.dest); src.start(live.t0); live.src = src;
+        const src = ac.createBufferSource(); src.buffer = so.buf; src.connect(live.dest); src.start(live.t0); src.stop(live.t0 + dur); live.src = src;
       }
     }
     $('home').hidden = true; $('result').hidden = true; $('songs').hidden = true; $('live').hidden = false;
@@ -915,12 +1048,19 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const who = $('lwho'); who.textContent = ''; who.appendChild(avatar(h, 40));
     const nm = document.createElement('span'); nm.textContent = m.name; who.appendChild(nm);
     $('lscore').textContent = '0'; $('lcombo').textContent = ''; $('judge').classList.remove('show');
+    $('lanehint').textContent = `${mode.lanes}レーン・${mode.length === 'full' ? 'フル' : 'ショート'}　画面下を両手でタップ`;
+    renderLife(); resize();
     window.scrollTo(0, 0);
     lastFrame = performance.now();
     raf = requestAnimationFrame(liveFrame);
   }
   const songT = () => (ac && live.dest ? ac.currentTime - live.t0 : (performance.now() - live.p0) / 1000);
   const gameT = () => songT() + CFG.off / 1000; // 判定・表示に使う時刻（タイミング調整つき）
+  function renderLife() {
+    $('llife').style.width = live.life / BALANCE.life.max * 100 + '%';
+    $('llife').style.background = live.life <= 25 ? '#ff5a6e' : '#3fe0b0';
+    $('llifelabel').textContent = 'ライフ ' + Math.ceil(live.life);
+  }
 
   function pop(text, color) {
     const j = $('judge'); j.textContent = text; j.style.color = color;
@@ -937,9 +1077,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   function hit(n, grade) {
     n.st = grade === 'perfect' ? 1 : 2;
     live.combo++; live.maxCombo = Math.max(live.maxCombo, live.combo);
-    const base = grade === 'perfect' ? 100 : 60;
-    live.score += base + Math.min(live.combo, 40) * 2;
     live[grade]++;
+    live.score = calcScore({ ...live, total: live.notes.length });
+    live.life = lifeAfter(live.life, grade, live.mode.diff); renderLife();
     hitSE(grade, live.combo); buzz(grade === 'perfect' ? 12 : 6);
     burst(n.lane, grade === 'perfect' ? 14 : 6);
     pop(grade === 'perfect' ? 'ぴったり！' : 'いいね', grade === 'perfect' ? '#ffcf4a' : '#3fe0b0');
@@ -947,12 +1087,14 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
   function missNote(n) {
     n.st = 3; live.miss++; live.combo = 0;
+    live.life = lifeAfter(live.life, 'miss', live.mode.diff); renderLife();
+    if (live.life <= 0) live.failed = true;
     sfx('miss'); pop('ミス', '#c9a8ad');
   }
   function liveTap(e) {
-    if (!live || live.done || e.clientY < H * 0.5) return;
+    if (!live || live.done || live.paused || e.clientY < H * 0.42 || innerWidth < innerHeight) return;
     e.preventDefault();
-    const lane = Math.max(0, Math.min(2, Math.floor((e.clientX - sx) / laneW)));
+    const lane = Math.max(0, Math.min(live.mode.lanes - 1, Math.floor((e.clientX - sx) / laneW)));
     live.flash[lane] = 1;
     const t = gameT();
     let best = null;
@@ -966,7 +1108,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('live').addEventListener('pointerdown', liveTap);
   addEventListener('keydown', (e) => {
     if (!live || live.done || $('live').hidden) return;
-    const lane = { KeyA: 0, KeyJ: 0, ArrowLeft: 0, KeyS: 1, KeyK: 1, ArrowDown: 1, KeyD: 2, KeyL: 2, ArrowRight: 2 }[e.code];
+    const keys = live.mode.lanes === 5 ? { KeyA: 0, KeyS: 1, KeyD: 2, KeyJ: 3, KeyK: 4 } : { KeyA: 0, KeyJ: 0, ArrowLeft: 0, KeyS: 1, KeyK: 1, ArrowDown: 1, KeyD: 2, KeyL: 2, ArrowRight: 2 };
+    const lane = keys[e.code];
     if (lane === undefined || e.repeat) return;
     liveTap({ clientX: sx + laneW * (lane + 0.5), clientY: H * 0.8, preventDefault() {} });
   });
@@ -979,7 +1122,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
 
   function liveFrame(now) {
-    if (!live || live.done) return;
+    if (!live || live.done || live.paused) return;
     const dt = Math.min(0.05, (now - lastFrame) / 1000); lastFrame = now;
     const raw = songT(), t = raw + CFG.off / 1000;
     if (!live.song && ac && live.dest) { // 練習モードの合成ビート（曲の時計に合わせて少し先まで予約）
@@ -987,7 +1130,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
         playStep(live.dest, live.step, live.t0 + live.step * STEP); live.step++;
       }
     }
-    for (const n of live.notes) if (n.st === 0 && t - n.time > GOOD) missNote(n);
+    for (const n of live.notes) {
+      if (n.st === 0 && t - n.time > GOOD) missNote(n);
+      if (live.failed) { finishLive(); return; }
+    }
+    if (live.dest && live.song && live.mode.length === 'short') live.dest.gain.value = clamp((live.dur - raw) / BALANCE.fade, 0, 1);
     if (live.song ? raw < 0 : raw < 2) {
       const c = Math.ceil((2 - raw) / 0.5);
       $('lcombo').textContent = !live.song && raw > 0 ? `READY  ${c}` : 'READY';
@@ -1024,7 +1171,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       ctx.globalAlpha = 0.25; ctx.drawImage(im, (W - iw) / 2, H - ih, iw, ih); ctx.globalAlpha = 1;
     }
     // レーンとタップ面（下半分）
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < live.mode.lanes; i++) {
       const x = sx + laneW * i;
       ctx.fillStyle = 'rgba(255,255,255,.035)'; ctx.fillRect(x, topY, laneW, H - topY);
       live.flash[i] = Math.max(0, live.flash[i] - dt * 5);
@@ -1039,7 +1186,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     ctx.strokeStyle = rgba(mc, 0.55 + pulse * 0.4); ctx.lineWidth = 3 + pulse * 3;
     ctx.beginPath(); ctx.moveTo(sx, hitY); ctx.lineTo(sx + stageW, hitY); ctx.stroke();
     const r = Math.min(laneW * 0.3, 46);
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < live.mode.lanes; i++) {
       const cx = sx + laneW * (i + 0.5);
       ctx.strokeStyle = rgba(LANE_COLORS[i], 0.8); ctx.lineWidth = 3;
       ctx.beginPath(); ctx.arc(cx, hitY, r + 2, 0, 7); ctx.stroke();
@@ -1067,29 +1214,35 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 
   // ---- リザルト
   function finishLive() {
+    if (!live || live.done) return;
     stopLive();
     const L = live, st = S.members[L.h];
     const before = { lv: st.lv, exp: st.exp };
-    const vBefore = venueIdx(S.keiki);
+    const vBefore = venueIdx();
     const bday = isBirthday(L.h);
-    const mult = L.song ? L.song.df.mult : 1;
-    // 曲モードはノーツが練習モードの10倍以上あるので、80ノーツ相当に直してからEXPと景気に使う
-    const norm = L.song ? Math.round(L.score * 80 / Math.max(1, L.notes.length)) : L.score;
-    const gain = Math.round((30 + Math.floor(norm / 50)) * (bday ? 2 : 1) * mult);
+    L.score = calcScore({ ...L, total: L.notes.length });
+    const reward = calcRewards(L.score, L.mode, bday);
+    const clear = isClear(L.score, L.life, !L.failed);
+    const gain = L.song ? reward.exp : 0, currency = L.song ? reward.currency : 0, mult = reward.mult;
     let best = null;
     if (L.song) {
-      const key = L.song.s.slug + ':' + L.song.df.k, prev = bestOf(L.song.s.slug, L.song.df.k);
+      const key = bestKey(L.song.s.slug, L.song.df.k, L.mode), prev = bestOf(L.song.s.slug, L.song.df.k, L.mode);
       best = { prev, isNew: L.score > prev };
       if (best.isNew) { BEST[key] = L.score; saveBest(); }
+      if (clear && L.mode.length === 'short') {
+        const p = S.progress[L.song.s.slug] || (S.progress[L.song.s.slug] = {});
+        const gate = L.mode.lanes === 5 ? 'short5' : L.mode.diff === 'normal' ? 'normal3' : L.mode.diff === 'hard' ? 'hard3' : null;
+        if (gate) p[gate] = Math.max(+p[gate] || 0, L.score);
+      }
     }
-    let exp = st.exp + gain, lv = st.lv;
-    while (lv < MAXLV && exp >= needExp(lv)) { exp -= needExp(lv); lv++; }
-    if (lv >= MAXLV) exp = 0;
-    st.lv = lv; st.exp = exp; st.plays++;
-    S.keiki += Math.round(norm * mult); S.plays++;
+    const grown = L.song ? growMember(st, gain) : st;
+    S.members[L.h] = grown;
+    const { lv, exp } = grown;
+    S.keiki += currency; S.wallet += currency; S.plays++;
     save();
-    for (let k = vBefore + 1; k <= venueIdx(S.keiki); k++) pendingStory.push(k + 1);
-    const r = { bday, h: L.h, m: L.m, score: L.score, perfect: L.perfect, good: L.good, miss: L.miss, maxCombo: L.maxCombo, gain, mult, song: L.song, best, before, after: { lv, exp }, vBefore, vAfter: venueIdx(S.keiki) };
+    for (let k = vBefore + 1; k <= venueIdx(); k++) pendingStory.push(k + 1);
+    if (CFG.call && !L.failed && L.miss === 0 && L.perfect + L.good === L.notes.length) playSE('clap');
+    const r = { bday, clear, rank: reward.rank, currency, mode: L.mode, failed: L.failed, h: L.h, m: L.m, score: L.score, perfect: L.perfect, good: L.good, miss: L.miss, maxCombo: L.maxCombo, gain, mult, song: L.song, best, before, after: { lv, exp }, vBefore, vAfter: venueIdx() };
     showResult(r);
   }
   let resultId = 0;
@@ -1100,18 +1253,20 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   async function showResult(r) {
     const id = ++resultId, m = r.m;
     $('live').hidden = true; $('home').hidden = true; $('result').hidden = false;
+    releaseLandscape(); $('rotate').hidden = true;
     $('result').style.setProperty('--mc', m.color); $('result').scrollTop = 0;
     const av = $('rav'); av.textContent = ''; av.appendChild(avatar(r.h, 84));
     const rf = $('rfull'); rf.hidden = false; rf.onerror = () => { rf.hidden = true; }; rf.src = `assets/${r.h}_full.webp`;
     $('rname').textContent = `センター　${m.name}`;
     $('rscore').textContent = '0';
+    $('rrank').textContent = `${r.rank}　${r.clear ? 'クリア！' : r.failed ? 'ライフ0・失敗' : '失敗'}　スコア`;
     $('sPerfect').textContent = r.perfect; $('sGood').textContent = r.good; $('sMiss').textContent = r.miss; $('sCombo').textContent = r.maxCombo;
     $('rgain').textContent = `+${r.gain} EXP` + (r.mult !== 1 ? `（×${r.mult}）` : '');
-    $('rsong').textContent = r.song ? `${r.song.title}　［${r.song.df.label}］` : '練習モード（仮のビート）';
+    $('rsong').textContent = r.song ? `${r.song.title}　［${r.song.df.label}・${r.mode.lanes}レーン・${r.mode.length === 'full' ? 'フル' : 'ショート'}］` : '練習モード（仮のビート）';
     $('rbest').textContent = !r.best ? '' : r.best.isNew ? 'ベストスコア更新！' : `ベスト ${fmt(r.best.prev)}`;
     $('rbday').hidden = !r.bday;
     $('rsay').hidden = false; $('rsay').textContent = `「${sayFor(r.h)}」`;
-    $('rkeiki').textContent = `グループの景気　累計 ${fmt(S.keiki)}`;
+    $('rkeiki').textContent = `景気 +${fmt(r.currency)}　残高 ${fmt(S.wallet)} ／ 累計 ${fmt(S.keiki)}`;
     $('rbanner').hidden = true;
     const bar = $('rbar'); bar.style.background = m.color;
     const lvEl = $('rlv'); lvEl.textContent = 'Lv' + r.before.lv;
@@ -1189,6 +1344,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 
   function goHome() {
     resultId++;
+    pendingLive = null; $('rotate').hidden = true; releaseLandscape();
     $('live').hidden = true; $('result').hidden = true; $('lvup').hidden = true; $('songs').hidden = true; $('loading').hidden = true; $('home').hidden = false;
     renderHome();
     flushStory();
@@ -1196,12 +1352,15 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('tohome').addEventListener('click', goHome);
   $('again').addEventListener('click', () => {
     resultId++; $('lvup').hidden = true; audio();
-    if (live.song) beginSong(live.h, live.song.s, live.song.df); else startLive(live.h);
+    if (live.song) beginSong(live.h, live.song.s, live.song.df, live.mode); else { tryLandscape(); requestLive(live.h); }
   });
   $('tosongs').addEventListener('click', () => { resultId++; $('lvup').hidden = true; openSongs(live.h); });
 
   // ---- 曲えらび・読み込み
   let pickH = null, SONGS = null;
+  const pickModes = {};
+  let purchaseSong = null;
+  const modeFor = (slug, df) => ({ ...(pickModes[slug] || { lanes: 3, length: 'short' }), diff: df.k });
   const chartCache = {};
   let audioCache = { slug: '', buf: null };
   const fmtDur = (sec) => { const t = Math.round(sec); return `${Math.floor(t / 60)}:${pad2(t % 60)}`; };
@@ -1225,34 +1384,74 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
         const r = await fetch('charts/index.json', { credentials: 'same-origin' });
         if (!r.ok) throw new Error('http');
         const j = await r.json();
-        const list = Array.isArray(j) ? j.filter((x) => x && typeof x.slug === 'string' && x.slug) : [];
+        const list = Array.isArray(j) ? j.filter((x) => x && typeof x.slug === 'string' && Object.hasOwn(BALANCE.prices, x.slug)) : [];
         if (!list.length) throw new Error('empty');
         SONGS = list;
       } catch (e) { songNote('この場所では曲が使えません。下の「練習モード」なら仮のビートで遊べます。'); return; }
     }
     const box = $('songlist'); box.textContent = '';
-    SONGS.forEach((s) => {
+    $('wallet').textContent = `景気残高 ${fmt(S.wallet)} ／ 累計 ${fmt(S.keiki)}`;
+    [...SONGS].sort((a, b) => BALANCE.prices[a.slug] - BALANCE.prices[b.slug]).forEach((s) => {
       const card = document.createElement('div'); card.className = 'song';
       const h3 = document.createElement('h3'); h3.textContent = s.title || s.slug; card.appendChild(h3);
       const meta = document.createElement('div'); meta.className = 'meta';
-      meta.textContent = `BPM ${Math.round(+s.bpm || 0)}　${fmtDur(+s.duration || 0)}`; card.appendChild(meta);
+      meta.textContent = `BPM ${Math.round(+s.bpm || 0)}　ショート ${fmtDur(+s.short_end || 0)} ／ フル ${fmtDur(+s.duration || 0)}`; card.appendChild(meta);
+      if (!S.ownedSongs.includes(s.slug)) {
+        const buy = document.createElement('button'); buy.type = 'button'; buy.className = 'btn sec';
+        buy.textContent = `${fmt(BALANCE.prices[s.slug])} 景気で買う`;
+        buy.disabled = S.wallet < BALANCE.prices[s.slug];
+        buy.addEventListener('click', () => {
+          purchaseSong = s; $('purchaseinfo').textContent = `${s.title}を${fmt(BALANCE.prices[s.slug])}景気で買いますか？　残高 ${fmt(S.wallet)}`;
+          $('purchaseerror').textContent = ''; $('purchase').hidden = false;
+        });
+        card.appendChild(buy); box.appendChild(card); return;
+      }
+      const progress = S.progress[s.slug] || {};
+      const selected = pickModes[s.slug] || (pickModes[s.slug] = { lanes: 3, length: 'short' });
+      const modes = document.createElement('div'); modes.className = 'mode-pick';
+      // ショート版が曲の長さと同じ曲（OVERTURE 01）はフル版を出さない（倍率だけ上がる穴になるため）
+      const hasFull = !(+s.short_end >= +s.duration - 1);
+      if (!hasFull) selected.length = 'short';
+      for (const [key, options] of [['lanes', [3, 5]], ['length', hasFull ? ['short', 'full'] : ['short']]]) {
+        for (const option of options) {
+          const choice = document.createElement('button'); choice.type = 'button';
+          const allowed = key === 'lanes' ? option === 3 || (progress.hard3 || 0) >= BALANCE.unlock.lanes5 : option === 'short' || (progress.short5 || 0) >= BALANCE.unlock.full;
+          choice.textContent = (key === 'lanes' ? `${option}レーン` : option === 'full' ? 'フル' : 'ショート') + (allowed ? '' : ' 🔒');
+          choice.disabled = !allowed; choice.setAttribute('aria-pressed', String(selected[key] === option));
+          choice.addEventListener('click', () => { selected[key] = option; renderSongs(); }); modes.appendChild(choice);
+        }
+      }
+      card.appendChild(modes);
       const row = document.createElement('div'); row.className = 'diffs';
       DIFFS.forEach((df) => {
         const b = document.createElement('button'); b.type = 'button'; b.className = 'diff'; b.style.setProperty('--dc', df.c);
-        const n = (s.counts && +s.counts[df.k]) || 0, best = bestOf(s.slug, df.k);
+        const mode = modeFor(s.slug, df), counts = mode.lanes === 5 ? s.counts5 : s.counts;
+        const n = counts && +counts[df.k] || 0, best = bestOf(s.slug, df.k, mode);
+        b.disabled = !modeUnlocked(progress, mode);
         b.setAttribute('aria-label', `${s.title} ${df.label} ${n}ノーツ` + (best ? ` ベスト${best}` : ''));
         const l1 = document.createElement('b'); l1.textContent = df.label;
-        const l2 = document.createElement('small'); l2.textContent = `${n}ノーツ`;
+        const l2 = document.createElement('small'); l2.textContent = b.disabled ? 'ふつう Aで解放' : mode.length === 'full' ? `${n}ノーツ` : 'ショート版';
         const l3 = document.createElement('small'); l3.className = 'bst'; l3.textContent = best ? `BEST ${fmt(best)}` : '—';
         b.appendChild(l1); b.appendChild(l2); b.appendChild(l3);
-        b.addEventListener('click', () => { audio(); beginSong(pickH, s, df); });
+        b.addEventListener('click', () => { audio(); beginSong(pickH, s, df, mode); });
         row.appendChild(b);
       });
-      card.appendChild(row); box.appendChild(card);
+      card.appendChild(row);
+      const note = document.createElement('div'); note.className = 'locknote';
+      note.textContent = 'この曲のふつうA → むずかしい ／ 3レーンむずかしいA → 5レーン ／ 5レーンS → フル';
+      card.appendChild(note); box.appendChild(card);
     });
   }
   $('songback').addEventListener('click', goHome);
-  $('practice').addEventListener('click', () => { audio(); startLive(pickH); });
+  $('purchasecancel').addEventListener('click', () => { purchaseSong = null; $('purchase').hidden = true; });
+  $('purchaseok').addEventListener('click', () => {
+    const s = purchaseSong; if (!s || S.ownedSongs.includes(s.slug)) return;
+    const price = BALANCE.prices[s.slug];
+    if (!Number.isFinite(price) || S.wallet < price) { $('purchaseerror').textContent = '景気が足りません'; return; }
+    S.wallet -= price; S.ownedSongs.push(s.slug); save();
+    purchaseSong = null; $('purchase').hidden = true; renderSongs();
+  });
+  $('practice').addEventListener('click', () => { audio(); tryLandscape(); requestLive(pickH); });
 
   let loadSeq = 0, loadCtl = null;
   function showLoading(title, msg) {
@@ -1263,6 +1462,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('lcancel').addEventListener('click', () => {
     loadSeq++; if (loadCtl) { try { loadCtl.abort(); } catch (e) {} loadCtl = null; }
     hideLoading();
+    releaseLandscape();
   });
   async function fetchBuf(url, signal, onProg) {
     const res = await fetch(url, { credentials: 'same-origin', signal });
@@ -1279,7 +1479,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     chunks.forEach((c) => { out.set(c, o); o += c.length; });
     return out.buffer;
   }
-  async function beginSong(h, s, df) {
+  async function beginSong(h, s, df, selectedMode) {
+    const mode = { ...(selectedMode || modeFor(s.slug, df)), diff: df.k };
+    if (!S.ownedSongs.includes(s.slug) || !modeUnlocked(S.progress[s.slug], mode)) { renderSongs(); return; }
+    tryLandscape();
     const id = ++loadSeq;
     if (loadCtl) { try { loadCtl.abort(); } catch (e) {} }
     const ctl = loadCtl = new AbortController();
@@ -1292,7 +1495,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
         if (!r.ok) { const e = new Error('http'); e.status = r.status; throw e; }
         chart = await r.json(); chartCache[s.slug] = chart;
       }
-      const list = chart && chart.charts && chart.charts[df.k];
+      const group = chart && (mode.lanes === 5 ? chart.charts5 : chart.charts);
+      const list = group && group[df.k];
       if (!Array.isArray(list) || !list.length) throw new Error('nochart');
       let buf = audioCache.slug === s.slug ? audioCache.buf : null;
       if (!buf) {
@@ -1312,10 +1516,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       loadCtl = null; hideLoading();
       if (ac.state === 'suspended') { try { await ac.resume(); } catch (e) {} }
       if (id !== loadSeq) return;
-      startLive(h, { s, df, chart, buf });
+      requestLive(h, { s, df, chart, buf, mode });
     } catch (e) {
       if (id !== loadSeq) return; // やめる で中断された
-      if (e && (e.status === 403 || e.status === 401)) { hideLoading(); askPass(() => beginSong(h, s, df)); return; }
+      if (e && (e.status === 403 || e.status === 401)) { hideLoading(); releaseLandscape(); askPass(() => beginSong(h, s, df, mode)); return; }
       fallbackPractice(h, id);
     }
   }
@@ -1323,7 +1527,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     showLoading('練習モード', NOSONG); $('lbar').style.width = '100%';
     await sleep(2400);
     if (id !== loadSeq) return;
-    hideLoading(); startLive(h);
+    hideLoading(); requestLive(h);
   }
 
   // ---- 合言葉（値は保存しない。Cookie は Worker が付ける）
@@ -1345,6 +1549,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
         headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ passcode: v }),
       });
       if (r.status === 401) msg = '合言葉がちがうみたい';
+      else if (r.status === 429) msg = 'しばらく待ってね';
       else if (r.ok) { try { ok = (await r.json()).ok === true; } catch (e) {} if (!ok) msg = 'ログインできませんでした'; }
       else msg = 'ログインできませんでした';
     } catch (e) { msg = 'つながりませんでした。もう一度ためしてね'; }
