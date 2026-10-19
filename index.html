@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "2a8ead46e3";</script>
+<script>window.APP_VERSION = "44c7a2dbe1";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -411,7 +411,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 </style>
 
 <style>
-/* ライブは両手で叩く横画面。他の画面は縦でも横でもスクロール可能。 */
+/* ライブHUDの基本形。全画面の寸法と回転は#appで共用する。 */
 .lhud { width: 100%; max-width: none; padding: 8px max(16px, env(safe-area-inset-right)); }
 .life-row { display: flex; gap: 10px; align-items: center; font-size: 12px; margin-top: 4px; }
 .life-row .bar { flex: 1; height: 10px; }
@@ -445,31 +445,175 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 .dot{display:inline-block;width:9px;height:9px;background:#ff526e;border-radius:50%;margin-left:6px;box-shadow:0 0 8px #ff526e80}.newmark{font-size:10px;background:#ffcf4a;color:#28131c;border-radius:5px;padding:2px 5px;margin-left:5px}.primarylive{width:100%;margin:18px 0 6px;font-size:24px;min-height:68px}.todaylist{display:grid;gap:8px;margin:16px 0}.todaylist button{text-align:left;min-height:46px;background:#ffffff0d;border-radius:12px;padding:12px}.uxhint{color:var(--dim);font-size:13px}.uxsheet{display:grid;gap:14px}.uxsheet p{white-space:pre-line}.uxhead{display:flex;gap:8px;justify-content:flex-end}.uxbubble{border:1px solid #ffcf4a99;background:#312337;border-radius:18px;padding:18px}.uxphone{font-size:54px}#opening{position:fixed;inset:0;z-index:100;display:grid;place-content:center;gap:22px;text-align:center;background:radial-gradient(ellipse at center,#48253e,#140d11)}#opening .brand{padding:12px}#appversion{position:absolute;bottom:12px;right:12px;font-size:11px;color:var(--dim)}#guide{z-index:95}#liveintro{z-index:90}#clearstatus{position:absolute;z-index:9;left:12px;top:75px;display:grid;gap:6px;font-size:12px;padding:10px;border-radius:12px;background:#231923ed;max-width:29%;pointer-events:auto}#clearstatus button{min-height:36px;padding:5px 8px;font-size:13px}#countin{position:absolute;z-index:10;inset:28% 20%;text-align:center;pointer-events:none;color:var(--gold);font:80px var(--display);text-shadow:0 0 30px #ffd34b}#clearflash{position:absolute;z-index:11;inset:20% 10%;text-align:center;pointer-events:none;color:#fff7b5;font:clamp(30px,7vw,70px) var(--display);text-shadow:0 0 25px #ffcd42;animation:clear-shine 1.8s ease-out forwards}@keyframes clear-shine{0%{opacity:0;transform:scale(.75)}25%{opacity:1;filter:brightness(1.4)}100%{opacity:0;transform:scale(1.12)}}#clearflash:after{content:'✦　　✧　　✦';display:block;font-size:.5em;color:#ffcf4a}#homeupdate{font-size:12px}#centerpick{font:inherit;background:#35263a;color:white;padding:10px;border-radius:10px}.ux-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 @media(prefers-reduced-motion:reduce){#clearflash{animation:none;filter:none;transform:none;text-shadow:none}}
 </style>
+<style>
+/* 全画面共通の横長舞台。回転後も fixed の基準と入力座標をこの舞台にそろえる。 */
+html, body { width:100%; height:100%; overflow:hidden; }
+#app { position:fixed; left:0; top:0; width:100vw; height:100vh; height:100dvh;
+  transform:translateZ(0); transform-origin:0 0; isolation:isolate; overflow:hidden;
+  container:app / size; --safe-t:env(safe-area-inset-top,0px); --safe-r:env(safe-area-inset-right,0px);
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-l:env(safe-area-inset-left,0px); }
+@media (orientation:portrait) {
+  #app { width:100vh; width:100dvh; height:100vw; transform:rotate(90deg) translateY(-100%);
+    --safe-t:env(safe-area-inset-right,0px); --safe-r:env(safe-area-inset-bottom,0px);
+    --safe-b:env(safe-area-inset-left,0px); --safe-l:env(safe-area-inset-top,0px); }
+}
+.pad-x { padding-left:max(16px,var(--safe-l)); padding-right:max(16px,var(--safe-r)); }
+#app button, #app select, #app input, #app label:has(input[type=checkbox]) { min-height:44px; }
+#app button, #app select, #app input[type=checkbox] { min-width:44px; }
+#app .lhud { padding: max(6px,var(--safe-t)) max(16px,var(--safe-r)) 0 max(16px,var(--safe-l)); }
+#app #live .lbarrow { position:fixed; left:max(16px,var(--safe-l)); right:max(16px,var(--safe-r)); bottom:max(22px,var(--safe-b)); margin-top:0; }
+#app #live .hintbar { bottom:max(4px,var(--safe-b)); }
+#app #live .judge { top:18%; left:auto; right:max(16px,var(--safe-r)); width:24%; font-size:24px; text-align:right; }
+#app #live .lcombo { top:28%; left:auto; right:max(16px,var(--safe-r)); width:24%; font-size:22px; text-align:right; }
+#app #encore { left:max(12px,var(--safe-l)); top:40%; width:26%; transform:none; padding:10px; background:#140d11dd; }
+#app #encoretext { font-size:24px; }
+#app #clearstatus { left:max(12px,var(--safe-l)); }
+@container app (max-height:520px) {
+  #live .who .av { width:28px !important; height:28px !important; }
+  #live .lscore { font-size:24px; }
+  #live .life-row { margin-top:3px; font-size:12px; }
+}
+/* 層一覧: 画面5〜50 / 演出60 / opening100 / 一覧200 / 設定・プロフ210 /
+   購入220 / 読込・合言葉230 / 案内240 / レベルアップ250 / 通知260。 */
+#app .ovl, #app #prof, #app #slist, #app #lvup { align-items:center; padding:max(10px,var(--safe-t)) max(12px,var(--safe-r)) max(10px,var(--safe-b)) max(12px,var(--safe-l)); }
+#app .sheet, #app .lvbox { width:min(760px,100%); max-height:100%; overflow:auto; border-radius:20px; padding:18px; }
+#app #slist { z-index:200; }
+#app #prof, #app #settings { z-index:210; }
+#app #purchase { z-index:220; }
+#app #loading, #app #pass { z-index:230; }
+#app #guide, #app #liveintro, #app #rotate { z-index:240; }
+#app #lvup { z-index:250; }
+#app #notice { z-index:260; }
+#app #notice .sheet { max-width:760px; }
+#app #fx { z-index:60; }
+#app .btns { grid-template-columns:repeat(2,minmax(0,1fr)); }
+#app .uxphone { display:none; }
+#app #opening .brand { font-size:38px; }
+#app #opening { gap:12px; padding: max(12px,var(--safe-t)) max(16px,var(--safe-r)) max(12px,var(--safe-b)) max(16px,var(--safe-l)); }
+/* 見本003_横ホームの配置。残高・Lv・通知・センターは進行データで描画する。 */
+#app #home { position:absolute; inset:0; min-height:0; padding:0; overflow:hidden; }
+#app .hbg { position:absolute; filter:blur(4px); transform:scale(1.03); }
+#app .hbg::after { background:linear-gradient(90deg,#140d11bd,#140d1144 45%,#140d11b8); }
+.home-top { position:absolute; z-index:2; top:max(8px,var(--safe-t)); left:max(14px,var(--safe-l)); right:max(14px,var(--safe-r)); display:flex; align-items:center; gap:12px; height:54px; }
+.home-level { width:56px; height:54px; border-radius:50%; display:grid; place-content:center; text-align:center; background:#39283dee; border:2px solid var(--gold); font-size:11px; }
+.home-level b { font:22px var(--display); color:var(--gold); }
+#app .home-top .venue { flex:1; margin:0; padding:5px 12px; border-radius:16px; min-width:0; background:#211724d9; }
+#app .home-top .vname { font-size:18px; margin:0 0 3px; }
+#app .home-top .vsub { margin:3px 0 0; font-size:11px; }
+.home-wallet { border-radius:22px; background:#211724df; padding:10px 14px; color:var(--gold); font-size:14px; white-space:nowrap; }
+.home-center { position:absolute; z-index:1; left:28%; bottom:62px; width:33%; height:calc(100% - 124px); padding:0; }
+.home-center img { display:block; width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 6px 16px #0009); }
+.home-say { position:absolute; z-index:2; left:53%; top:40%; max-width:24%; margin:0; border-radius:18px 18px 18px 0; background:#fff3ebed; color:#30192e; padding:12px; font-size:14px; pointer-events:none; }
+.home-today { position:absolute; z-index:2; top:76px; bottom:146px; left:max(14px,var(--safe-l)); width:27%; padding:8px; overflow:auto; border:1px solid #ffffff30; border-radius:14px; background:#211724d9; }
+.home-today h2 { font-size:14px; margin:0 0 4px; }
+#app .home-today .todaylist { margin:0; gap:4px; }
+#app .home-today button { padding:5px 8px; font-size:12px; }
+.home-side { position:absolute; z-index:2; top:76px; right:max(14px,var(--safe-r)); display:grid; gap:6px; width:120px; }
+.home-side button { border-radius:14px; background:#211724df; padding:7px; font-size:13px; }
+.home-banner { position:absolute; z-index:2; left:max(14px,var(--safe-l)); bottom:84px; width:28%; min-height:48px; border:1px solid #eab16c; border-radius:12px; padding:6px 10px; text-align:left; background:linear-gradient(120deg,#573542ee,#27223eee); font-size:12px; }
+.home-nav { position:absolute; z-index:2; bottom:max(12px,var(--safe-b)); left:max(14px,var(--safe-l)); right:238px; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+#app .home-nav button { padding:6px; min-height:56px; border-radius:14px; font-size:14px; background:#2e2234ed; border:1px solid #aa829350; }
+#app #livebtn { position:absolute; z-index:2; right:max(14px,var(--safe-r)); bottom:max(12px,var(--safe-b)); margin:0; width:208px; min-height:64px; border:2px solid #ffe9b0; box-shadow:0 0 24px #ffcf4a70; }
+#members { position:fixed; inset:0; z-index:45; overflow:auto; background:var(--bg); padding: max(12px,var(--safe-t)) max(16px,var(--safe-r)) max(12px,var(--safe-b)) max(16px,var(--safe-l)); }
+#members .grid { grid-template-columns:repeat(4,minmax(140px,1fr)); margin-top:12px; }
+#members .cwrap:last-child { grid-column:auto; }
+#members .profbtn { position:static; width:100%; border-radius:10px; margin-top:5px; }
+#members .cwrap { display:block; }
+#members h1 { display:inline-block; margin:0 16px; font-size:22px; }
+@container app (max-width:740px) {
+  .home-top { gap:6px; }
+  .home-wallet { padding:8px; font-size:12px; }
+  .home-say { font-size:12px; padding:8px; }
+  .home-nav { right:190px; }
+  #app #livebtn { width:164px; font-size:20px; }
+  #app .home-nav button { font-size:12px; }
+}
+/* 一覧と詳細を個別にスクロールし、短い画面でも操作を失わない。 */
+#app #songs { padding: max(10px,var(--safe-t)) 0 max(10px,var(--safe-b)); overflow:hidden; }
+#songs > .pad-x { height:100%; display:grid; grid-template-columns:minmax(210px,.85fr) minmax(0,1.35fr); grid-template-rows:auto auto minmax(0,1fr); gap:8px 16px; }
+#songs .shead { grid-column:1 / -1; }
+#songs #songlead { grid-column:1; margin:0; font-size:15px; }
+#songs .ux-actions { grid-column:2; grid-row:2; margin:0; }
+#songlist { grid-column:1; grid-row:3; overflow:auto; align-content:start; padding:2px 4px 12px 0; min-height:0; }
+.song-right { grid-column:2; grid-row:3; overflow:auto; min-height:0; padding:0 4px 12px 0; }
+.song-choice { text-align:left; padding:10px; border:1px solid #735966; border-radius:14px; background:#2b2029; }
+.song-choice[aria-pressed=true] { border:2px solid var(--gold); background:#493528; }
+.diff[aria-pressed=true] { background:#594022; box-shadow:inset 0 0 0 2px var(--dc); }
+.song-choice b { display:block; font-size:15px; }.song-choice small { color:var(--dim); }
+#songs[data-shop=true] #songlist { grid-column:1 / -1; grid-template-columns:repeat(3,minmax(0,1fr)); }
+#songs[data-shop=true] .song-right { display:none; }
+#songs .supportrow { margin:10px 0; }.song-right select { max-width:100%; }
+#songs .wallet { margin:8px 0; font-size:13px; }
+#app #prof .sheet { display:grid; grid-template-columns:32% minmax(0,1fr); gap:4px 18px; text-align:left; }
+#pav { grid-column:1; grid-row:1 / span 4; display:grid; place-items:center; min-height:0; }
+#app .pfull { width:100%; max-width:100%; height:65cqh; max-height:260px; object-fit:contain; }
+#app .pname, #app .pkana { grid-column:2; margin:0; }
+#app #prows { grid-column:2; margin:6px 0; overflow:auto; max-height:40cqh; }
+#app #prof .btns { grid-column:2; margin-top:8px; }
+#app #story { flex-direction:row; }
+#app #story .simg { flex:0 0 48%; max-height:none; }
+#app #story .stext { padding:max(18px,var(--safe-t)) max(18px,var(--safe-r)) max(18px,var(--safe-b)) 18px; }
+#app .sline { font-size:15px; line-height:1.7; }
+#app .slitems { grid-template-columns:repeat(2,minmax(0,1fr)); }
+#app #result { padding: max(12px,var(--safe-t)) 0 max(12px,var(--safe-b)); overflow:hidden; }
+#result > .pad-x { height:100%; display:grid; grid-template-columns:40% minmax(0,1fr); gap:18px; }
+.result-character { min-height:0; display:flex; flex-direction:column; }
+.result-detail { min-height:0; overflow:auto; padding-bottom:12px; }
+#app .rrow { flex:1; min-height:0; margin-top:8px; }
+#app .rfull { max-height:100%; height:240px; max-width:58%; }
+#app .rrow .say { font-size:13px; padding:8px; margin-bottom:12px; }
+#app .rscorelab { margin-top:0; }#app .rscore { font-size:46px; }
+#app #result .stats { margin:8px 0; }#app #rstage { margin:8px 0; }
+#app #result .btns { grid-template-columns:1fr; }
+#app #settings .sheet { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 12px; }
+#settings .slhead, #settings > .sheet > .btns { grid-column:1 / -1; }
+#settings .setrow { margin:0; padding:10px; }
+#app #playboard { padding:max(12px,var(--safe-t)) max(16px,var(--safe-r)) max(12px,var(--safe-b)) max(16px,var(--safe-l)); }
+#playboard h1 { display:inline-block; font-size:22px; margin:0 16px; }
+#playcontent h2 { margin:8px 0; font-size:22px; }
+#playcontent .mini-instruction { padding:10px; font-size:22px; }
+#app .minichoices { grid-template-columns:repeat(4,minmax(0,1fr)); }
+#app .minichoices button { min-height:64px; font-size:18px; }
+#playcontent .wavepanel { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+#playcontent .wavepanel > h2 { grid-column:1 / -1; }
+@container app (max-height:420px) {
+  #app .sheet { padding:12px; }
+  #app .uxsheet { gap:8px; }
+  #app .uxsheet h2, #app .uxsheet p { margin:4px 0; }
+  #app .btn { font-size:15px; }
+  #app .sli img, #app .sli .slph { width:64px; }
+}
+</style>
+<div id="app">
 <section id="opening"><div class="brand">Re:IDOL<br><b>ライブ</b></div><button class="btn pri" id="openingstart" type="button">タップしてはじめる</button><button class="btn sec" id="openingupdate" type="button" hidden>アップデートがあります</button><p id="updatestatus" role="status"></p><small id="appversion"></small></section>
 <main id="home" hidden>
   <div class="hbg" id="hbg"></div>
-  <div class="pad-x">
-    <div class="brand">Re:IDOL<br><b>ライブ</b></div>
-    <p class="tag">日本を景気良くするアイドル</p>
-    <div class="uxhead"><button id="homeupdate" class="quit" type="button" hidden>アップデートがあります <span class="dot"></span></button><button id="helpbtn" class="quit" type="button">あそびかた</button></div>
-    <button class="btn pri primarylive" id="livebtn" type="button">▶ ライブする<span id="livedot" class="dot" hidden></span></button>
+  <header class="home-top">
+    <div class="home-level" aria-label="7人のレベル合計">合計Lv<b id="homelevel"></b></div>
     <section class="venue">
-      <div class="lab">いまの会場</div>
       <div class="vname" id="hvenue">路上</div>
       <div class="bar"><i id="hbar"></i></div>
       <div class="vsub" id="hsub"></div>
     </section>
-    <div class="hbtns">
-      <button class="btn sec storybtn" id="playbtn" type="button">🎮 あそぶ<span id="playdot" class="dot" hidden></span></button>
-      <button class="btn sec storybtn" id="storybtn" type="button">📖 ストーリー<span id="storydot" class="dot" hidden></span></button>
-      <button class="btn sec storybtn" id="setbtn" type="button">⚙ 設定</button>
-    </div>
+    <div class="home-wallet">景気 <b id="homewallet"></b></div>
+    <button class="quit" id="setbtn" type="button" aria-label="設定">⚙ 設定</button>
+  </header>
+  <button class="home-center" id="homecenter" type="button" aria-label="センターのプロフィール"><img id="homeidol" alt=""></button>
+  <p class="home-say" id="homesay"></p>
+  <section class="home-today"><h2>今日やること</h2>
     <div id="todaylist" class="todaylist" aria-label="今日やること"></div>
-    <p class="lead">メンバーを知ろう</p>
-    <div class="grid" id="grid"></div>
-    <p class="foot">カードでプロフィールが見られるよ。<br>「ライブする」から曲をえらんでね。</p>
-  </div>
+  </section>
+  <aside class="home-side"><button id="homenotice" type="button">お知らせ<span id="noticedot" class="dot" hidden></span></button><button id="helpbtn" type="button">あそびかた</button><button id="homeupdate" type="button" hidden>アップデート<span class="dot"></span></button></aside>
+  <button class="home-banner" id="homebanner" type="button"></button>
+  <nav class="home-nav" aria-label="ホームの入口">
+    <button id="storybtn" type="button">📖 ストーリー<span id="storydot" class="dot" hidden></span></button>
+    <button id="homeshop" type="button">🛍 ショップ<span id="homeshopdot" class="dot" hidden></span></button>
+    <button id="playbtn" type="button">🎮 あそぶ<span id="playdot" class="dot" hidden></span></button>
+    <button id="membersbtn" type="button">👥 メンバー<span id="membersdot" class="dot" hidden></span></button>
+  </nav>
+  <button class="btn pri primarylive" id="livebtn" type="button">▶ ライブ<span id="livedot" class="dot" hidden></span></button>
 </main>
+<section id="members" hidden aria-labelledby="memberstitle"><button class="btn sec" id="membersback" type="button">ホームへ</button><h1 id="memberstitle">メンバー</h1><button class="btn sec" id="membersbonds" type="button">2人の絆</button><div class="grid" id="grid"></div></section>
 <section id="playboard" hidden aria-labelledby="playtitle">
   <button class="btn sec" id="playback" type="button">ホームへ戻る</button>
   <h1 id="playtitle">あそぶ</h1><label>ミニゲームのセンター <select id="minicenter"></select></label>
@@ -477,7 +621,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 </section>
 <div id="notice" class="ovl" hidden><div class="sheet" role="dialog" aria-modal="true" aria-label="お知らせ"><p id="noticetext" role="status"></p><button class="btn sec" id="noticeclose" type="button">閉じる</button></div></div>
 <div id="guide" class="ovl" hidden><div class="sheet uxsheet" role="dialog" aria-modal="true" aria-labelledby="guidetitle"><h2 id="guidetitle"></h2><p id="guidetext" class="uxbubble"></p><small id="guidepage"></small><div class="btns"><button id="guidenext" class="btn pri" type="button">つぎへ</button><button id="guideskip" class="btn sec" type="button">スキップ</button></div></div></div>
-<div id="liveintro" class="ovl" hidden><div class="sheet uxsheet" role="dialog" aria-modal="true" aria-label="ライブをはじめる準備"><div class="uxphone" aria-hidden="true">📱 ↔️</div><p id="introorientation">ライブは横画面で遊ぶよ。スマホを横にしてね</p><p>両手の親指で、画面の下をタップしてね</p><label id="introskiplabel" hidden><input id="introskip" type="checkbox"> 次から出さない</label><button id="introgo" class="btn pri" type="button">はじめる</button><button id="introback" class="btn sec" type="button">もどる</button></div></div>
+<div id="liveintro" class="ovl" hidden><div class="sheet uxsheet" role="dialog" aria-modal="true" aria-label="ライブをはじめる準備"><p>両手の親指で、画面の下をタップしてね</p><label id="introskiplabel" hidden><input id="introskip" type="checkbox"> 次から出さない</label><button id="introgo" class="btn pri" type="button">はじめる</button><button id="introback" class="btn sec" type="button">もどる</button></div></div>
 
 <!-- ライブ -->
 <style>
@@ -525,14 +669,17 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     <div class="shead">
       <button class="quit" id="songback" type="button">戻る</button>
       <div class="who" id="swho"></div>
+      <div class="wallet" id="wallet"></div>
     </div>
     <p class="lead" id="songlead">曲と難しさをえらんでね</p>
-    <div class="supportrow"><label>センター <select id="centerpick"></select></label></div>
     <div class="ux-actions"><button class="quit" id="shopopen" type="button">景気ショップ<span id="shopdot" class="dot" hidden></span></button><button class="quit" id="shopback" type="button" hidden>曲えらびへ</button><button class="quit" id="songhelp" type="button">あそびかた</button></div>
-    <div class="supportrow"><label>サポート <select id="supportpick"></select></label><div id="supportinfo"></div></div>
-    <div class="wallet" id="wallet"></div>
     <div class="songlist" id="songlist"></div>
+    <div class="song-right">
+    <div id="songdetail" aria-live="polite"></div>
+    <div class="supportrow"><label>センター <select id="centerpick"></select></label></div>
+    <div class="supportrow"><label>サポート <select id="supportpick"></select></label><div id="supportinfo"></div></div>
     <button class="btn sec" id="practice" type="button" style="width:100%;margin-top:14px">練習モード（仮のビート・景気とEXPなし）</button>
+    </div>
   </div>
 </section>
 <div id="purchase" class="ovl" hidden>
@@ -599,8 +746,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 <!-- リザルト -->
 <section id="result" hidden>
   <div class="pad-x">
+    <div class="result-character">
     <div class="rwho"><div id="rav"></div><div class="rname" id="rname"></div><div class="rsong" id="rsong"></div></div>
     <div class="rrow"><img class="rfull" id="rfull" alt="" hidden><div class="say" id="rsay" hidden></div></div>
+    </div>
+    <div class="result-detail">
     <div class="rscorelab" id="rrank">スコア</div>
     <div class="rscore"><span id="rscore">0</span><small>pt</small></div>
     <div class="rbest" id="rbest"></div>
@@ -623,6 +773,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       <button class="btn pri" id="again" type="button">同じセンターでもう一回</button>
       <button class="btn sec" id="tosongs" type="button">曲をえらびなおす</button>
       <button class="btn sec" id="tohome" type="button">ホームにもどる</button>
+    </div>
     </div>
   </div>
 </section>
@@ -946,6 +1097,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   function addBadge(el, fresh, isNew = false) { if (!fresh) return; const badge=document.createElement('span');badge.className=isNew?'newmark':'dot';badge.textContent=isNew?'NEW':'';badge.setAttribute('aria-label',isNew?'新しく使えるよ':'お知らせあり');el.appendChild(badge); }
   function renderToday() {
     const unread=unreadNotices(); $('livedot').hidden=!unread.some(n=>n.group==='songs');$('playdot').hidden=!unread.some(n=>n.group==='play');$('storydot').hidden=!unread.some(n=>n.group==='story');
+    $('homeshopdot').hidden=!unread.some(n=>n.key==='shop');$('noticedot').hidden=!unread.length;$('membersdot').hidden=!unread.some(n=>n.key==='bonds');
     const box=$('todaylist');box.textContent='';
     const remaining=missionItems().filter(m=>!m.done).length, affordable=Object.keys(BALANCE.prices).filter(slug=>!S.ownedSongs.includes(slug)&&BALANCE.prices[slug]<=S.wallet);
     const rows=[['今日のミッション：'+(remaining?`あと${remaining}つ`:'ぜんぶ達成！'),()=>{openPlay();renderPlayDetail('missions');},'missions'],[affordable.length?'買える曲があるよ':'景気をためて曲を増やそう',openShop,'shop'],[availableCabinet().length?'使える内閣ポイントがあるよ':'みんなを育てて内閣ポイントをためよう',()=>{openPlay();renderPlayDetail('cabinet');},'cabinet'],[unread.some(n=>n.group==='story')?'見ていない物語があるよ':'物語を見返そう',()=>{renderStoryList();$('slist').hidden=false;},'story']];
@@ -954,7 +1106,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   function beforeLive(action) {
     withTip('live',()=>{
       if(!CFG.intro){audio();tryLandscape();action();return;}
-      introAction=action;$('introorientation').textContent=innerWidth>=innerHeight?'横画面の準備OK！ はじめるを押してね':'ライブは横画面で遊ぶよ。スマホを横にしてね';$('introskip').checked=false;$('introskiplabel').hidden=CFG.introVisits<1;$('liveintro').hidden=false;
+      introAction=action;$('introskip').checked=false;$('introskiplabel').hidden=CFG.introVisits<1;$('liveintro').hidden=false;
     });
   }
   $('introgo').addEventListener('click',()=>{const action=introAction;introAction=null;$('liveintro').hidden=true;if(CFG.introVisits>0&&$('introskip').checked)CFG.intro=false;CFG.introVisits++;saveCfg();audio();tryLandscape();if(action)action();});
@@ -987,7 +1139,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   function stopMini() { miniSequence++; if (miniCleanup) miniCleanup(); miniCleanup = null; }
   function waveButton(text, action, parent, disabled = false) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sec'; b.textContent = text; b.disabled = disabled; b.addEventListener('click', action); parent.appendChild(b); return b; }
   function wavePanel(title) { const box = document.createElement('section'); box.className = 'wavepanel'; const h = document.createElement('h2'); h.textContent = title; box.appendChild(h); $('playcontent').appendChild(box); return box; }
-  function openPlay() { stopMini(); $('home').hidden = true; $('playboard').hidden = false; renderPlayMenu(); }
+  function openPlay() { stopMini(); $('members').hidden = true; $('home').hidden = true; $('playboard').hidden = false; renderPlayMenu(); }
   function renderPlayMenu() {
     stopMini(); $('playtitle').textContent = 'あそぶ'; $('playcontent').textContent = ''; $('wavefeedback').textContent = DEV ? '開発URLでは追加報酬・ミッション・絆は記録されません。' : `今日の最初の1曲: ${ensureDaily().boostUsed ? '受取済み' : 'EXP・景気 ×1.5'}`;
     const entries = document.createElement('div'); entries.className = 'playentries'; $('playcontent').appendChild(entries);
@@ -1312,6 +1464,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if (p.catchphrase) rows.push(['キャッチフレーズ', p.catchphrase]);
     if (p.likes && p.likes.length) rows.push(['好きな物', p.likes.join('、')]);
     if (p.nicknames && p.nicknames.length) rows.push(['呼び名', p.nicknames.join('、')]);
+    MEMBERS.filter(other=>other.h!==h).forEach(other=>rows.push([`${other.name}との絆`,`Lv${bondLevel(S.bonds[bondKey(h,other.h)]||0)}`]));
     const dl = $('prows'); dl.textContent = '';
     rows.forEach(([k, v, sw]) => {
       const r = document.createElement('div'); r.className = 'prow';
@@ -1332,16 +1485,23 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('prof').hidden) closeProfile(); });
 
   // ---- ホーム
-  let hbgCur = '';
+  let hbgCur = '', homeBirthday = null;
   function renderHome() {
     const vi = venueIdx(), v = VENUES[vi], nx = VENUES[vi + 1], sum = levelSum();
+    const center=byH(S.ux.center);
+    $('homelevel').textContent=sum;$('homewallet').textContent=fmt(S.wallet);
+    $('homeidol').src=`assets/${center.h}_full.webp`;$('homeidol').alt=center.name;
+    $('homecenter').setAttribute('aria-label',`${center.name} のプロフィール`);
+    $('homesay').textContent=sayFor(center.h);
+    homeBirthday=MEMBERS.find(m=>birthdayWindow(PROFILES[m.h].bd))||null;
+    $('homebanner').textContent=homeBirthday?`🎂 ${homeBirthday.name} 誕生日ライブへ`:nx?`次の会場：${nx.n} · 合計Lv${nx.at}`:'ドームに到達！ みんなとライブを続けよう';
     $('hvenue').textContent = v.n;
     const bgSrc = `assets/bg_${vi + 1}.jpg`;
     if (hbgCur !== bgSrc) { hbgCur = bgSrc; $('hbg').style.backgroundImage = `url("${bgSrc}")`; }
     $('hbar').style.width = nx ? clamp((sum - v.at) / (nx.at - v.at) * 100, 0, 100) + '%' : '100%';
     $('hsub').textContent = nx
-      ? `7人のLv合計 ${sum}　次は${nx.at}以上` + (nx.min ? `・全員Lv${nx.min}以上` : '') + `　景気残高 ${fmt(S.wallet)}`
-      : `7人のLv合計 ${sum}　最高の会場に到達！　景気残高 ${fmt(S.wallet)}`;
+      ? `次は合計Lv${nx.at}` + (nx.min ? `・全員Lv${nx.min}以上` : '')
+      : '最高の会場に到達！';
     const g = $('grid'); g.textContent = '';
     MEMBERS.forEach((m) => {
       const st = S.members[m.h];
@@ -1365,14 +1525,21 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       b.appendChild(ex);
       b.addEventListener('click', () => { audio(); openProfile(m.h); });
       const pb = document.createElement('button');
-      pb.className = 'profbtn'; pb.type = 'button'; pb.textContent = 'プロフ';
-      pb.setAttribute('aria-label', `${m.name} のプロフィールを見る`);
-      pb.addEventListener('click', (e) => { e.stopPropagation(); openProfile(m.h); });
+      pb.className = 'profbtn'; pb.type = 'button'; pb.textContent = m.h===S.ux.center?'センター ✓':'センターにする';
+      pb.setAttribute('aria-label', `${m.name} をセンターにする`);
+      pb.addEventListener('click', () => { S.ux.center=m.h;saveUx();renderHome(); });
       wrap.appendChild(b); wrap.appendChild(pb);
       g.appendChild(wrap);
     });
     renderToday();
   }
+  $('homecenter').addEventListener('click',()=>openProfile(S.ux.center));
+  $('homeshop').addEventListener('click',openShop);
+  $('membersbtn').addEventListener('click',()=>{$('home').hidden=true;$('members').hidden=false;renderHome();});
+  $('membersback').addEventListener('click',goHome);
+  $('membersbonds').addEventListener('click',()=>{openPlay();renderPlayDetail('bonds');});
+  $('homenotice').addEventListener('click',()=>{const items=unreadNotices();showNotice(items.length?['今日やることと各入口の赤い点から、まだ見ていない内容を確認できるよ。',...['songs','play','story'].filter(g=>items.some(n=>n.group===g)).map(g=>({songs:'曲・ショップ',play:'あそぶ・絆・内閣',story:'ストーリー'}[g]))].join('\n'):'新しいお知らせはありません。');});
+  $('homebanner').addEventListener('click',()=>{if(homeBirthday)openSongs(homeBirthday.h);else showNotice($('homebanner').textContent);});
 
   // PERSPECTIVE PURE BEGIN — 描画と入力が共用する、見本と同じ投影。
   function laneGeometry(width, height) {
@@ -1394,6 +1561,23 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
   // PERSPECTIVE PURE END
 
+  // APP COORDINATES PURE BEGIN — 画面座標と横長舞台の座標。キーボードも同じ経路を通す。
+  function clientToApp(clientX, clientY, rect, width, height, rotated) {
+    return rotated
+      ? { x:(clientY-rect.top)*width/rect.height, y:(rect.right-clientX)*height/rect.width }
+      : { x:(clientX-rect.left)*width/rect.width, y:(clientY-rect.top)*height/rect.height };
+  }
+  function appToClient(x, y, rect, width, height, rotated) {
+    return rotated
+      ? { clientX:rect.right-y*rect.width/height, clientY:rect.top+x*rect.height/width }
+      : { clientX:rect.left+x*rect.width/width, clientY:rect.top+y*rect.height/height };
+  }
+  // APP COORDINATES PURE END
+  const app = $('app');
+  const appRotated = () => matchMedia('(orientation:portrait)').matches;
+  const inputPoint = e => clientToApp(e.clientX,e.clientY,app.getBoundingClientRect(),app.clientWidth,app.clientHeight,appRotated());
+  window.ReidolInput = Object.freeze({ point:inputPoint });
+
   // ---- ライブ
   const cv = $('stage'), ctx = cv.getContext('2d');
   let live = null, raf = 0, lastFrame = 0, pendingLive = null;
@@ -1402,7 +1586,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
   function resize() {
     DPR = Math.min(window.devicePixelRatio || 1, 2.5);
-    W = window.innerWidth; H = window.innerHeight;
+    W = app.clientWidth; H = app.clientHeight;
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
     const lanes = live ? live.mode.lanes : 3;
     laneGeo = laneGeometry(W, H);
@@ -1439,7 +1623,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
   // so が無ければ練習モード（合成ビート）。so = { s: 曲, df: 難易度, chart, buf }
   function tryLandscape() {
-    // ユーザー操作の直後に呼ぶ。拒否・未対応でも横向き案内で継続する。
+    // ユーザー操作の直後に呼ぶ。拒否・未対応なら舞台のCSS回転で継続する。
     try {
       const p = !document.fullscreenElement && document.documentElement.requestFullscreen ? document.documentElement.requestFullscreen() : Promise.resolve();
       Promise.resolve(p).then(() => screen.orientation && screen.orientation.lock ? screen.orientation.lock('landscape') : null).catch(() => {});
@@ -1450,17 +1634,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     try { if (document.fullscreenElement && document.exitFullscreen) Promise.resolve(document.exitFullscreen()).catch(() => {}); } catch (e) {}
   }
   function requestLive(h, so) {
-    if (innerWidth < innerHeight) { pendingLive = { h, so }; $('rotate').hidden = false; return; }
     $('rotate').hidden = true; pendingLive = null; startLive(h, so);
   }
   function syncOrientation() {
-    if (innerWidth >= innerHeight) {
-      $('rotate').hidden = true;
-      if (pendingLive) { const p = pendingLive; pendingLive = null; startLive(p.h, p.so); }
-      else if (live && !live.done && live.paused) resumeLive();
-    } else if (live && !live.done) {
-      pauseLive(); $('rotate').hidden = false;
-    }
+    // 向きが変わっても論理舞台は横長のまま。visibilitychange による停止は維持する。
+    $('rotate').hidden = true;
   }
   $('rotatecancel').addEventListener('click', () => {
     const h = pendingLive ? pendingLive.h : live && live.h;
@@ -1616,9 +1794,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     sfx('miss'); pop('ミス', '#c9a8ad');
   }
   function liveTap(e) {
-    if (!live || live.done || live.paused || songT()<0 || e.clientY < H * 0.42 || innerWidth < innerHeight) return;
+    const point = inputPoint(e);
+    if (!live || live.done || live.paused || songT()<0 || point.y < H*.42 || point.y>H || point.x<0 || point.x>W) return;
     e.preventDefault();
-    const lane = laneAtHitX(e.clientX, laneGeo, live.mode.lanes);
+    const lane = laneAtHitX(point.x, laneGeo, live.mode.lanes);
     live.flash[lane] = 1;
     const t = gameT();
     let best = null;
@@ -1635,7 +1814,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const keys = live.mode.lanes === 5 ? { KeyA: 0, KeyS: 1, KeyD: 2, KeyJ: 3, KeyK: 4 } : { KeyA: 0, KeyJ: 0, ArrowLeft: 0, KeyS: 1, KeyK: 1, ArrowDown: 1, KeyD: 2, KeyL: 2, ArrowRight: 2 };
     const lane = keys[e.code];
     if (lane === undefined || e.repeat) return;
-    liveTap({ clientX: sx + laneW * (lane + 0.5), clientY: H * 0.8, preventDefault() {} });
+    e.preventDefault();
+    liveTap({ ...appToClient(sx+laneW*(lane+.5),H*.8,app.getBoundingClientRect(),W,H,appRotated()), preventDefault() {} });
   });
   $('quit').addEventListener('click', () => { if (live && live.song && live.completed.length) finishLive(); else { stopLive(); goHome(); } });
   $('encorestop').addEventListener('pointerdown', e => e.stopPropagation());
@@ -1945,9 +2125,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   }
 
   function goHome() {
-    stopMini(); $('playboard').hidden = true;
+    stopMini(); $('playboard').hidden = true; $('members').hidden = true;
     resultId++;
-    pendingLive = null; $('rotate').hidden = true; releaseLandscape();
+    pendingLive = null; $('rotate').hidden = true;
     $('live').hidden = true; $('result').hidden = true; $('lvup').hidden = true; $('songs').hidden = true; $('loading').hidden = true; $('home').hidden = false;
     renderHome();
     flushStory();
@@ -1961,8 +2141,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('tosongs').addEventListener('click', () => { resultId++; $('lvup').hidden = true; openSongs(live.h); });
 
   // ---- 曲えらび・読み込み
-  let pickH = null, SONGS = null, shopOnly = false;
-  const pickModes = {};
+  let pickH = null, SONGS = null, shopOnly = false, selectedSongSlug = null;
+  const pickModes = {}, pickDifficulty = {};
   let purchaseSong = null;
   const modeFor = (slug, df) => ({ ...(pickModes[slug] || { lanes: 3, length: 'short' }), diff: df.k });
   const chartCache = {};
@@ -1970,6 +2150,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   const fmtDur = (sec) => { const t = Math.round(sec); return `${Math.floor(t / 60)}:${pad2(t % 60)}`; };
   function songNote(text) {
     const box = $('songlist'); box.textContent = '';
+    $('songdetail').textContent='';
     const d = document.createElement('div'); d.className = 'snote'; d.textContent = text; box.appendChild(d);
   }
   function renderDevButton(box) {
@@ -1998,7 +2179,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     S.ux.center=h;saveUx();shopOnly=false;
     $('centerpick').textContent='';MEMBERS.forEach(member=>{const option=document.createElement('option');option.value=member.h;option.textContent=member.name;$('centerpick').appendChild(option);});$('centerpick').value=h;
     const m = byH(h);
-    $('home').hidden = true; $('result').hidden = true; $('live').hidden = true; $('songs').hidden = false;
+    $('home').hidden = true; $('members').hidden = true; $('playboard').hidden = true; $('result').hidden = true; $('live').hidden = true; $('songs').hidden = false;
     $('songs').style.setProperty('--mc', m.color); $('songs').scrollTop = 0;
     const who = $('swho'); who.textContent = ''; who.appendChild(avatar(h, 40));
     const nm = document.createElement('span'); nm.textContent = `センター　${m.name}`; who.appendChild(nm);
@@ -2012,6 +2193,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
   $('shopopen').addEventListener('click',openShop);
   $('shopback').addEventListener('click',()=>{shopOnly=false;renderSongs();});
   async function renderSongs() {
+    $('songs').setAttribute('data-shop',String(shopOnly));
     if (!SONGS) {
       songNote('曲リストを読み込み中…');
       try {
@@ -2023,7 +2205,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
         SONGS = list;
       } catch (e) { songNote('この場所では曲が使えません。下の「練習モード」なら仮のビートで遊べます。'); return; }
     }
-    const box = $('songlist'); box.textContent = '';
+    const box = $('songlist'); box.textContent = ''; $('songdetail').textContent='';
     $('songlead').textContent=shopOnly?'景気で新しい曲を買おう':'曲と難しさをえらんでね';$('shopback').hidden=!shopOnly;
     $('shopdot').hidden=!unreadNotices().some(n=>n.key==='shop');
     renderDevButton(box);
@@ -2035,6 +2217,18 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       box.appendChild(special);
     });
     $('wallet').textContent = `景気残高 ${fmt(S.wallet)} ／ 累計 ${fmt(S.keiki)}`;
+    const choices=SONGS.filter(s=>!shopOnly||!S.ownedSongs.includes(s.slug));
+    if(!choices.some(s=>s.slug===selectedSongSlug))selectedSongSlug=choices[0]?.slug||null;
+    if(shopOnly&&!choices.length)songNote('すべての曲を購入済みです。曲えらびへ戻って遊ぼう。');
+    function placeCard(s,card) {
+      if(shopOnly){box.appendChild(card);return;}
+      const choice=document.createElement('button');choice.type='button';choice.className='song-choice';choice.setAttribute('aria-pressed',String(s.slug===selectedSongSlug));
+      const title=document.createElement('b');title.textContent=s.title||s.slug;
+      addBadge(title,unreadNotices().some(n=>n.key===`song:${s.slug}`||n.key.startsWith(`song:${s.slug}:`)),true);
+      const info=document.createElement('small');info.textContent=S.ownedSongs.includes(s.slug)?`到達★ ${S.stageRecords[s.slug]||0} / ${s.stages?.length||(s.slug==='overture-01'?3:4)}`:`${fmt(BALANCE.prices[s.slug])} 景気`;
+      choice.append(title,info);choice.addEventListener('click',()=>{selectedSongSlug=s.slug;renderSongs();});box.appendChild(choice);
+      if(s.slug===selectedSongSlug)$('songdetail').appendChild(card);
+    }
     [...SONGS].sort((a, b) => BALANCE.prices[a.slug] - BALANCE.prices[b.slug]).forEach((s) => {
       if(shopOnly&&S.ownedSongs.includes(s.slug))return;
       const card = document.createElement('div'); card.className = 'song';
@@ -2054,7 +2248,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
           purchaseSong = s; $('purchaseinfo').textContent = `${s.title}を${fmt(BALANCE.prices[s.slug])}景気で買いますか？　残高 ${fmt(S.wallet)}`;
           $('purchaseerror').textContent = ''; $('purchase').hidden = false;
         });
-        card.appendChild(buy); box.appendChild(card); return;
+        card.appendChild(buy); placeCard(s,card); return;
       }
       const progress = S.progress[s.slug] || {};
       const selected = pickModes[s.slug] || (pickModes[s.slug] = { lanes: 3, length: 'short' });
@@ -2073,6 +2267,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
       const row = document.createElement('div'); row.className = 'diffs';
       DIFFS.forEach((df) => {
         const b = document.createElement('button'); b.type = 'button'; b.className = 'diff'; b.style.setProperty('--dc', df.c);
+        b.setAttribute('aria-pressed',String((pickDifficulty[s.slug]||'easy')===df.k));
         const mode = modeFor(s.slug, df), counts = mode.lanes === 5 ? s.counts5 : s.counts;
         const n = counts && +counts[df.k] || 0, best = bestOf(s.slug, df.k, mode);
         b.disabled = !modeUnlocked(progress, mode);
@@ -2082,13 +2277,15 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
         const l2 = document.createElement('small'); l2.textContent = b.disabled ? 'ふつう Aで解放' : '約30秒からスタート';
         const l3 = document.createElement('small'); l3.className = 'bst'; l3.textContent = best ? `BEST ${fmt(best)}` : '—';
         b.appendChild(l1); b.appendChild(l2); b.appendChild(l3);
-        b.addEventListener('click', () => { acknowledge(`song:${s.slug}`);audio(); beginSong(pickH, s, df, mode); });
+        b.addEventListener('click', () => { pickDifficulty[s.slug]=df.k;renderSongs(); });
         row.appendChild(b);
       });
       card.appendChild(row);
+      const chosen=DIFFS.find(df=>df.k===(pickDifficulty[s.slug]||'easy'))||DIFFS[0];
+      const start=waveButton('▶ ライブ開始',()=>{acknowledge(`song:${s.slug}`);audio();beginSong(pickH,s,chosen,modeFor(s.slug,chosen));},card,!modeUnlocked(progress,modeFor(s.slug,chosen)));start.className='btn pri';start.style.width='100%';
       const note = document.createElement('div'); note.className = 'locknote';
       note.textContent = nextUnlock(progress,stageCount===4);
-      card.appendChild(note); box.appendChild(card);
+      card.appendChild(note); placeCard(s,card);
     });
   }
   $('songback').addEventListener('click', goHome);
@@ -2271,7 +2468,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     if(!$('slist').hidden)renderStoryList();
   }
   let storyQ = [], storyDone = null, storyId = 0, storyAt = 0, pendingStory = [];
-  function playStory(ids, done) { storyQ = ids.slice(); storyDone = done || null; nextStory(); }
+  function playStory(ids, done) {
+    const returnToList=!$('slist').hidden;
+    $('slist').hidden=true;
+    storyQ=ids.slice();
+    storyDone=()=>{if(returnToList){renderStoryList();$('slist').hidden=false;}if(done)done();};
+    nextStory();
+  }
   async function nextStory() {
     if (!storyQ.length) {
       storyId++; $('story').hidden = true;
@@ -2369,11 +2572,12 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
     const key=release?release.version+'|'+release.notes:'';
     if(release&&release.version===APP_VERSION&&release.notes&&S.ux.notesVersion!==key){showGuide([release.notes],'新しくなったこと',()=>{S.ux.notesVersion=key;S.ux.pendingRelease=null;saveUx();done();});}else done();
   }
-  $('openingstart').addEventListener('click',()=>{audio();$('opening').hidden=true;goHome();bgmSync();releaseNotes(()=>withTip('home',()=>{}));});
+  $('openingstart').addEventListener('click',()=>{audio();tryLandscape();$('opening').hidden=true;goHome();bgmSync();releaseNotes(()=>withTip('home',()=>{}));});
   $('appversion').textContent=`バージョン ${APP_VERSION}`;
   renderHome();checkForUpdate(true);
 })();
 </script>
+</div>
 
 <script>
 if ('serviceWorker' in navigator) { addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {})); }
