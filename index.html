@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "44c7a2dbe1";</script>
+<script>window.APP_VERSION = "6aaae8159a";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -474,7 +474,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   #live .life-row { margin-top:3px; font-size:12px; }
 }
 /* 層一覧: 画面5〜50 / 演出60 / opening100 / 一覧200 / 設定・プロフ210 /
-   購入220 / 読込・合言葉230 / 案内240 / レベルアップ250 / 通知260。 */
+   購入(purchase・wave2purchase)220 / 読込・合言葉230 / 案内240 / レベルアップ250 / 通知260。 */
 #app .ovl, #app #prof, #app #slist, #app #lvup { align-items:center; padding:max(10px,var(--safe-t)) max(12px,var(--safe-r)) max(10px,var(--safe-b)) max(12px,var(--safe-l)); }
 #app .sheet, #app .lvbox { width:min(760px,100%); max-height:100%; overflow:auto; border-radius:20px; padding:18px; }
 #app #slist { z-index:200; }
@@ -583,6 +583,41 @@ html, body { width:100%; height:100%; overflow:hidden; }
   #app .btn { font-size:15px; }
   #app .sli img, #app .sli .slph { width:64px; }
 }
+/* 第2弾: #app内の横長画面。背景画像は入口を開いた時だけ設定する。 */
+#wave2panel { position:fixed; inset:0; z-index:45; overflow:auto; background:var(--bg); padding:max(12px,var(--safe-t)) max(16px,var(--safe-r)) max(12px,var(--safe-b)) max(16px,var(--safe-l)); }
+#wave2panel header { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+#wave2panel h1 { font-size:22px; margin:4px 0; }#wave2content { margin-top:12px; }
+#app #wave2purchase { z-index:220; }
+#members .member-actions { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+.w2-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+.w2-card { padding:12px; border:1px solid #826477; border-radius:14px; background:#302330; }
+.w2-card img { display:block; width:100%; max-height:160px; object-fit:contain; }.w2-card button { width:100%; }
+.w2-wardrobe { display:grid; grid-template-columns:30% minmax(0,1fr); gap:16px; }
+.w2-preview img { width:100%; height:52cqh; object-fit:contain; }.w2-preview .w2-accessory { height:64px; }
+.w2-accessories { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+.w2-accessories img { height:64px; width:100%; object-fit:contain; }
+.w2-accessory { width:54px; height:54px; object-fit:contain; flex:none; }
+#homeaccessory { position:absolute; z-index:2; left:58%; bottom:76px; }
+.w2-route { display:flex; align-items:center; gap:0; overflow-x:auto; padding:18px 0; }
+.w2-station { flex:1; min-width:100px; border-bottom:5px solid #bb96ae; text-align:center; padding:10px 5px; }
+.w2-station[aria-current=true] { border-color:var(--gold); background:#4b3643; }
+.w2-train { width:90px; height:60px; object-fit:contain; }.w2-stamp { width:100%; height:90px; object-fit:contain; }
+.w2-locked { display:grid; place-items:center; min-height:130px; background:linear-gradient(135deg,#372a3c,#171219); border-radius:10px; color:#a08a9a; font-size:30px; }
+.wave2-game > h2 { margin:6px 0; }.wave2-game > p { margin:6px 0; }
+.w2-quiz { display:flex; align-items:center; gap:18px; min-height:90px; padding:10px; background:#342534; border-radius:14px; }
+.w2-quiz > p { font-size:20px; }.w2-balloon { width:90px; height:90px; object-fit:contain; }
+#playcontent .w2-faces { grid-template-columns:repeat(3,minmax(0,1fr)); }.w2-faces img { display:block; width:100%; height:140px; object-fit:contain; }.w2-faces span { display:block; }
+.w2-puff { width:38px; height:38px; object-fit:contain; position:absolute; right:25px; top:85px; pointer-events:none; }
+.w2-bbq { display:grid; grid-template-columns:60% minmax(0,1fr); gap:12px; height:160px; }
+.w2-grill { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; padding:20px 8px; background:center 65% / cover; border-radius:12px; }
+.w2-grill button { border:1px solid #ffd697; background:#25151b9c; border-radius:12px; }
+.w2-grill img { width:100%; height:90px; object-fit:contain; }.w2-dodge { position:relative; background:#35402c; border-radius:12px; overflow:hidden; touch-action:none; }
+.w2-shirt { position:absolute; bottom:0; width:54px; height:54px; object-fit:contain; transform:translateX(-50%); }
+.w2-sauce { position:absolute; color:#b76a30; font-size:28px; transform:translateX(-50%); }
+.w2-drive { background:center / cover; padding:10px; border-radius:12px; }.w2-drive > p { display:inline-block; margin:2px 12px 8px 0; padding:4px 10px; background:#201721e8; font-size:18px; }
+.w2-menu { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }.w2-menu > div { background:#201721e8; padding:5px; border-radius:12px; }
+.w2-menu img { width:100%; height:65px; object-fit:contain; }.w2-menu button { display:block; width:100%; padding:5px; border-radius:8px; font-size:12px; }.w2-menu span { display:block; font-size:12px; }
+.w2-newstory img { width:100px; height:60px; object-fit:cover; }.w2-story-draft { color:var(--dim); font-size:12px; }
 </style>
 <div id="app">
 <section id="opening"><div class="brand">Re:IDOL<br><b>ライブ</b></div><button class="btn pri" id="openingstart" type="button">タップしてはじめる</button><button class="btn sec" id="openingupdate" type="button" hidden>アップデートがあります</button><p id="updatestatus" role="status"></p><small id="appversion"></small></section>
@@ -600,6 +635,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   </header>
   <button class="home-center" id="homecenter" type="button" aria-label="センターのプロフィール"><img id="homeidol" alt=""></button>
   <p class="home-say" id="homesay"></p>
+  <img id="homeaccessory" class="w2-accessory" alt="" hidden>
   <section class="home-today"><h2>今日やること</h2>
     <div id="todaylist" class="todaylist" aria-label="今日やること"></div>
   </section>
@@ -613,7 +649,9 @@ html, body { width:100%; height:100%; overflow:hidden; }
   </nav>
   <button class="btn pri primarylive" id="livebtn" type="button">▶ ライブ<span id="livedot" class="dot" hidden></span></button>
 </main>
-<section id="members" hidden aria-labelledby="memberstitle"><button class="btn sec" id="membersback" type="button">ホームへ</button><h1 id="memberstitle">メンバー</h1><button class="btn sec" id="membersbonds" type="button">2人の絆</button><div class="grid" id="grid"></div></section>
+<section id="members" hidden aria-labelledby="memberstitle"><button class="btn sec" id="membersback" type="button">ホームへ</button><h1 id="memberstitle">メンバー</h1><div class="member-actions"><button class="btn sec" id="membersbonds" type="button">2人の絆</button><button class="btn sec" id="wardrobebtn" type="button">衣装クローゼット<span class="dot" id="wardrobedot" hidden></span></button><button class="btn sec" id="albumbtn" type="button">思い出図鑑<span class="dot" id="albumdot" hidden></span></button><button class="btn sec" id="tourbtn" type="button">日本縦断すごろく<span class="dot" id="tourdot" hidden></span></button></div><div class="grid" id="grid"></div></section>
+<section id="wave2panel" hidden aria-labelledby="wave2title"><header><button id="wave2back" class="btn sec" type="button">もどる</button><h1 id="wave2title"></h1><span id="wave2wallet"></span></header><div id="wave2content"></div></section>
+<div id="wave2purchase" class="ovl" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="wave2purchaseh"><h2 id="wave2purchaseh">景気で解放</h2><p id="wave2purchaseinfo"></p><div class="btns"><button id="wave2purchaseok" class="btn pri" type="button">解放する</button><button id="wave2purchasecancel" class="btn sec" type="button">やめる</button></div></div></div>
 <section id="playboard" hidden aria-labelledby="playtitle">
   <button class="btn sec" id="playback" type="button">ホームへ戻る</button>
   <h1 id="playtitle">あそぶ</h1><label>ミニゲームのセンター <select id="minicenter"></select></label>
@@ -748,7 +786,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   <div class="pad-x">
     <div class="result-character">
     <div class="rwho"><div id="rav"></div><div class="rname" id="rname"></div><div class="rsong" id="rsong"></div></div>
-    <div class="rrow"><img class="rfull" id="rfull" alt="" hidden><div class="say" id="rsay" hidden></div></div>
+    <div class="rrow"><img class="rfull" id="rfull" alt="" hidden><img id="raccessory" class="w2-accessory" alt="" hidden><div class="say" id="rsay" hidden></div></div>
     </div>
     <div class="result-detail">
     <div class="rscorelab" id="rrank">スコア</div>
@@ -827,7 +865,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   const DEV = new URLSearchParams(location.search).get('dev') === '1';
   // BALANCE PURE BEGIN — 数値の変更先と、DOMに依存しない計算。
   const BALANCE = {
-    version: 5, maxLevel: 10, migrationBonus: 300,
+    version: 6, maxLevel: 10, migrationBonus: 300,
     score: { max: 1000000, judge: 900000, combo: 100000, good: .6 },
     ranks: [{ k: 'SS', at: 950000, exp: 50 }, { k: 'S', at: 850000, exp: 40 }, { k: 'A', at: 700000, exp: 30 }, { k: 'B', at: 500000, exp: 20 }, { k: 'C', at: 0, exp: 5 }],
     difficulty: { easy: 1, normal: 1.5, hard: 2 }, lanes: { 3: 1, 5: 1.3 }, length: { short: 1, full: 1.8 }, birthday: 2,
@@ -851,6 +889,23 @@ html, body { width:100%; height:100%; overflow:hidden; }
           { id:'normal', label:'みんなで成長', detail:'ふつうのEXP +5%', cost:11, requires:['currency'] },
           { id:'bond', label:'絆をつなぐ', detail:'完走ライブの絆 +1→+2', cost:12, requires:['support'] },
         ] }, birthdayWindowDays: 7,
+    },
+    wave2: {
+      mini: {
+        balloon:{seconds:45,roundSeconds:5,target:15,currency:[20,80],exp:[5,20]},
+        creampuff:{seconds:60,target:20,currency:[20,100],exp:[5,25]},
+        bbq:{seconds:90,cookedAt:2,burntAt:4,target:28,currency:[20,100],exp:[5,25]},
+        drive:{seconds:60,target:8,currency:[20,80],exp:[5,20]},
+      },
+      casualPrice:100, accessoryPrice:45, stampBonus:150,
+      accessories:[
+        {id:'fuka_ribbon',name:'リボン'},{id:'ruri_cat_ears',name:'ねこ耳'},
+        {id:'aira_glasses',name:'めがね'},{id:'saaya_clip',name:'ヘアクリップ'},
+        {id:'neiro_big_ribbon',name:'大きなリボン'},{id:'nana_beret',name:'ベレー帽'},
+        {id:'arisu_badge',name:'バッジ'},
+      ],
+      stops:[{id:'tokyo',name:'東京'},{id:'kanagawa',name:'神奈川'},{id:'aichi',name:'愛知'},
+        {id:'gifu',name:'岐阜'},{id:'osaka',name:'大阪'},{id:'oita',name:'大分'},{id:'fukuoka',name:'福岡'}],
     },
   };
   const bounded = (v, a, b) => Math.max(a, Math.min(b, Number.isFinite(+v) ? +v : a));
@@ -906,7 +961,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     return { ...base, totalExp, exp:totalExp - supportExp, supportExp, currency:Math.floor(score / BALANCE.currencyDivisor * base.mult * daily * (skills.includes('currency') ? w.cabinet.currencyFactor : 1) + 1e-9), daily };
   }
   function calcMiniReward(kind, correct, attempts, skills = []) {
-    const rule = BALANCE.wave1.mini[kind], progress = bounded(correct / rule.target, 0, 1), accuracy = attempts ? bounded(correct / attempts, 0, 1) : 0;
+    const rule = BALANCE.wave1.mini[kind] || BALANCE.wave2.mini[kind], progress = bounded(correct / rule.target, 0, 1), accuracy = attempts ? bounded(correct / attempts, 0, 1) : 0;
     const strength = Math.min(progress, accuracy);
     return { currency:Math.floor((rule.currency[0] + (rule.currency[1] - rule.currency[0]) * strength) * (skills.includes('currency') ? BALANCE.wave1.cabinet.currencyFactor : 1) + 1e-9), exp:Math.floor(rule.exp[0] + (rule.exp[1] - rule.exp[0]) * strength + 1e-9) };
   }
@@ -940,7 +995,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   }
   function migrateSave(raw, handles) {
     const old = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : null;
-    const current = old && [2, 3, 4, BALANCE.version].includes(old.version);
+    const current = old && [2, 3, 4, 5, BALANCE.version].includes(old.version);
     const d = { ...(old || {}), version: BALANCE.version,
       keiki: bounded(old && old.keiki, 0, Number.MAX_SAFE_INTEGER), plays: Math.floor(bounded(old && old.plays, 0, Number.MAX_SAFE_INTEGER)),
       wallet: current ? Math.floor(bounded(old.wallet, 0, Number.MAX_SAFE_INTEGER)) : old ? BALANCE.migrationBonus : 0,
@@ -950,10 +1005,10 @@ html, body { width:100%; height:100%; overflow:hidden; }
     handles.forEach((h) => { const m = old && old.members && old.members[h] || {};
       d.members[h] = { ...m, lv: Math.floor(bounded(m.lv || 1, 1, BALANCE.maxLevel)), exp: bounded(m.exp, 0, Number.MAX_SAFE_INTEGER), plays: Math.floor(bounded(m.plays, 0, Number.MAX_SAFE_INTEGER)) }; });
     d.stageRecords = {};
-    if (old && [4, BALANCE.version].includes(old.version) && old.stageRecords && typeof old.stageRecords === 'object') {
+    if (old && [4, 5, BALANCE.version].includes(old.version) && old.stageRecords && typeof old.stageRecords === 'object') {
       for (const slug of Object.keys(BALANCE.prices)) d.stageRecords[slug] = Math.floor(bounded(old.stageRecords[slug], 0, slug === 'overture-01' ? 3 : 4));
     }
-    const w = old && [3, 4, BALANCE.version].includes(old.version) ? old : {};
+    const w = old && [3, 4, 5, BALANCE.version].includes(old.version) ? old : {};
     d.skills = Array.isArray(w.skills) ? [...new Set(w.skills.filter(id => BALANCE.wave1.cabinet.skills.some(s => s.id === id)))] : [];
     d.bonds = {};
     if (w.bonds && typeof w.bonds === 'object') for (const [key, value] of Object.entries(w.bonds)) {
@@ -963,8 +1018,78 @@ html, body { width:100%; height:100%; overflow:hidden; }
     d.daily = daily && /^\d{4}-\d{2}-\d{2}$/.test(daily.date) ? { ...newDaily(daily.date), clear:Math.floor(bounded(daily.clear,0,9999)), mini:Math.floor(bounded(daily.mini,0,9999)), centers:Array.isArray(daily.centers) ? daily.centers.filter(h => handles.includes(h)) : [], boostUsed:daily.boostUsed === true, celebrated:daily.celebrated === true, miniRewarded:Math.floor(bounded(daily.miniRewarded,0,9999)) } : newDaily(localDay());
     const ux = current && old.ux && typeof old.ux === 'object' ? old.ux : {};
     d.ux = { read:ux.read && typeof ux.read === 'object' ? ux.read : {}, tips:ux.tips && typeof ux.tips === 'object' ? ux.tips : {}, center:handles.includes(ux.center) ? ux.center : handles[0], notesVersion:typeof ux.notesVersion === 'string' ? ux.notesVersion : '', pendingRelease:ux.pendingRelease && typeof ux.pendingRelease.version==='string' && typeof ux.pendingRelease.notes==='string' ? ux.pendingRelease : null };
+    d.wave2 = migrateWave2(old && old.wave2, handles);
     return d;
   }
+  // WAVE2 PURE BEGIN — 所有・進行・解放は保存と画面から独立させる。
+  function migrateWave2(raw,handles) {
+    const r=raw&&typeof raw==='object'?raw:{},ward=r.wardrobe||{},tour=r.tour||{},album=r.album||{},stats=r.stats||{};
+    const accs=BALANCE.wave2.accessories.map(a=>a.id),stops=BALANCE.wave2.stops.map(s=>s.id);
+    const unique=(a,allowed)=>Array.isArray(a)?[...new Set(a.filter(v=>allowed.includes(v)))]:[];
+    const casual=unique(ward.casual,handles),accessories=unique(ward.accessories,accs),selected={};
+    handles.forEach(h=>{const s=ward.selected&&ward.selected[h]||{};selected[h]={outfit:s.outfit==='casual'&&casual.includes(h)?'casual':'stage',accessory:accessories.includes(s.accessory)?s.accessory:null};});
+    const stamps=unique(tour.stamps,stops),cards=['first_lesson','costume_fitting','flyer_dist','circle_cheer','recording','bus_tour',...Array.from({length:7},(_,i)=>'story_'+i)];
+    const unlocked=unique(album.unlocked,cards);
+    return {version:1,wardrobe:{casual,accessories,selected},
+      tour:{position:Math.floor(bounded(tour.position,0,stops.length-1)),stamps,rewarded:stamps.length===stops.length&&tour.rewarded===true,clears:Math.floor(bounded(tour.clears,0,1e9))},
+      album:{unlocked,read:unique(album.read,unlocked)},stats:{full:stats.full===true,ss:stats.ss===true,minis:Math.floor(bounded(stats.minis,0,1e9))},
+      storySeen:Array.isArray(r.storySeen)?[...new Set(r.storySeen.filter(id=>typeof id==='string'&&/^c[356]_[a-z0-9_]+$/.test(id)))]:[]};
+  }
+  function buyWave2(raw,wallet,kind,id,handles) {
+    const w=migrateWave2(raw,handles),balance=Math.floor(bounded(wallet,0,Number.MAX_SAFE_INTEGER));
+    const list=kind==='casual'?w.wardrobe.casual:kind==='accessory'?w.wardrobe.accessories:null;
+    const allowed=kind==='casual'?handles:BALANCE.wave2.accessories.map(a=>a.id);
+    const price=kind==='casual'?BALANCE.wave2.casualPrice:BALANCE.wave2.accessoryPrice;
+    if(!list||!allowed.includes(id))return {ok:false,wallet:balance,wave2:w,reason:'不明なアイテム'};
+    if(list.includes(id))return {ok:false,wallet:balance,wave2:w,reason:'解放済み'};
+    if(balance<price)return {ok:false,wallet:balance,wave2:w,reason:'景気が足りません'};
+    list.push(id);return {ok:true,wallet:balance-price,wave2:w,reason:''};
+  }
+  function equipWave2(raw,h,outfit,accessory,handles) {
+    const w=migrateWave2(raw,handles);if(!handles.includes(h))return w;
+    if(outfit==='stage'||outfit==='casual'&&w.wardrobe.casual.includes(h))w.wardrobe.selected[h].outfit=outfit;
+    if(accessory===null||w.wardrobe.accessories.includes(accessory))w.wardrobe.selected[h].accessory=accessory;
+    return w;
+  }
+  function advanceWave2Tour(raw,roll,handles) {
+    const w=migrateWave2(raw,handles),stops=BALANCE.wave2.stops;
+    if(!Number.isInteger(roll)||roll<1||roll>3)return {wave2:w,currency:0,station:null};
+    w.tour.position=(w.tour.position+roll)%stops.length;w.tour.clears++;
+    const station=stops[w.tour.position];if(!w.tour.stamps.includes(station.id))w.tour.stamps.push(station.id);
+    const currency=!w.tour.rewarded&&w.tour.stamps.length===stops.length?BALANCE.wave2.stampBonus:0;
+    if(currency)w.tour.rewarded=true;
+    return {wave2:w,currency,station};
+  }
+  function unlockWave2Album(raw,context,handles) {
+    const w=migrateWave2(raw,handles),fresh=[];
+    const checks={first_lesson:context.maxLevel>=2,costume_fitting:w.wardrobe.casual.length>0,
+      flyer_dist:context.venue>=1,circle_cheer:context.bondMax>=5,recording:w.stats.ss||context.ss,
+      bus_tour:w.stats.full||context.full};
+    for(let i=0;i<7;i++)checks['story_'+i]=context.seen.includes(i);
+    for(const [id,ok] of Object.entries(checks))if(ok&&!w.album.unlocked.includes(id)){w.album.unlocked.push(id);fresh.push(id);}
+    return {wave2:w,fresh};
+  }
+  function recordWave2Live(raw,{clear=false,full=false,ss=false,roll=1},handles){
+    if(!clear)return {wave2:migrateWave2(raw,handles),currency:0,station:null};
+    const result=advanceWave2Tour(raw,roll,handles);result.wave2.stats.full ||= full;result.wave2.stats.ss ||= ss;return result;
+  }
+  function parseWave2Stories(markdown) {
+    const rows=[];
+    for(const line of markdown.split(/\r?\n/)){
+      if(!/^\|\s*C[356]\s*\|/.test(line))continue;
+      const c=line.split('|').slice(1,-1).map(v=>v.trim());
+      if(c.length!==8||!/^c[356]_[a-z0-9_]+$/.test(c[1])||!/^c[356]_[a-z0-9_]+$/.test(c[5]))throw new Error('追加物語の表形式が不正です');
+      const venue=Number(c[2]),requires=Number(c[3]),lines=c[7].split('<br>').map(v=>v.trim());
+      if(!Number.isInteger(venue)||venue<0||venue>5||!Number.isInteger(requires)||requires<0||requires>6||lines.length!==4||lines.some(s=>!s))throw new Error('追加物語の解放条件・本文が不正です');
+      rows.push({group:c[0],id:c[1],venue,requires,t:c[4],image:'assets/wave2/'+c[5]+'.jpg',extra:c[6]==='-'?null:c[6],lines});
+    }
+    if(rows.length!==11||new Set(rows.map(s=>s.id)).size!==rows.length||rows.some(s=>s.extra&&!rows.some(r=>r.id===s.extra)))throw new Error('追加物語は重複なしの11話が必要です');
+    return rows;
+  }
+  function wave2StoryAvailable(story,{venue,seen,waveSeen}) {
+    return venue>=story.venue&&seen.includes(story.requires)&&(!story.extra||waveSeen.includes(story.extra));
+  }
+  // WAVE2 PURE END
   function countInPlan(bpm, anchor) {
     const beat = 60 / bounded(bpm || 120, 30, 300);
     return { beat, beats:[0,1,2,3].map(i => anchor+i*beat), start:anchor+4*beat };
@@ -1076,6 +1201,11 @@ html, body { width:100%; height:100%; overflow:hidden; }
   }
   function notificationTokens() {
     const items = [{key:'mini:shiritori',value:'1',group:'play'},{key:'mini:abekobe',value:'1',group:'play'}];
+    for(const id of Object.keys(BALANCE.wave2.mini))items.push({key:'mini:'+id,value:'1',group:'play'});
+    const wardrobe=S.wave2.wardrobe,offers=[...MEMBERS.filter(m=>!wardrobe.casual.includes(m.h)&&S.wallet>=BALANCE.wave2.casualPrice).map(m=>'casual:'+m.h),...BALANCE.wave2.accessories.filter(a=>!wardrobe.accessories.includes(a.id)&&S.wallet>=BALANCE.wave2.accessoryPrice).map(a=>'acc:'+a.id)];
+    items.push({key:'wardrobe',value:offers.join(',')||(!wardrobe.casual.length&&!wardrobe.accessories.length?'first':''),group:'members'});
+    items.push({key:'tour',value:S.wave2.tour.stamps.slice().sort().join(',')||'first',group:'members'});
+    items.push({key:'collection',value:S.wave2.album.unlocked.filter(id=>!S.wave2.album.read.includes(id)).sort().join(','),group:'members'});
     const pending = missionItems().map((m,i) => m.done ? '' : String(i)).filter(Boolean).join(',');
     items.push({key:'missions',value:pending ? `${ensureDaily().date}:${pending}` : '',group:'play'});
     items.push({key:'cabinet',value:availableCabinet().map(s=>s.id).sort().join(','),group:'play'});
@@ -1090,6 +1220,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
       }
     }
     for(let i=0;i<=Math.min(STORY.length-1,venueIdx()+1);i++) if (!seen.includes(i)) items.push({key:`story:${i}`,value:'1',group:'story'});
+    for(const story of wave2Stories)if(wave2StoryAvailable(story,{venue:venueIdx(),seen,waveSeen:S.wave2.storySeen})&&!S.wave2.storySeen.includes(story.id))items.push({key:'story:'+story.id,value:'1',group:'story'});
     return items;
   }
   function unreadNotices() { return noticeState(notificationTokens(), S.ux.read); }
@@ -1097,10 +1228,12 @@ html, body { width:100%; height:100%; overflow:hidden; }
   function addBadge(el, fresh, isNew = false) { if (!fresh) return; const badge=document.createElement('span');badge.className=isNew?'newmark':'dot';badge.textContent=isNew?'NEW':'';badge.setAttribute('aria-label',isNew?'新しく使えるよ':'お知らせあり');el.appendChild(badge); }
   function renderToday() {
     const unread=unreadNotices(); $('livedot').hidden=!unread.some(n=>n.group==='songs');$('playdot').hidden=!unread.some(n=>n.group==='play');$('storydot').hidden=!unread.some(n=>n.group==='story');
-    $('homeshopdot').hidden=!unread.some(n=>n.key==='shop');$('noticedot').hidden=!unread.length;$('membersdot').hidden=!unread.some(n=>n.key==='bonds');
+    $('homeshopdot').hidden=!unread.some(n=>n.key==='shop');$('noticedot').hidden=!unread.length;$('membersdot').hidden=!unread.some(n=>n.key==='bonds'||n.group==='members');
+    for(const [id,key] of [['wardrobedot','wardrobe'],['albumdot','collection'],['tourdot','tour']])$(id).hidden=!unread.some(n=>n.key===key);
     const box=$('todaylist');box.textContent='';
     const remaining=missionItems().filter(m=>!m.done).length, affordable=Object.keys(BALANCE.prices).filter(slug=>!S.ownedSongs.includes(slug)&&BALANCE.prices[slug]<=S.wallet);
     const rows=[['今日のミッション：'+(remaining?`あと${remaining}つ`:'ぜんぶ達成！'),()=>{openPlay();renderPlayDetail('missions');},'missions'],[affordable.length?'買える曲があるよ':'景気をためて曲を増やそう',openShop,'shop'],[availableCabinet().length?'使える内閣ポイントがあるよ':'みんなを育てて内閣ポイントをためよう',()=>{openPlay();renderPlayDetail('cabinet');},'cabinet'],[unread.some(n=>n.group==='story')?'見ていない物語があるよ':'物語を見返そう',()=>{renderStoryList();$('slist').hidden=false;},'story']];
+    rows.push(['第2弾の4つのミニゲーム',openPlay,'mini'],['衣装と小物を見よう',()=>openWave2Panel('wardrobe'),'wardrobe'],['思い出の図鑑を見よう',()=>openWave2Panel('collection'),'collection'],['列車とスタンプを見よう',()=>openWave2Panel('tour'),'tour']);
     rows.forEach(([text,action,key])=>{const b=document.createElement('button');b.type='button';b.textContent=text;addBadge(b,unread.some(n=>n.key===key||n.key.startsWith(key+':')));b.addEventListener('click',action);box.appendChild(b);});
   }
   function beforeLive(action) {
@@ -1120,9 +1253,23 @@ html, body { width:100%; height:100%; overflow:hidden; }
     { id:'missions', title:'ほめてぃぶ ミッション', text:'毎日3つのスタンプ' },
     { id:'bonds', title:'2人の絆', text:'センターとサポートの記録' },
     { id:'cabinet', title:'ピースフル内閣', text:'7人の成長で公約を解放' },
-    { id:'collection', title:'図鑑', text:'準備中・第2弾', pending:true },
-    { id:'story', title:'物語の追加', text:'準備中・第2〜3弾', pending:true },
+    { id:'balloon', title:'風船クイズ', text:'45秒・割れる前に3択' },
+    { id:'creampuff', title:'激辛シュークリーム人狼', text:'60秒・我慢顔を見分けよう' },
+    { id:'bbq', title:'白Tを守れBBQ', text:'90秒・肉とタレを見よう' },
+    { id:'drive', title:'ドライブスルー注文', text:'60秒・目標ぴったりの暗算' },
+    { id:'wardrobe', title:'衣装クローゼット', text:'私服と小物を景気で解放' },
+    { id:'tour', title:'日本縦断すごろく', text:'ライブクリアで列車が進む' },
+    { id:'collection', title:'思い出ポラロイド図鑑', text:'成長の節目を集めよう' },
+    { id:'story', title:'追加の物語', text:'季節・幕間・全国ツアー（下書き）' },
   ];
+  const MINI_KINDS=['shiritori','abekobe',...Object.keys(BALANCE.wave2.mini)],miniModules={};
+  let quizSongsPromise=null;
+  function wave2Asset(stem){return `assets/wave2/${stem}.${/^(b6_|c[356]_)|^a4_bbq_grill_bg$|^a6_drive_thru_bg$/.test(stem)?'jpg':'webp'}`;}
+  function loadMiniModule(kind){
+    if(window.ReidolGames&&ReidolGames[kind])return Promise.resolve(ReidolGames[kind]);
+    if(!Object.hasOwn(BALANCE.wave2.mini,kind))return Promise.reject(new Error('ミニゲームが見つかりません'));
+    return miniModules[kind]||=(new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=`minigames/${kind}.js`;script.onload=()=>window.ReidolGames&&ReidolGames[kind]?resolve(ReidolGames[kind]):reject(new Error('ミニゲームを読み込めません'));script.onerror=()=>reject(new Error('ミニゲームを読み込めません'));document.head.appendChild(script);})).catch(e=>{delete miniModules[kind];throw e;});
+  }
   function showNotice(message) { $('noticetext').textContent = message; $('notice').hidden = false; }
   $('noticeclose').addEventListener('click', () => { $('notice').hidden = true; });
   function ensureDaily() { const date = localDay(); if (S.daily.date !== date) S.daily = newDaily(date); return S.daily; }
@@ -1139,12 +1286,12 @@ html, body { width:100%; height:100%; overflow:hidden; }
   function stopMini() { miniSequence++; if (miniCleanup) miniCleanup(); miniCleanup = null; }
   function waveButton(text, action, parent, disabled = false) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sec'; b.textContent = text; b.disabled = disabled; b.addEventListener('click', action); parent.appendChild(b); return b; }
   function wavePanel(title) { const box = document.createElement('section'); box.className = 'wavepanel'; const h = document.createElement('h2'); h.textContent = title; box.appendChild(h); $('playcontent').appendChild(box); return box; }
-  function openPlay() { stopMini(); $('members').hidden = true; $('home').hidden = true; $('playboard').hidden = false; renderPlayMenu(); }
+  function openPlay() { stopMini(); $('wave2panel').hidden = true; $('members').hidden = true; $('home').hidden = true; $('playboard').hidden = false; renderPlayMenu(); }
   function renderPlayMenu() {
     stopMini(); $('playtitle').textContent = 'あそぶ'; $('playcontent').textContent = ''; $('wavefeedback').textContent = DEV ? '開発URLでは追加報酬・ミッション・絆は記録されません。' : `今日の最初の1曲: ${ensureDaily().boostUsed ? '受取済み' : 'EXP・景気 ×1.5'}`;
     const entries = document.createElement('div'); entries.className = 'playentries'; $('playcontent').appendChild(entries);
     const unread = unreadNotices();
-    PLAY_ENTRIES.forEach(entry => { const key=['shiritori','abekobe'].includes(entry.id)?`mini:${entry.id}`:entry.id; const b = waveButton(`${entry.title}\n${entry.text}`, () => { acknowledge(key); if (['shiritori','abekobe'].includes(entry.id)) withTip('mini',()=>launchMini(entry.id)); else renderPlayDetail(entry.id); }, entries, !!entry.pending); b.className = 'playcard'; addBadge(b, unread.some(n=>n.key===key),key.startsWith('mini:')); });
+    PLAY_ENTRIES.forEach(entry => { const key=MINI_KINDS.includes(entry.id)?`mini:${entry.id}`:entry.id; const b = waveButton(`${entry.title}\n${entry.text}`, () => { if(entry.id!=='collection')acknowledge(key); if (MINI_KINDS.includes(entry.id)) withTip('mini',()=>launchMini(entry.id)); else if(['wardrobe','tour','collection'].includes(entry.id))openWave2Panel(entry.id);else if(entry.id==='story'){renderStoryList();$('slist').hidden=false;}else renderPlayDetail(entry.id); }, entries, !!entry.pending); b.className = 'playcard'; addBadge(b, unread.some(n=>n.key===key),key.startsWith('mini:')); });
   }
   function renderPlayDetail(kind) {
     acknowledge(kind);
@@ -1166,14 +1313,20 @@ html, body { width:100%; height:100%; overflow:hidden; }
     $('playcontent').textContent = ''; $('wavefeedback').textContent = '読み込み中…';
     try {
       let words;
+      const game=await loadMiniModule(kind),rule=BALANCE.wave1.mini[kind]||BALANCE.wave2.mini[kind];
+      let questions;
+      if(kind==='balloon'){
+        quizSongsPromise ||= fetch('charts/index.json',{credentials:'same-origin'}).then(r=>{if(!r.ok)throw new Error('曲の確認済みデータを読み込めません');return r.json();}).catch(e=>{quizSongsPromise=null;throw e;});
+        const songs=await quizSongsPromise;questions=game.makeQuestions({members:MEMBERS,profiles:PROFILES,songs,venues:BALANCE.venues});
+      }
       if (kind === 'shiritori') { wordsPromise ||= fetch('minigames/words_ja.json').then(r => { if (!r.ok) throw new Error('単語リストを読み込めません。'); return r.json(); }).catch(e => { wordsPromise = null; throw e; }); words = await wordsPromise; }
       if (token !== miniSequence || $('playboard').hidden) return;
       $('wavefeedback').textContent = `${byH(h).name}がセンター。途中で戻ると報酬はありません。`;
       let awarded = false;
-      miniCleanup = ReidolGames[kind].mount($('playcontent'), { seconds:BALANCE.wave1.mini[kind].seconds, words, onCancel:renderPlayMenu, onFinish:result => {
+      miniCleanup = game.mount($('playcontent'), { ...rule,words,questions,members:MEMBERS,asset:wave2Asset,point:e=>window.ReidolInput.point(e), onCancel:renderPlayMenu, onFinish:result => {
         if (awarded || token !== miniSequence) return; awarded = true;
         const reward = calcMiniReward(kind,result.correct,result.attempts,S.skills), before = venueIdx();
-        if (!DEV) { S.members[h] = growMember(S.members[h],reward.exp); S.wallet += reward.currency; S.keiki += reward.currency; ensureDaily().mini++; S.daily.miniRewarded++; celebrateMissions(h); save(); queueVenues(before); }
+        if (!DEV) { S.members[h] = growMember(S.members[h],reward.exp); S.wallet += reward.currency; S.keiki += reward.currency; ensureDaily().mini++; S.daily.miniRewarded++; S.wave2.stats.minis++;refreshWave2Album();celebrateMissions(h); save(); queueVenues(before); }
         $('playcontent').textContent = ''; const panel = wavePanel('ミニゲーム結果'); const p = document.createElement('p'); p.textContent = `正解 ${result.correct} / ${result.attempts} · ${DEV ? '記録なし' : `景気 +${reward.currency} ／ ${byH(h).name} EXP +${reward.exp}`}`; panel.appendChild(p); waveButton('あそぶ一覧へ',renderPlayMenu,panel);
         $('wavefeedback').textContent = DEV ? '開発URLのため報酬なし。' : '報酬とミッションを保存しました。';
       } });
@@ -1331,6 +1484,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     if (vis('result')) return jingleBusy ? null : 'bgm_select';
     if (vis('story')) return storyCur >= 3 ? 'bgm_story_hope' : 'bgm_story_calm';
     if (vis('playboard')) return miniCleanup ? 'bgm_minigame' : 'bgm_select';
+    if (vis('wave2panel')) return 'bgm_select';
     if (vis('songs')) return $('songs').getAttribute('data-special') === 'true' ? 'bgm_special' : 'bgm_select';
     if (vis('home')) return 'bgm_home';
     return null;
@@ -1443,6 +1597,83 @@ html, body { width:100%; height:100%; overflow:hidden; }
   const isBirthday = (h) => !!(PROFILES[h] && PROFILES[h].bd === todayMD());
   const GENERIC_SAY = 'ありがとう！また一緒にステージ立とうね';
   const sayFor = (h) => (PROFILES[h] && PROFILES[h].catchphrase) || GENERIC_SAY;
+  const wave2Handles=MEMBERS.map(m=>m.h);
+  let wave2Kind='wardrobe',wave2Return='home',wardrobeH=null,wave2Purchase=null;
+  const outfitPath=h=>S.wave2.wardrobe.selected[h].outfit==='casual'?wave2Asset(`b3_${h}_casual_full`):`assets/${h}_full.webp`;
+  function accessoryImage(id,h){const chosen=S.wave2.wardrobe.selected[h].accessory,e=$(id);e.hidden=!chosen;if(chosen){e.src=wave2Asset('b3_acc_'+chosen);e.alt=BALANCE.wave2.accessories.find(a=>a.id===chosen).name;}}
+  function refreshWave2Album(){
+    const result=unlockWave2Album(S.wave2,{venue:venueIdx(),maxLevel:Math.max(...MEMBERS.map(m=>S.members[m.h].lv)),bondMax:Math.max(1,...Object.values(S.bonds).map(bondLevel)),ss:Object.values(BEST).some(v=>Number(v)>=950000),full:Object.entries(S.stageRecords).some(([slug,n])=>n>=(slug==='overture-01'?3:4)),seen},wave2Handles);
+    S.wave2=result.wave2;if(result.fresh.length&&!DEV)save();return result.fresh;
+  }
+  function wave2Node(tag,text,parent){const e=document.createElement(tag);e.textContent=text;parent.appendChild(e);return e;}
+  function wave2Image(src,alt,parent,className=''){const e=wave2Node('img','',parent);e.src=src;e.alt=alt;e.loading='lazy';e.decoding='async';e.className=className;return e;}
+  function openWave2Panel(kind){
+    wave2Return=!$('members').hidden?'members':!$('playboard').hidden?'play':'home';
+    stopMini();for(const id of ['home','members','playboard','songs','result'])$(id).hidden=true;
+    wave2Kind=kind;wardrobeH ||= S.ux.center;$('wave2panel').hidden=false;renderWave2Panel();
+  }
+  function renderWave2Panel(){
+    refreshWave2Album();$('wave2wallet').textContent=`景気 ${fmt(S.wallet)}`;$('wave2content').textContent='';
+    $('wave2title').textContent={wardrobe:'衣装クローゼット',tour:'日本縦断すごろく',collection:'思い出ポラロイド図鑑'}[wave2Kind];
+    if(wave2Kind==='wardrobe'){acknowledge('wardrobe');renderWardrobe();}
+    else if(wave2Kind==='tour'){acknowledge('tour');renderWave2Tour();}
+    else renderWave2Album();
+  }
+  $('wave2back').addEventListener('click',()=>{$('wave2panel').hidden=true;if(wave2Return==='members'){$('members').hidden=false;renderHome();}else if(wave2Return==='play')openPlay();else goHome();});
+  $('wardrobebtn').addEventListener('click',()=>openWave2Panel('wardrobe'));
+  $('albumbtn').addEventListener('click',()=>openWave2Panel('collection'));
+  $('tourbtn').addEventListener('click',()=>openWave2Panel('tour'));
+  function requestWave2Purchase(kind,id){
+    if(DEV){showNotice('開発URLでは景気の使用・購入保存をしません。');return;}
+    wave2Purchase={kind,id};const name=kind==='casual'?byH(id).name+'の私服':BALANCE.wave2.accessories.find(a=>a.id===id).name;
+    const price=kind==='casual'?BALANCE.wave2.casualPrice:BALANCE.wave2.accessoryPrice;
+    $('wave2purchaseinfo').textContent=`${name}を${price}景気で解放しますか？ 残高 ${fmt(S.wallet)}`;$('wave2purchase').hidden=false;
+  }
+  $('wave2purchasecancel').addEventListener('click',()=>{wave2Purchase=null;$('wave2purchase').hidden=true;});
+  $('wave2purchaseok').addEventListener('click',()=>{
+    if(!wave2Purchase||DEV)return;const {kind,id}=wave2Purchase;wave2Purchase=null;$('wave2purchase').hidden=true;
+    const result=buyWave2(S.wave2,S.wallet,kind,id,wave2Handles);if(!result.ok){showNotice(result.reason);return;}
+    S.wallet=result.wallet;S.wave2=result.wave2;refreshWave2Album();save();renderWave2Panel();renderToday();
+  });
+  function renderWardrobe(){
+    const root=$('wave2content'),select=wave2Node('select','',root);select.setAttribute('aria-label','衣装のメンバー');
+    MEMBERS.forEach(m=>{const o=wave2Node('option',m.name,select);o.value=m.h;});select.value=wardrobeH;select.onchange=()=>{wardrobeH=select.value;renderWave2Panel();};
+    const h=wardrobeH,m=byH(h),layout=wave2Node('div','',root);layout.className='w2-wardrobe';
+    const preview=wave2Node('div','',layout);preview.className='w2-preview';wave2Image(outfitPath(h),m.name,preview);
+    const chosen=S.wave2.wardrobe.selected[h];if(chosen.accessory)wave2Image(wave2Asset('b3_acc_'+chosen.accessory),'選んだ小物',preview,'w2-accessory');
+    const controls=wave2Node('div','',layout);wave2Node('p','衣装と小物は見た目だけが変わります。ホームとリザルトに反映されます。',controls);
+    waveButton(chosen.outfit==='stage'?'ステージ衣装 ✓':'ステージ衣装にする',()=>{S.wave2=equipWave2(S.wave2,h,'stage',chosen.accessory,wave2Handles);saveUx();renderWave2Panel();},controls);
+    const owned=S.wave2.wardrobe.casual.includes(h);
+    waveButton(owned?(chosen.outfit==='casual'?'私服 ✓':'私服にする'):`私服を解放 · ${BALANCE.wave2.casualPrice}景気`,()=>{if(!owned)requestWave2Purchase('casual',h);else{S.wave2=equipWave2(S.wave2,h,'casual',chosen.accessory,wave2Handles);saveUx();renderWave2Panel();}},controls,!owned&&(DEV||S.wallet<BALANCE.wave2.casualPrice));
+    waveButton('この子をホームのセンターに',()=>{S.ux.center=h;saveUx();showNotice(`${m.name}をセンターにしました。`);},controls);
+    wave2Node('h2','小物',controls);waveButton('小物なし',()=>{S.wave2=equipWave2(S.wave2,h,chosen.outfit,null,wave2Handles);saveUx();renderWave2Panel();},controls);
+    const grid=wave2Node('div','',controls);grid.className='w2-accessories';
+    BALANCE.wave2.accessories.forEach(a=>{const box=wave2Node('div','',grid);wave2Image(wave2Asset('b3_acc_'+a.id),a.name,box);const owns=S.wave2.wardrobe.accessories.includes(a.id);waveButton(owns?(chosen.accessory===a.id?a.name+' ✓':a.name+'を飾る'):`${a.name} · ${BALANCE.wave2.accessoryPrice}景気`,()=>{if(!owns)requestWave2Purchase('accessory',a.id);else{S.wave2=equipWave2(S.wave2,h,chosen.outfit,a.id,wave2Handles);saveUx();renderWave2Panel();}},box,!owns&&(DEV||S.wallet<BALANCE.wave2.accessoryPrice));});
+  }
+  function renderWave2Tour(){
+    const root=$('wave2content'),tour=S.wave2.tour;
+    wave2Node('p',`実曲のライブを1回クリアすると1〜3駅進みます。止まった駅のスタンプを集めよう。7駅で1周、全7種で${BALANCE.wave2.stampBonus}景気を1回だけ。`,root);
+    const route=wave2Node('div','',root);route.className='w2-route';
+    BALANCE.wave2.stops.forEach((stop,i)=>{const station=wave2Node('div','',route);station.className='w2-station';station.setAttribute('aria-current',String(i===tour.position));if(i===tour.position)wave2Image(wave2Asset('b4_train_miracle_express'),'いまの列車',station,'w2-train');wave2Node('b',stop.name,station);wave2Node('p',tour.stamps.includes(stop.id)?'スタンプ取得 ✓':'未取得',station);});
+    wave2Node('h2',`スタンプ帳 ${tour.stamps.length}/7 · クリア${tour.clears}回`,root);const grid=wave2Node('div','',root);grid.className='w2-grid';
+    BALANCE.wave2.stops.forEach(stop=>{const card=wave2Node('div','',grid);card.className='w2-card';wave2Node('h3',stop.name,card);if(tour.stamps.includes(stop.id))wave2Image(wave2Asset('b4_stamp_'+stop.id),stop.name+'のスタンプ',card,'w2-stamp');else{const placeholder=wave2Node('div','？？？',card);placeholder.className='w2-locked';}});
+    if(tour.rewarded)wave2Node('p','全スタンプの景気ごほうびは受取済みです。',root);
+  }
+  function wave2AlbumCards(){return [
+    {id:'first_lesson',title:'最初のレッスン',hint:'誰か1人をLv2にする'},
+    {id:'costume_fitting',title:'衣装合わせ',hint:'私服を1着解放する'},
+    {id:'flyer_dist',title:'街へ届ける一枚',hint:'小さなライブハウスへ到達する'},
+    {id:'circle_cheer',title:'みんなの輪',hint:'どれか1組の絆をLv5にする'},
+    {id:'recording',title:'歌を記録する日',hint:'実曲で初めてSSを記録する'},
+    {id:'bus_tour',title:'旅のはじまり',hint:'実曲を最後のステージまで完走する'},
+  ].map(c=>({...c,image:wave2Asset('b6_polaroid_'+c.id)})).concat(STORY.map((story,i)=>({id:'story_'+i,title:story.t,hint:`物語「${story.t}」を見る`,image:`assets/story_${i}.jpg`})))}
+  function renderWave2Album(){
+    const root=$('wave2content'),cards=wave2AlbumCards();wave2Node('p',`集めた思い出 ${S.wave2.album.unlocked.length}/${cards.length}。カードの解放は景気を消費しません。`,root);const grid=wave2Node('div','',root);grid.className='w2-grid';
+    cards.forEach(card=>{const unlocked=S.wave2.album.unlocked.includes(card.id),b=waveButton('',()=>{
+      if(!unlocked)return;if(!S.wave2.album.read.includes(card.id)){S.wave2.album.read.push(card.id);saveUx();}
+      renderToday();root.textContent='';waveButton('図鑑へもどる',renderWave2Panel,root);wave2Node('h2',card.title,root);const image=wave2Image(card.image,card.title,root);image.style.maxHeight='65cqh';image.style.maxWidth='100%';image.style.objectFit='contain';
+    },grid,!unlocked);b.className='w2-card';if(unlocked){wave2Image(card.image,card.title,b);wave2Node('b',card.title,b);addBadge(b,!S.wave2.album.read.includes(card.id),true);}else{const silhouette=wave2Node('div','？？？',b);silhouette.className='w2-locked';wave2Node('p',card.hint,b);}});
+  }
   let profH = null;
   function openProfile(h) {
     const m = byH(h), p = PROFILES[h] || {};
@@ -1487,10 +1718,11 @@ html, body { width:100%; height:100%; overflow:hidden; }
   // ---- ホーム
   let hbgCur = '', homeBirthday = null;
   function renderHome() {
+    refreshWave2Album();
     const vi = venueIdx(), v = VENUES[vi], nx = VENUES[vi + 1], sum = levelSum();
     const center=byH(S.ux.center);
     $('homelevel').textContent=sum;$('homewallet').textContent=fmt(S.wallet);
-    $('homeidol').src=`assets/${center.h}_full.webp`;$('homeidol').alt=center.name;
+    if(!$('home').hidden){$('homeidol').src=outfitPath(center.h);accessoryImage('homeaccessory',center.h);}$('homeidol').alt=center.name;
     $('homecenter').setAttribute('aria-label',`${center.name} のプロフィール`);
     $('homesay').textContent=sayFor(center.h);
     homeBirthday=MEMBERS.find(m=>birthdayWindow(PROFILES[m.h].bd))||null;
@@ -1999,9 +2231,11 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const bday = L.birthday;
     L.score = L.song ? L.completed.length ? Math.round(L.completed.reduce((sum, row) => sum + row.score, 0) / L.completed.length) : calcScore({ ...L.stats[0], total:L.notes.filter(n => n.stage === 0).length }) : calcScore({ ...L, total: L.notes.length });
     const clear = L.song ? L.completed.length > 0 : isClear(L.score, L.life, !L.failed);
-    const gain = L.earned.exp, currency = L.earned.currency, mult = 1;
+    const gain = L.earned.exp, mult = 1;
+    let currency = L.earned.currency,travel=null;
     let best = null;
     if (L.song && !L.dev) {
+      if(clear){travel=recordWave2Live(S.wave2,{clear:true,full:L.completed.length===L.allStages.length,ss:L.score>=950000,roll:1+Math.floor(Math.random()*3)},wave2Handles);S.wave2=travel.wave2;S.wallet+=travel.currency;S.keiki+=travel.currency;currency+=travel.currency;refreshWave2Album();}
       if (L.completed.length) {
         const key = bestKey(L.song.s.slug, L.song.df.k, { ...L.mode, length:`stage${L.completed.length}` });
         const prev = +BEST[key] || 0;
@@ -2016,7 +2250,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     for (let k = vBefore + 1; k <= venueIdx(); k++) pendingStory.push(k + 1);
     if (CFG.call && !L.failed && L.miss === 0 && L.perfect + L.good === L.notes.length) playSE('clap');
     const r = { bday, clear, rank:rankOf(L.score).k, currency, stages:L.completed, stageCount:L.stages.length, dev:L.dev, mode: L.mode, failed: L.failed, h: L.h, m: L.m, score: L.score, perfect: L.perfect, good: L.good, miss: L.miss, maxCombo: L.maxCombo, gain, mult, song: L.song, best, before, after: { lv, exp }, vBefore, vAfter: venueIdx() };
-    showResult(r);
+    r.travel=travel;showResult(r);
     if (L.song && !L.dev) $('rgain').textContent += `${L.first && L.completed.length ? ' ／ 今日の最初 ×1.5' : ''}${L.support ? ` ／ ${byH(L.support).name} +${L.earned.supportExp} EXP` : ''}`;
     if (L.dev && L.song) $('rsong').textContent = `${L.song.title} ［開発URL・記録なし］`;
   }
@@ -2032,11 +2266,12 @@ html, body { width:100%; height:100%; overflow:hidden; }
     releaseLandscape(); $('rotate').hidden = true;
     $('result').style.setProperty('--mc', m.color); $('result').scrollTop = 0;
     const av = $('rav'); av.textContent = ''; av.appendChild(avatar(r.h, 84));
-    const rf = $('rfull'); rf.hidden = false; rf.onerror = () => { rf.hidden = true; }; rf.src = `assets/${r.h}_full.webp`;
+    const rf = $('rfull'); rf.hidden = false; rf.onerror = () => { rf.hidden = true; }; rf.src = outfitPath(r.h);accessoryImage('raccessory',r.h);
     $('rname').textContent = `センター　${m.name}`;
     $('rscore').textContent = '0';
     $('rrank').textContent = `${r.failed ? 'LIVE FAILED' : r.stages.length === r.stageCount && r.song ? '完走！' : r.clear ? 'クリア！' : '終了'}　${r.song && r.stages.length ? '確定ステージ平均スコア' : 'スコア'}`;
     $('rstage').textContent = '';
+    if(r.travel?.station){const p=document.createElement('p');p.textContent=`列車：${r.travel.station.name}に到着！${r.travel.currency?` 全スタンプごほうび +${r.travel.currency}景気`:''}`;$('rstage').appendChild(p);}
     if (r.song) {
       const heading = document.createElement('p'); heading.textContent = `クリア ${r.stages.length}/${r.stageCount}ステージ${r.failed ? ' · 次のステージで失敗しても確定報酬は残ります' : ''}${r.dev ? ' · 開発URL・記録なし' : ''}`; $('rstage').appendChild(heading);
       r.stages.forEach(stage => { const p = document.createElement('p'); p.textContent = `STAGE ${stage.stage} · ${stage.rank} · ${fmt(stage.score)}pt ／ 確定 EXP +${stage.exp}${stage.supportExp ? `（相棒 +${stage.supportExp}）` : ''} ／ 景気 +${stage.currency}`; $('rstage').appendChild(p); });
@@ -2125,7 +2360,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   }
 
   function goHome() {
-    stopMini(); $('playboard').hidden = true; $('members').hidden = true;
+    stopMini(); $('playboard').hidden = true; $('members').hidden = true; $('wave2panel').hidden=true;
     resultId++;
     pendingLive = null; $('rotate').hidden = true;
     $('live').hidden = true; $('result').hidden = true; $('lvup').hidden = true; $('songs').hidden = true; $('loading').hidden = true; $('home').hidden = false;
@@ -2179,7 +2414,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     S.ux.center=h;saveUx();shopOnly=false;
     $('centerpick').textContent='';MEMBERS.forEach(member=>{const option=document.createElement('option');option.value=member.h;option.textContent=member.name;$('centerpick').appendChild(option);});$('centerpick').value=h;
     const m = byH(h);
-    $('home').hidden = true; $('members').hidden = true; $('playboard').hidden = true; $('result').hidden = true; $('live').hidden = true; $('songs').hidden = false;
+    $('home').hidden = true; $('members').hidden = true; $('playboard').hidden = true; $('wave2panel').hidden=true; $('result').hidden = true; $('live').hidden = true; $('songs').hidden = false;
     $('songs').style.setProperty('--mc', m.color); $('songs').scrollTop = 0;
     const who = $('swho'); who.textContent = ''; who.appendChild(avatar(h, 40));
     const nm = document.createElement('span'); nm.textContent = `センター　${m.name}`; who.appendChild(nm);
@@ -2452,6 +2687,12 @@ html, body { width:100%; height:100%; overflow:hidden; }
     { t: 'アリーナ', lines: ['不安だった日も、悔しかった夜も、', '全部この日のためにあった。', '7人は手をつないで、光の中へ駆け出した。'] },
     { t: 'ドーム', lines: ['紫、ピンク、オレンジ、青、赤、白、ミント。', '7つの色が、ドームを埋めつくす。', '7つの町から来た7人の夢が、いま叶った。', '——ここからが、Re:IDOLの本当のスタート。'] },
   ];
+  let wave2Stories=[],wave2StoryLoad=null,wave2StoryError='';
+  function loadWave2Stories(force=false){
+    if(force){wave2StoryLoad=null;wave2StoryError='';}
+    return wave2StoryLoad ||= fetch('STORY_wave2.md',{credentials:'same-origin',cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('追加物語の下書きを読み込めません');return r.text();}).then(text=>{wave2Stories=parseWave2Stories(text);wave2StoryError='';return wave2Stories;}).catch(e=>{wave2StoryError=e.message;return [];});
+  }
+  const wave2StoryOrder=s=>s.requires*10+(s.group==='C5'?5:s.group==='C3'?7:s.extra?9:8);
   const SKEY = 'reidol.story.v1';
   const loadSeen = () => {
     try {
@@ -2461,10 +2702,15 @@ html, body { width:100%; height:100%; overflow:hidden; }
   };
   let seen = loadSeen();
   function markSeen(i) {
+    if(typeof i==='string'){
+      if(!wave2Stories.some(s=>s.id===i)||S.wave2.storySeen.includes(i))return;
+      S.wave2.storySeen.push(i);acknowledge('story:'+i);saveUx();renderToday();return;
+    }
     if (seen.includes(i)) return;
     seen.push(i);
     try { localStorage.setItem(SKEY, JSON.stringify(seen)); } catch (e) {}
     acknowledge(`story:${i}`);
+    refreshWave2Album();renderToday();
     if(!$('slist').hidden)renderStoryList();
   }
   let storyQ = [], storyDone = null, storyId = 0, storyAt = 0, pendingStory = [];
@@ -2481,15 +2727,18 @@ html, body { width:100%; height:100%; overflow:hidden; }
       const d = storyDone; storyDone = null; if (d) d();
       return;
     }
-    const i = storyQ.shift(), sc = STORY[i], id = ++storyId;
-    storyCur = i;
+    const i = storyQ.shift(), sc = typeof i==='number'?STORY[i]:wave2Stories.find(s=>s.id===i), id = ++storyId;
+    if(!sc){nextStory();return;}
+    storyCur = typeof i==='number'?i:sc.requires;
     markSeen(i);
+    const extra=wave2Stories.filter(s=>wave2StoryAvailable(s,{venue:venueIdx(),seen,waveSeen:S.wave2.storySeen})&&!S.wave2.storySeen.includes(s.id)&&!storyQ.includes(s.id)).sort((a,b)=>wave2StoryOrder(a)-wave2StoryOrder(b));
+    storyQ.unshift(...extra.map(s=>s.id));
     const box = $('stext'); box.textContent = '';
-    const no = document.createElement('div'); no.className = 'sno'; no.textContent = `${i} ${sc.t}`; box.appendChild(no);
+    const no = document.createElement('div'); no.className = 'sno'; no.textContent = `${typeof i==='number'?i+' ':''}${sc.t}${sc.group?'（監修前の下書き）':''}`; box.appendChild(no);
     const els = sc.lines.map((l) => { const p = document.createElement('p'); p.className = 'sline'; p.textContent = l; box.appendChild(p); return p; });
     const hint = document.createElement('div'); hint.className = 'shint'; hint.textContent = 'タップでとじる'; box.appendChild(hint);
     box.scrollTop = 0;
-    $('simg').src = `assets/story_${i}.jpg`;
+    $('simg').src = sc.image || `assets/story_${i}.jpg`;
     $('story').hidden = false; storyAt = performance.now();
     for (const el of els) {
       await sleep(900); if (id !== storyId) return;
@@ -2506,15 +2755,18 @@ html, body { width:100%; height:100%; overflow:hidden; }
   }
   function renderStoryList() {
     const box = $('slitems'); box.textContent = '';
-    STORY.forEach((sc, i) => {
-      const ok = seen.includes(i), available=i<=venueIdx()+1;
+    if(wave2StoryError){const row=document.createElement('div');row.textContent=wave2StoryError;box.appendChild(row);waveButton('追加物語を再読込',()=>loadWave2Stories(true).then(()=>{renderStoryList();renderToday();}),row);}
+    else if(!wave2Stories.length){const row=document.createElement('p');row.textContent='追加物語を読み込み中…';box.appendChild(row);}
+    const entries=STORY.map((sc,i)=>({...sc,id:i,sort:i*10,ok:seen.includes(i),available:i<=venueIdx()+1,image:`assets/story_${i}.jpg`})).concat(wave2Stories.map(sc=>({...sc,sort:wave2StoryOrder(sc),ok:S.wave2.storySeen.includes(sc.id),available:wave2StoryAvailable(sc,{venue:venueIdx(),seen,waveSeen:S.wave2.storySeen})}))).sort((a,b)=>a.sort-b.sort);
+    entries.forEach((sc) => {
+      const i=sc.id,ok=sc.ok,available=sc.available||ok;
       const b = document.createElement('button'); b.type = 'button'; b.className = 'sli'; b.disabled = !available;
       if (ok) {
-        const im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; im.src = `assets/story_${i}.jpg`; b.appendChild(im);
+        const im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; im.src = sc.image; b.appendChild(im);
       } else { const ph = document.createElement('div'); ph.className = 'slph'; ph.textContent = '?'; b.appendChild(ph); }
       const tx = document.createElement('div');
-      const bb = document.createElement('b'); bb.textContent = available ? `${i} ${sc.t}` : `${i} ？？？`;addBadge(bb,available&&!ok,true);
-      const sm = document.createElement('small'); sm.textContent = ok ? 'タップで見返す' : available?'タップして読んでね':'会場が大きくなると読めるよ';
+      const bb = document.createElement('b'); bb.textContent = available ? `${typeof i==='number'?i+' ':''}${sc.t}${sc.group?'（下書き）':''}` : '？？？';addBadge(bb,available&&!ok,true);
+      const sm = document.createElement('small'); sm.textContent = ok ? 'タップで見返す' : available?'タップして読んでね':sc.group?`${VENUES[sc.venue].n}到達・物語「${STORY[sc.requires].t}」既読${sc.extra?'・前の追加物語も読もう':''}`:'会場が大きくなると読めるよ';
       tx.appendChild(bb); tx.appendChild(sm); b.appendChild(tx);
       if (available) b.addEventListener('click', () => playStory([i]));
       box.appendChild(b);
@@ -2575,6 +2827,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   $('openingstart').addEventListener('click',()=>{audio();tryLandscape();$('opening').hidden=true;goHome();bgmSync();releaseNotes(()=>withTip('home',()=>{}));});
   $('appversion').textContent=`バージョン ${APP_VERSION}`;
   renderHome();checkForUpdate(true);
+  loadWave2Stories().then(()=>{renderToday();if(!$('slist').hidden)renderStoryList();});
 })();
 </script>
 </div>
