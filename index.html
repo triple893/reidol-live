@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "9614ac9499";</script>
+<script>window.APP_VERSION = "2a8ead46e3";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -385,6 +385,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 .ovl { position: fixed; inset: 0; display: flex; align-items: flex-end; justify-content: center; background: rgba(10,5,8,.78); }
 .ovl .sheet { text-align: left; --mc: var(--gold); }
 #settings { z-index: 25; }
+#notice { z-index: 96; }
+#purchase { z-index: 30; } /* 曲えらび（z-index 7）より前に出す。無いと裏に隠れて押せない */
 #pass { z-index: 35; }
 .pin {
   width: 100%; min-height: 48px; padding: 0 14px; border-radius: 14px; font: inherit; font-size: 16px; color: var(--ink);
