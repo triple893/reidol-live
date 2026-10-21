@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "6aaae8159a";</script>
+<script>window.APP_VERSION = "e1ea8858b6";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -100,14 +100,22 @@ const PHOTOS_SVG = Object.fromEntries(Object.entries(AVATARS).map(([h, a]) =>
 <style>
 /* 暗いステージ色の単一テーマ。メンバーカラー(公式)と金・珊瑚・ミントで華やかに */
 :root {
-  --bg: #140d11;
-  --bg2: #1d1218;
-  --card: #251a20;
+  --bg: #101024;
+  --bg2: #19182f;
+  --card: #242139;
   --ink: #fff6ee;
   --dim: #bba8ab;
   --gold: #ffcf4a;
   --coral: #ff5a6e;
   --mint: #3fe0b0;
+  --glass: linear-gradient(145deg, #302b49d9, #17172dde);
+  --edge: #e7d6ff38;
+  --radius-sm: 10px; --radius: 18px; --radius-lg: 24px;
+  --shadow: 0 8px 28px #05061655, inset 0 1px #ffffff0d;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px;
+  --text-xs: 11px; --text-sm: 13px; --text-base: 15px; --text-lg: 22px; --text-xl: 32px;
+  --motion-fast: 120ms; --motion-screen: 200ms; --motion-slow: 600ms;
+  --ease: cubic-bezier(.2,.8,.2,1);
   --display: "Dela Gothic One", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
   --body: "Zen Maru Gothic", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
   color-scheme: dark;
@@ -439,7 +447,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 <!-- ホーム -->
 <style>
 #playboard{position:fixed;inset:0;z-index:45;overflow:auto;background:#201721;padding:22px max(18px,calc((100vw - 850px)/2));color:#fff}
-.playentries{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}.playcard,.wavepanel{border:1px solid #70596c;border-radius:16px;padding:16px;background:#302332;color:inherit}.playcard{font:inherit;cursor:pointer;text-align:left}.playcard:disabled{opacity:.5}.wavepanel{margin:14px 0}.wavepanel button{margin:5px}.wavepanel select,#supportpick{font:inherit;background:#35263a;color:white;padding:10px;border-radius:10px;max-width:100%}.minichoices{display:grid;grid-template-columns:1fr 1fr;gap:12px}.minichoices button{font:inherit;min-height:80px;background:#523b63;color:#fff;border:2px solid #ae8ab8;border-radius:14px;touch-action:manipulation}.mini-instruction{font-size:26px;font-weight:bold;padding:16px;background:#603d77;border-radius:12px}.mini-instruction.reverse{background:#245e67}.stamp{padding:12px;border:1px dashed #bb90bb;border-radius:10px;margin:8px 0}.stamp.done{background:#26574a}.wavefeedback{white-space:pre-wrap}.supportrow{margin:12px 0}#notice .sheet{max-width:460px}#live[data-special=true]:after{content:'🎂 BIRTHDAY LIVE';position:absolute;top:10px;left:30%;color:var(--mc);font-weight:bold;pointer-events:none;text-shadow:0 0 20px var(--mc)}#songs[data-special=true]{background:linear-gradient(150deg,color-mix(in srgb,var(--mc) 22%,#201721),#201721)}
+.playentries{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}.playcard,.wavepanel{border:1px solid #70596c;border-radius:16px;padding:16px;background:#302332;color:inherit}.playcard{font:inherit;cursor:pointer;text-align:left}.playcard:disabled{opacity:.5}.wavepanel{margin:14px 0}.wavepanel button{margin:5px}.wavepanel select,#supportpick{font:inherit;background:#35263a;color:white;padding:10px;border-radius:10px;max-width:100%}.minichoices{display:grid;grid-template-columns:1fr 1fr;gap:12px}.minichoices button{font:inherit;min-height:80px;background:#523b63;color:#fff;border:2px solid #ae8ab8;border-radius:14px;touch-action:manipulation}.mini-instruction{font-size:26px;font-weight:bold;padding:16px;background:#603d77;border-radius:12px}.mini-instruction.reverse{background:#245e67}.stamp{padding:12px;border:1px dashed #bb90bb;border-radius:10px;margin:8px 0}.stamp.done{background:#26574a}.wavefeedback{white-space:pre-wrap}.supportrow{margin:12px 0}#notice .sheet{max-width:460px}#live[data-special=true]:after{content:'BIRTHDAY LIVE';position:absolute;top:10px;left:30%;color:var(--mc);font-weight:bold;pointer-events:none;text-shadow:0 0 20px var(--mc)}#songs[data-special=true]{background:linear-gradient(150deg,color-mix(in srgb,var(--mc) 22%,#201721),#201721)}
 </style>
 <style>
 .dot{display:inline-block;width:9px;height:9px;background:#ff526e;border-radius:50%;margin-left:6px;box-shadow:0 0 8px #ff526e80}.newmark{font-size:10px;background:#ffcf4a;color:#28131c;border-radius:5px;padding:2px 5px;margin-left:5px}.primarylive{width:100%;margin:18px 0 6px;font-size:24px;min-height:68px}.todaylist{display:grid;gap:8px;margin:16px 0}.todaylist button{text-align:left;min-height:46px;background:#ffffff0d;border-radius:12px;padding:12px}.uxhint{color:var(--dim);font-size:13px}.uxsheet{display:grid;gap:14px}.uxsheet p{white-space:pre-line}.uxhead{display:flex;gap:8px;justify-content:flex-end}.uxbubble{border:1px solid #ffcf4a99;background:#312337;border-radius:18px;padding:18px}.uxphone{font-size:54px}#opening{position:fixed;inset:0;z-index:100;display:grid;place-content:center;gap:22px;text-align:center;background:radial-gradient(ellipse at center,#48253e,#140d11)}#opening .brand{padding:12px}#appversion{position:absolute;bottom:12px;right:12px;font-size:11px;color:var(--dim)}#guide{z-index:95}#liveintro{z-index:90}#clearstatus{position:absolute;z-index:9;left:12px;top:75px;display:grid;gap:6px;font-size:12px;padding:10px;border-radius:12px;background:#231923ed;max-width:29%;pointer-events:auto}#clearstatus button{min-height:36px;padding:5px 8px;font-size:13px}#countin{position:absolute;z-index:10;inset:28% 20%;text-align:center;pointer-events:none;color:var(--gold);font:80px var(--display);text-shadow:0 0 30px #ffd34b}#clearflash{position:absolute;z-index:11;inset:20% 10%;text-align:center;pointer-events:none;color:#fff7b5;font:clamp(30px,7vw,70px) var(--display);text-shadow:0 0 25px #ffcd42;animation:clear-shine 1.8s ease-out forwards}@keyframes clear-shine{0%{opacity:0;transform:scale(.75)}25%{opacity:1;filter:brightness(1.4)}100%{opacity:0;transform:scale(1.12)}}#clearflash:after{content:'✦　　✧　　✦';display:block;font-size:.5em;color:#ffcf4a}#homeupdate{font-size:12px}#centerpick{font:inherit;background:#35263a;color:white;padding:10px;border-radius:10px}.ux-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
@@ -619,10 +627,120 @@ html, body { width:100%; height:100%; overflow:hidden; }
 .w2-menu img { width:100%; height:65px; object-fit:contain; }.w2-menu button { display:block; width:100%; padding:5px; border-radius:8px; font-size:12px; }.w2-menu span { display:block; font-size:12px; }
 .w2-newstory img { width:100px; height:60px; object-fit:cover; }.w2-story-draft { color:var(--dim); font-size:12px; }
 </style>
+<style>
+/* みがき共通部品。追加ダイアログも既存の層一覧（200〜260）を使う。 */
+#app { font-size:var(--text-base); font-variant-numeric:tabular-nums; }
+.icon { width:1.3em; height:1.3em; display:inline-block; vertical-align:-.25em; flex:none; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.icon-sprite { position:absolute; width:0; height:0; overflow:hidden; pointer-events:none; }
+#app :is(.card,.venue,.sheet,.lvbox,.song,.song-choice,.playcard,.wavepanel,.w2-card,.exppanel,.stat,.home-today,.home-wallet,.home-side button,.home-nav button,.setrow,.sli,.uxbubble) {
+  background:var(--glass); border:1px solid var(--edge); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(10px);
+}
+#app :is(.sheet,.lvbox,.wavepanel,.song,.w2-card) { padding:var(--space-4); }
+#app :is(.pname,.slhead,h1,h2) { font-family:var(--display); }
+#app :is(.meta,.locknote,.uxhint,.ctitle) { font-size:var(--text-sm); color:var(--dim); }
+#app :is(.bar,.bar i) { border-radius:var(--radius-sm); }
+#app :is(.btn,.quit,.diff,.mode-pick button,.playcard) { border-radius:var(--radius); }
+#app .btn.sec { border:1px solid var(--edge); background:#ffffff0c; }
+#app .btn.pri { background:linear-gradient(120deg,var(--gold),#ffac6b); }
+/* 画面・ダイアログの入口だけを動かす。hiddenと既存の画面遷移は維持する。 */
+#app > :is(main,section):not([hidden]):not(#live) { animation:screen-in var(--motion-screen) var(--ease) both; }
+#app :is(.sheet,.lvbox,.lbox) { animation:dialog-in var(--motion-screen) var(--ease) both; }
+#app button { transition:transform var(--motion-fast) var(--ease),filter var(--motion-fast); }
+#app button:active:not(:disabled) { transform:scale(.96); filter:brightness(1.12); }
+#app button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+#app .btn.pri { position:relative; overflow:hidden; }
+#app .btn.pri::after { content:''; position:absolute; inset:-50% -100%; background:linear-gradient(110deg,transparent 43%,#fff8 50%,transparent 57%); animation:sheen 5s ease-in-out infinite; pointer-events:none; }
+@keyframes screen-in { from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)} }
+@keyframes dialog-in { from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)} }
+@keyframes sheen { 0%,65%{transform:translateX(-45%)}100%{transform:translateX(45%)} }
+#app .hbg { filter:blur(1px); background-position:center 70%; }
+#app .hbg.wide { filter:none; transform:none; background-position:center; }
+#app .hbg::after { background:linear-gradient(90deg,#10102475,#10102418 48%,#10102465); }
+#home-lights { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+#app .home-top .venue { flex:0 1 300px; background:var(--glass); }
+#app .home-top .bar { height:7px; }
+#app .home-top .vsub { color:var(--ink); }
+#app .home-top .home-wallet { margin-left:auto; }
+#app .home-center { left:29%; width:43%; height:calc(100% - 88px); bottom:62px; isolation:isolate; }
+.home-center::before { content:''; position:absolute; z-index:-1; bottom:0; left:22%; width:56%; height:8%; border-radius:50%; background:radial-gradient(ellipse,#070514aa,transparent 70%); }
+.home-center img { animation:breathe 4s ease-in-out infinite; }
+.home-center.is-jumping img { animation:home-jump 420ms var(--ease); }
+#app .home-say { left:57%; top:43%; max-width:23%; }
+#app .home-today { bottom:86px; width:25%; overflow:visible; }
+#app .home-today .todaylist { gap:var(--space-1); }
+#app .home-today button { font-size:var(--text-xs); line-height:1.3; width:100%; min-height:44px; padding:6px 8px; }
+#app .home-today .today-more { color:var(--gold); background:transparent; }
+#app .home-banner { left:57%; width:25%; bottom:88px; background:var(--glass); }
+@keyframes breathe { 50%{transform:translateY(-4px)} }
+@keyframes home-jump { 35%{transform:translateY(-18px)}70%{transform:translateY(2px)} }
+#app .song-choice { display:grid; grid-template-columns:58px minmax(0,1fr); grid-template-rows:auto auto; gap:4px 10px; align-items:center; min-height:80px; }
+#app .song-choice .song-jacket { grid-row:1 / 3; }
+#app .song-choice > b,#app .song-choice > small { position:static; inset:auto; display:block; min-width:0; overflow-wrap:anywhere; line-height:1.45; }
+#app .song-choice > small { grid-column:2; font-size:var(--text-xs); }
+#app .song-choice[aria-pressed=true] { border-color:var(--gold); box-shadow:0 0 20px #ffcf4a25; }
+.song-jacket { position:relative; overflow:hidden; display:grid; place-items:center; aspect-ratio:1; padding:8px; border:1px solid #ffffff50; border-radius:var(--radius-sm); color:#fff; background:linear-gradient(140deg,var(--song-a),var(--song-b)); font-family:var(--display); font-size:12px; line-height:1.35; text-align:center; text-shadow:0 2px 6px #0008; }
+.song-jacket::before { content:''; position:absolute; inset:10%; border:1px solid #ffffff30; transform:rotate(-18deg); pointer-events:none; }
+.song-jacket > span { z-index:1; overflow-wrap:anywhere; }
+.song-jacket.has-img { padding:0; }
+.song-jacket.has-img::before, .song-jacket.has-img > span { display:none; }
+.song-jacket > img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 40%; }
+#songdetail .song-jacket { float:left; width:104px; margin:0 14px 10px 0; font-size:18px; border-radius:var(--radius); }
+#songdetail .song { display:flow-root; }
+#songdetail .song .mode-pick { clear:both; }
+#previewstatus { font-size:var(--text-xs); color:var(--gold); min-height:1.5em; }
+#app #live .judge { font-size:clamp(24px,4.5cqw,42px); width:30%; }
+#app #live .lcombo { font-size:var(--text-xl); transform-origin:right center; }
+#app.effects-light :is(.card,.sheet,.song,.song-choice,.playcard,.wavepanel,.w2-card,.home-today) { backdrop-filter:none; }
+#app.effects-light .btn.pri::after,#app.effects-light .home-center img { animation:none; }
+#app .full-combo { color:var(--gold); text-shadow:0 0 24px #ffcf4a88; }
+#app #llife { background:none; display:inline-flex; gap:2px; }
+#rankstamp { display:inline-block; font:var(--text-xl) var(--display); color:var(--gold); border:2px solid currentColor; border-radius:var(--radius-sm); padding:2px 14px; margin:6px 0; transform:rotate(-8deg); }
+#rankstamp.stamped { animation:rank-stamp 360ms var(--ease) both; }
+#app #result.result-failed { background:radial-gradient(ellipse at top,#701e3b55,transparent 75%),var(--bg); }
+#result.result-failed #rankstamp { color:var(--coral); }
+#result.result-sequence #rankstamp { visibility:hidden; }
+#result.result-sequence.result-rank #rankstamp { visibility:visible; }
+#result.result-sequence .exppanel { opacity:0; }
+#result.result-sequence.result-exp .exppanel { opacity:1; transition:opacity var(--motion-screen); }
+#result.result-sequence :is(#rstage,#rkeiki,#rbday,#rbest) { visibility:hidden; }
+#result.result-sequence.result-rewards :is(#rstage,#rkeiki,#rbday,#rbest) { visibility:visible; animation:dialog-in var(--motion-screen) var(--ease) both; }
+#resultskip { width:100%; margin-bottom:8px; font-size:var(--text-sm); }
+@keyframes rank-stamp { from{opacity:0;transform:rotate(-16deg) scale(2)}70%{opacity:1;transform:rotate(-6deg) scale(.95)}to{transform:rotate(-8deg) scale(1)} }
+@container app (max-height:340px) {
+  #app .home-today { top:68px; bottom:74px; width:31%; padding:4px; }
+  #app .home-today h2 { display:none; }
+  #app .home-today .todaylist { gap:1px; }
+  #app .home-today button { padding:2px 6px; }
+  #app .home-center { left:31%; }
+  #app .home-banner { display:none; }
+}
+@media(prefers-reduced-motion:reduce) {
+  #app *,#app *::before,#app *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+  #app .judge.show { opacity:1; transform:none; }
+  #app .btn.pri::after { display:none; }
+}
+</style>
 <div id="app">
+<svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+  <symbol id="i-story" viewBox="0 0 24 24"><path d="M12 5v15M3 4q5-2 9 1 4-3 9-1v15q-5-2-9 1-4-3-9-1Z"/></symbol>
+  <symbol id="i-shop" viewBox="0 0 24 24"><path d="m4 8 2-5h12l2 5v3H4ZM5 11v10h14V11M9 21v-6h6v6M8 3l-1 8m9-8 1 8"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="5"/><path d="M6 13h6m-3-3v6m8-4h.01m2 3h.01M9 6V3h6"/></symbol>
+  <symbol id="i-members" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M2 21v-3a7 7 0 0 1 14 0v3M17 4a3 3 0 0 1 0 6m2 4q3 1 3 7"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="m9 3 1-2h4l1 2 3 2 2 1 2 4-2 2v3l-1 3-3 1-2 3h-4l-2-3-3-1-1-3v-3l-2-2 2-4 2-1Z"/></symbol>
+  <symbol id="i-notice" viewBox="0 0 24 24"><path d="M5 17h14l-2-4V9a5 5 0 0 0-10 0v4ZM10 21h4M12 2v2"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 8a3 3 0 1 1 5 3l-2 2v1m0 3h.01"/></symbol>
+  <symbol id="i-update" viewBox="0 0 24 24"><path d="M20 8a9 9 0 1 0 1 7M20 2v6h-6M12 7v6l4 2"/></symbol>
+  <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m8 7 4 5 4-5m-8 5h8m-8 4h8m-4-4v8"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21 3 12C-2 5 7-1 12 6c5-7 14-1 9 6Z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1Z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="12" rx="3"/><path d="M7 10V7a5 5 0 0 1 10 0v3m-5 5v3"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m10 4-8 8 8 8M2 12h20"/></symbol>
+  <symbol id="i-live" viewBox="0 0 24 24"><path d="m9 4 12 8L9 20ZM3 5v14"/></symbol>
+</defs></svg>
 <section id="opening"><div class="brand">Re:IDOL<br><b>ライブ</b></div><button class="btn pri" id="openingstart" type="button">タップしてはじめる</button><button class="btn sec" id="openingupdate" type="button" hidden>アップデートがあります</button><p id="updatestatus" role="status"></p><small id="appversion"></small></section>
 <main id="home" hidden>
   <div class="hbg" id="hbg"></div>
+  <canvas id="home-lights" aria-hidden="true"></canvas>
   <header class="home-top">
     <div class="home-level" aria-label="7人のレベル合計">合計Lv<b id="homelevel"></b></div>
     <section class="venue">
@@ -630,8 +748,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
       <div class="bar"><i id="hbar"></i></div>
       <div class="vsub" id="hsub"></div>
     </section>
-    <div class="home-wallet">景気 <b id="homewallet"></b></div>
-    <button class="quit" id="setbtn" type="button" aria-label="設定">⚙ 設定</button>
+    <div class="home-wallet"><svg class="icon" aria-hidden="true"><use href="#i-coin"/></svg> 景気 <b id="homewallet"></b></div>
+    <button class="quit" id="setbtn" type="button" aria-label="設定"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg> 設定</button>
   </header>
   <button class="home-center" id="homecenter" type="button" aria-label="センターのプロフィール"><img id="homeidol" alt=""></button>
   <p class="home-say" id="homesay"></p>
@@ -642,12 +760,12 @@ html, body { width:100%; height:100%; overflow:hidden; }
   <aside class="home-side"><button id="homenotice" type="button">お知らせ<span id="noticedot" class="dot" hidden></span></button><button id="helpbtn" type="button">あそびかた</button><button id="homeupdate" type="button" hidden>アップデート<span class="dot"></span></button></aside>
   <button class="home-banner" id="homebanner" type="button"></button>
   <nav class="home-nav" aria-label="ホームの入口">
-    <button id="storybtn" type="button">📖 ストーリー<span id="storydot" class="dot" hidden></span></button>
-    <button id="homeshop" type="button">🛍 ショップ<span id="homeshopdot" class="dot" hidden></span></button>
-    <button id="playbtn" type="button">🎮 あそぶ<span id="playdot" class="dot" hidden></span></button>
-    <button id="membersbtn" type="button">👥 メンバー<span id="membersdot" class="dot" hidden></span></button>
+    <button id="storybtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-story"/></svg> ストーリー<span id="storydot" class="dot" hidden></span></button>
+    <button id="homeshop" type="button"><svg class="icon" aria-hidden="true"><use href="#i-shop"/></svg> ショップ<span id="homeshopdot" class="dot" hidden></span></button>
+    <button id="playbtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg> あそぶ<span id="playdot" class="dot" hidden></span></button>
+    <button id="membersbtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-members"/></svg> メンバー<span id="membersdot" class="dot" hidden></span></button>
   </nav>
-  <button class="btn pri primarylive" id="livebtn" type="button">▶ ライブ<span id="livedot" class="dot" hidden></span></button>
+  <button class="btn pri primarylive" id="livebtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-live"/></svg> ライブ<span id="livedot" class="dot" hidden></span></button>
 </main>
 <section id="members" hidden aria-labelledby="memberstitle"><button class="btn sec" id="membersback" type="button">ホームへ</button><h1 id="memberstitle">メンバー</h1><div class="member-actions"><button class="btn sec" id="membersbonds" type="button">2人の絆</button><button class="btn sec" id="wardrobebtn" type="button">衣装クローゼット<span class="dot" id="wardrobedot" hidden></span></button><button class="btn sec" id="albumbtn" type="button">思い出図鑑<span class="dot" id="albumdot" hidden></span></button><button class="btn sec" id="tourbtn" type="button">日本縦断すごろく<span class="dot" id="tourdot" hidden></span></button></div><div class="grid" id="grid"></div></section>
 <section id="wave2panel" hidden aria-labelledby="wave2title"><header><button id="wave2back" class="btn sec" type="button">もどる</button><h1 id="wave2title"></h1><span id="wave2wallet"></span></header><div id="wave2content"></div></section>
@@ -713,6 +831,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     <div class="ux-actions"><button class="quit" id="shopopen" type="button">景気ショップ<span id="shopdot" class="dot" hidden></span></button><button class="quit" id="shopback" type="button" hidden>曲えらびへ</button><button class="quit" id="songhelp" type="button">あそびかた</button></div>
     <div class="songlist" id="songlist"></div>
     <div class="song-right">
+    <p id="previewstatus" role="status" aria-live="polite"></p>
     <div id="songdetail" aria-live="polite"></div>
     <div class="supportrow"><label>センター <select id="centerpick"></select></label></div>
     <div class="supportrow"><label>サポート <select id="supportpick"></select></label><div id="supportinfo"></div></div>
@@ -776,6 +895,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
       <small>1はゆっくり、10は速い。判定のタイミングは変わりません。次のライブから反映します。</small>
     </div>
     <div class="setrow"><label for="setintro"><span>ライブ前の案内を出す</span><input id="setintro" type="checkbox"></label></div>
+    <div class="setrow"><label for="seteffects">演出</label><select id="seteffects"><option value="normal">ふつう</option><option value="light">かるめ</option></select></div>
     <button id="sethelp" class="btn sec" type="button">あそびかた</button>
     <div class="btns"><button class="btn sec" id="setclose" type="button">閉じる</button></div>
   </div>
@@ -791,6 +911,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
     <div class="result-detail">
     <div class="rscorelab" id="rrank">スコア</div>
     <div class="rscore"><span id="rscore">0</span><small>pt</small></div>
+    <div id="rankstamp" aria-label="ランク"></div>
+    <button id="resultskip" class="quit" type="button">タップで演出をスキップ</button>
     <div class="rbest" id="rbest"></div>
     <div id="rstage"></div>
     <div class="stats">
@@ -804,7 +926,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
       <div class="bar big"><i id="rbar"></i></div>
       <div class="rtitle" id="rtitle"></div>
     </div>
-    <div class="bday" id="rbday" hidden>🎂 お誕生日ボーナス EXP×2</div>
+    <div class="bday" id="rbday" hidden><svg class="icon" aria-hidden="true"><use href="#i-star"/></svg> お誕生日ボーナス EXP×2</div>
     <div class="banner" id="rbanner" hidden></div>
     <div class="keiki" id="rkeiki"></div>
     <div class="btns">
@@ -863,6 +985,9 @@ html, body { width:100%; height:100%; overflow:hidden; }
 <script>
 (() => {
   const DEV = new URLSearchParams(location.search).get('dev') === '1';
+  const icon = name => { const e=document.createElementNS('http://www.w3.org/2000/svg','svg'); e.setAttribute('class','icon'); e.setAttribute('aria-hidden','true'); const u=document.createElementNS(e.namespaceURI,'use'); u.setAttribute('href','#i-'+name); e.appendChild(u); return e; };
+  const ICON_BUTTONS = {homenotice:'notice',helpbtn:'help',homeupdate:'update',openingupdate:'update',songback:'back',membersback:'back',wave2back:'back',playback:'back',shopopen:'shop',shopback:'back',songhelp:'help',sethelp:'help',tohome:'back',tosongs:'back',plive:'live'};
+  for(const [id,name] of Object.entries(ICON_BUTTONS)){const e=document.getElementById(id);if(e)e.prepend(icon(name),' ');}
   // BALANCE PURE BEGIN — 数値の変更先と、DOMに依存しない計算。
   const BALANCE = {
     version: 6, maxLevel: 10, migrationBonus: 300,
@@ -1105,7 +1230,9 @@ html, body { width:100%; height:100%; overflow:hidden; }
   }
   // BALANCE PURE END
   const $ = (id) => document.getElementById(id);
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+  let reduceMotion = motionPreference.matches;
+  motionPreference.addEventListener('change',e=>{reduceMotion=e.matches;syncHomeAtmosphere();if(reduceMotion){cancelAnimationFrame(confRaf);confRaf=0;conf=[];fctx.clearRect(0,0,W,H);}});
   const sleep = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? Math.min(ms, 30) : ms));
 
   // ---- メンバー。color は本人SNSプロフィールの担当カラー
@@ -1151,7 +1278,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
 
   // ---- 設定・ベストスコア（localStorage。使えなくても動く）
   const CKEY = 'reidol.settings.v1', BKEY = 'reidol.best.v2';
-  const CFG = { call: true, se: 0.5, off: 0, bgm: 0.7, speed: 5, intro:true, introVisits:0 };
+  const CFG = { call: true, se: 0.5, off: 0, bgm: 0.7, speed: 5, intro:true, introVisits:0, effects:'normal' };
   try {
     const r = JSON.parse(localStorage.getItem(CKEY) || 'null');
     if (r && typeof r === 'object') {
@@ -1161,10 +1288,12 @@ html, body { width:100%; height:100%; overflow:hidden; }
       if (typeof r.off === 'number' && isFinite(r.off)) CFG.off = clamp(Math.round(r.off), -150, 150);
       if (typeof r.speed === 'number' && Number.isFinite(r.speed)) CFG.speed = clamp(Math.round(r.speed), 1, 10);
       if (typeof r.intro === 'boolean') CFG.intro = r.intro;
+      if (r.effects==='normal'||r.effects==='light') CFG.effects=r.effects;
       if (Number.isFinite(r.introVisits)) CFG.introVisits = Math.max(0, Math.floor(r.introVisits));
     }
   } catch (e) {}
   const saveCfg = () => { try { localStorage.setItem(CKEY, JSON.stringify(CFG)); } catch (e) {} };
+  $('app').classList.toggle('effects-light',CFG.effects==='light');
   let BEST = {};
   try {
     const r = JSON.parse(localStorage.getItem(BKEY) || 'null');
@@ -1234,7 +1363,9 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const remaining=missionItems().filter(m=>!m.done).length, affordable=Object.keys(BALANCE.prices).filter(slug=>!S.ownedSongs.includes(slug)&&BALANCE.prices[slug]<=S.wallet);
     const rows=[['今日のミッション：'+(remaining?`あと${remaining}つ`:'ぜんぶ達成！'),()=>{openPlay();renderPlayDetail('missions');},'missions'],[affordable.length?'買える曲があるよ':'景気をためて曲を増やそう',openShop,'shop'],[availableCabinet().length?'使える内閣ポイントがあるよ':'みんなを育てて内閣ポイントをためよう',()=>{openPlay();renderPlayDetail('cabinet');},'cabinet'],[unread.some(n=>n.group==='story')?'見ていない物語があるよ':'物語を見返そう',()=>{renderStoryList();$('slist').hidden=false;},'story']];
     rows.push(['第2弾の4つのミニゲーム',openPlay,'mini'],['衣装と小物を見よう',()=>openWave2Panel('wardrobe'),'wardrobe'],['思い出の図鑑を見よう',()=>openWave2Panel('collection'),'collection'],['列車とスタンプを見よう',()=>openWave2Panel('tour'),'tour']);
-    rows.forEach(([text,action,key])=>{const b=document.createElement('button');b.type='button';b.textContent=text;addBadge(b,unread.some(n=>n.key===key||n.key.startsWith(key+':')));b.addEventListener('click',action);box.appendChild(b);});
+    rows.sort((a,b)=>Number(unread.some(n=>n.key===b[2]||n.key.startsWith(b[2]+':')))-Number(unread.some(n=>n.key===a[2]||n.key.startsWith(a[2]+':'))));
+    rows.slice(0,3).forEach(([text,action,key])=>{const b=document.createElement('button');b.type='button';b.textContent=text;addBadge(b,unread.some(n=>n.key===key||n.key.startsWith(key+':')));b.addEventListener('click',action);box.appendChild(b);});
+    if(rows.length>3){const more=document.createElement('button');more.type='button';more.className='today-more';more.textContent=`ほか${rows.length-3}件`;more.onclick=()=>{showNotice('今日やること');const box=$('noticetext');rows.slice(3).forEach(([text,action])=>waveButton(text,()=>{$('notice').hidden=true;action();},box));};box.appendChild(more);}
   }
   function beforeLive(action) {
     withTip('live',()=>{
@@ -1280,7 +1411,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
   function celebrateMissions(h) {
     if (DEV || ensureDaily().celebrated || !missionItems().every(m => m.done)) return;
     S.daily.celebrated = true;
-    showNotice(`${byH(h).name}と今日の目標を達成！\n「よくできました！ 今日もおつかれさま！」\n🌸 🌸 🌸`);
+    showNotice(`${byH(h).name}と今日の目標を達成！\n「よくできました！ 今日もおつかれさま！」`);
+    $('noticetext').append(' ',icon('star'));
   }
   function queueVenues(before) { for (let k = before + 1; k <= venueIdx(); k++) pendingStory.push(k + 1); }
   function stopMini() { miniSequence++; if (miniCleanup) miniCleanup(); miniCleanup = null; }
@@ -1298,7 +1430,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     stopMini(); $('playcontent').textContent = ''; waveButton('あそぶ一覧へ', renderPlayMenu, $('playcontent'));
     if (kind === 'missions') {
       const panel = wavePanel(`今日のミッション · ${ensureDaily().date}`);
-      missionItems().forEach(m => { const row = document.createElement('div'); row.className = 'stamp' + (m.done ? ' done' : ''); row.textContent = `${m.done ? '🌸 達成' : '○ あと少し'} · ${m.text}`; panel.appendChild(row); });
+      missionItems().forEach(m => { const row = document.createElement('div'); row.className = 'stamp' + (m.done ? ' done' : ''); row.textContent = `${m.done ? '達成' : 'あと少し'} · ${m.text}`; row.prepend(icon(m.done?'star':'notice'),' '); panel.appendChild(row); });
       const p = document.createElement('p'); p.textContent = '3つ達成でほめる演出。最初の1曲×1.5はミッションの達成前から受け取れます。'; panel.appendChild(p);
     } else if (kind === 'bonds') {
       const panel = wavePanel('2人の絆');
@@ -1365,7 +1497,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   // ---- 音（最初のタップから鳴らす）
   let ac = null, comp = null, noiseBuf = null, seGain = null, synGain = null, sePromise = null, bgmGain = null;
   const SEB = {};
-  const SE_NAMES = ['clap', 'hai', 'haihai', 'oi', 'fuffu', 'kira', 'perfect', 'tap', 'tap_hi'];
+  const SE_NAMES = ['clap', 'hai', 'haihai', 'oi', 'fuffu', 'kira', 'perfect', 'tap', 'tap_hi', 'ui_tap', 'ui_back', 'buy_coin', 'unlock', 'rank_stamp', 'count_tick', 'level_up', 'combo_milestone', 'miss_thud', 'mg_correct', 'mg_wrong', 'mg_countdown', 'mg_timeup'];
   const CALLS = ['hai', 'haihai', 'oi', 'fuffu'];
   const decode = (ab) => new Promise((res, rej) => {
     const p = ac.decodeAudioData(ab, res, rej);
@@ -1481,6 +1613,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   function bgmTarget() {
     const vis = (id) => { const e = $(id); return !!e && !e.hidden; };
     if (vis('live')) return null;
+    if (previewSource || previewPending) return null;
     if (vis('result')) return jingleBusy ? null : 'bgm_select';
     if (vis('story')) return storyCur >= 3 ? 'bgm_story_hope' : 'bgm_story_calm';
     if (vis('playboard')) return miniCleanup ? 'bgm_minigame' : 'bgm_select';
@@ -1580,6 +1713,13 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const src = ac.createBufferSource(); src.buffer = b; src.connect(seGain); src.start();
     return true;
   }
+  function uiSound(name='ui_tap') {
+    if(!audio()||CFG.se<=0)return;
+    if(!playSE(name))osc(synGain,'sine',name==='ui_back'?620:1250,ac.currentTime,.04,.035);
+  }
+  function buttonSound(e){const b=e.target.closest('button');if(!b||b.disabled)return;uiSound(/back|close|cancel|tohome/.test(b.id)?'ui_back':'ui_tap');}
+  document.addEventListener('pointerdown',buttonSound,{capture:true,passive:true});
+  document.addEventListener('click',e=>{if(e.detail===0)buttonSound(e);},{capture:true});
   // 叩いた時の効果音。WAVが読めていない時は合成音で代用する
   function hitSE(grade, combo) {
     if (!audio()) return;
@@ -1633,7 +1773,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   $('wave2purchaseok').addEventListener('click',()=>{
     if(!wave2Purchase||DEV)return;const {kind,id}=wave2Purchase;wave2Purchase=null;$('wave2purchase').hidden=true;
     const result=buyWave2(S.wave2,S.wallet,kind,id,wave2Handles);if(!result.ok){showNotice(result.reason);return;}
-    S.wallet=result.wallet;S.wave2=result.wave2;refreshWave2Album();save();renderWave2Panel();renderToday();
+    S.wallet=result.wallet;S.wave2=result.wave2;uiSound('buy_coin');uiSound('unlock');refreshWave2Album();save();renderWave2Panel();renderToday();
   });
   function renderWardrobe(){
     const root=$('wave2content'),select=wave2Node('select','',root);select.setAttribute('aria-label','衣装のメンバー');
@@ -1717,19 +1857,20 @@ html, body { width:100%; height:100%; overflow:hidden; }
 
   // ---- ホーム
   let hbgCur = '', homeBirthday = null;
+  const WIDE_BG = new Set([1, 2]); // assets/bg_<n>w.jpg がある会場（横長・グラ m20261022a）
   function renderHome() {
     refreshWave2Album();
     const vi = venueIdx(), v = VENUES[vi], nx = VENUES[vi + 1], sum = levelSum();
     const center=byH(S.ux.center);
     $('homelevel').textContent=sum;$('homewallet').textContent=fmt(S.wallet);
     if(!$('home').hidden){$('homeidol').src=outfitPath(center.h);accessoryImage('homeaccessory',center.h);}$('homeidol').alt=center.name;
-    $('homecenter').setAttribute('aria-label',`${center.name} のプロフィール`);
+    $('homecenter').setAttribute('aria-label',`${center.name}にタップして応援`);
     $('homesay').textContent=sayFor(center.h);
     homeBirthday=MEMBERS.find(m=>birthdayWindow(PROFILES[m.h].bd))||null;
-    $('homebanner').textContent=homeBirthday?`🎂 ${homeBirthday.name} 誕生日ライブへ`:nx?`次の会場：${nx.n} · 合計Lv${nx.at}`:'ドームに到達！ みんなとライブを続けよう';
+    $('homebanner').textContent=homeBirthday?`${homeBirthday.name} 誕生日ライブへ`:nx?`次の会場：${nx.n} · 合計Lv${nx.at}`:'ドームに到達！ みんなとライブを続けよう';
     $('hvenue').textContent = v.n;
-    const bgSrc = `assets/bg_${vi + 1}.jpg`;
-    if (hbgCur !== bgSrc) { hbgCur = bgSrc; $('hbg').style.backgroundImage = `url("${bgSrc}")`; }
+    const wide = WIDE_BG.has(vi + 1), bgSrc = `assets/bg_${vi + 1}${wide ? 'w' : ''}.jpg`;
+    if (hbgCur !== bgSrc) { hbgCur = bgSrc; $('hbg').style.backgroundImage = `url("${bgSrc}")`; $('hbg').classList.toggle('wide', wide); }
     $('hbar').style.width = nx ? clamp((sum - v.at) / (nx.at - v.at) * 100, 0, 100) + '%' : '100%';
     $('hsub').textContent = nx
       ? `次は合計Lv${nx.at}` + (nx.min ? `・全員Lv${nx.min}以上` : '')
@@ -1746,7 +1887,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
       row.appendChild(avatar(m.h, 52));
       const lv = document.createElement('div'); lv.className = 'lvbadge'; lv.textContent = 'Lv' + st.lv;
       row.appendChild(lv); b.appendChild(row);
-      const nm = document.createElement('div'); nm.className = 'cname'; nm.textContent = m.name + (isBirthday(m.h) ? ' 🎂' : ''); b.appendChild(nm);
+      const nm = document.createElement('div'); nm.className = 'cname'; nm.textContent = m.name; if(isBirthday(m.h))nm.append(' ',icon('star')); b.appendChild(nm);
       const tt = document.createElement('div'); tt.className = 'ctitle'; tt.textContent = TITLES[st.lv - 1]; b.appendChild(tt);
       const bar = document.createElement('div'); bar.className = 'bar'; bar.style.setProperty('--mc', m.color);
       const fill = document.createElement('i'); fill.style.width = (st.lv >= MAXLV ? 100 : (st.exp / needExp(st.lv)) * 100) + '%';
@@ -1765,7 +1906,30 @@ html, body { width:100%; height:100%; overflow:hidden; }
     });
     renderToday();
   }
-  $('homecenter').addEventListener('click',()=>openProfile(S.ux.center));
+  let homeJumpTimer=0;
+  $('homecenter').addEventListener('click',()=>{
+    const el=$('homecenter');el.classList.remove('is-jumping');void el.offsetWidth;el.classList.add('is-jumping');
+    $('homesay').textContent=PROFILES[S.ux.center].catchphrase||'今日もライブを楽しもう！';
+    clearTimeout(homeJumpTimer);homeJumpTimer=setTimeout(()=>el.classList.remove('is-jumping'),450);
+  });
+  // 論理舞台上のcanvas。ホームが見える時だけ、最大30fps・24粒で描く。
+  const homeCanvas=$('home-lights'),homeCtx=homeCanvas.getContext('2d');
+  let homeRaf=0,homeLast=0;
+  function homeAtmosphere(now){
+    homeRaf=0;if($('home').hidden||document.hidden||reduceMotion)return;
+    homeRaf=requestAnimationFrame(homeAtmosphere);if(now-homeLast<33)return;homeLast=now;
+    const w=$('app').clientWidth,h=$('app').clientHeight;
+    if(homeCanvas.width!==w||homeCanvas.height!==h){homeCanvas.width=w;homeCanvas.height=h;}
+    homeCtx.clearRect(0,0,w,h);if(CFG.effects==='light')return;
+    for(let k=0;k<3;k++){
+      const x=w*(.2+k*.3),s=Math.sin(now/3500+k)*w*.12;
+      homeCtx.fillStyle=['#c293ff0c','#ffcf4a0c','#68d9ed0c'][k];homeCtx.beginPath();homeCtx.moveTo(x,0);homeCtx.lineTo(x+s-70,h);homeCtx.lineTo(x+s+70,h);homeCtx.fill();
+    }
+    for(let k=0;k<24;k++){const x=((k*.618%1)*w+Math.sin(now/4300+k)*12),y=(h-((now/55+k*37)%h));homeCtx.fillStyle=`rgba(255,231,177,${.15+.25*Math.sin(k+now/1400)**2})`;homeCtx.beginPath();homeCtx.arc(x,y,1+k%2,0,Math.PI*2);homeCtx.fill();}
+  }
+  function syncHomeAtmosphere(){if(homeRaf)cancelAnimationFrame(homeRaf);homeRaf=0;if(!$('home').hidden&&!document.hidden&&!reduceMotion)homeRaf=requestAnimationFrame(homeAtmosphere);else homeCtx.clearRect(0,0,homeCanvas.width,homeCanvas.height);}
+  new MutationObserver(syncHomeAtmosphere).observe($('home'),{attributes:true,attributeFilter:['hidden']});
+  document.addEventListener('visibilitychange',syncHomeAtmosphere);
   $('homeshop').addEventListener('click',openShop);
   $('membersbtn').addEventListener('click',()=>{$('home').hidden=true;$('members').hidden=false;renderHome();});
   $('membersback').addEventListener('click',goHome);
@@ -1903,6 +2067,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
     if (document.hidden) pauseLive(); else if (live && live.paused && innerWidth >= innerHeight) resumeLive();
   });
   function startLive(h, so) {
+    resultId++;resultSkip=null;stopPreview();
+    cancelAnimationFrame(confRaf);confRaf=0;conf=[];fctx.clearRect(0,0,W,H);
     cancelAnimationFrame(raf);
     const m = byH(h);
     audio();
@@ -1924,7 +2090,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     live = {
       h, m, notes, step: 0, score: 0, combo: 0, maxCombo: 0, perfect: 0, good: 0, miss: 0,
       bpm, countPlan:plan, countNodes:[],
-      flash: Array(mode.lanes).fill(0), parts: [], done: false, dest: null, src: null, lastCall: -9,
+      flash: Array(mode.lanes).fill(0), parts: Array.from({length:96},()=>({active:false})), particleCursor:0, waveAt:-99, waveColor:'#ffcf4a', displayedCombo:-1, done: false, dest: null, src: null, lastCall: -9,
       mode, approach:noteTravelSeconds(CFG.speed), dev: DEV || !!(so && so.dev), life: BALANCE.life.hearts[mode.diff], failed: false, paused: false, buf: so ? so.buf : null,
       support: so && !so.dev && supportH && supportH !== h ? supportH : null, skills:so && !so.dev ? [...S.skills] : [],
       draft: so && so.dev ? so.draft : null,
@@ -1970,7 +2136,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
   const gameT = () => songT() + CFG.off / 1000; // 判定・表示に使う時刻（タイミング調整つき）
   function renderLife() {
     const max = BALANCE.life.hearts[live.mode.diff];
-    $('llife').textContent = '♥'.repeat(live.life) + '♡'.repeat(max - live.life);
+    $('llife').textContent = '';
+    for(let i=0;i<max;i++){const heart=icon('heart');heart.style.opacity=i<live.life?'1':'.25';heart.style.fill=i<live.life?'currentColor':'none';$('llife').appendChild(heart);}
     $('llifelabel').textContent = `ハート ${live.life}/${max}`;
     $('live').classList.toggle('danger', live.life === 1);
     $('lstage').textContent = live.song ? `STAGE ${Math.min(live.stageIndex + 1, live.stages.length)}/${live.stages.length}` : '練習';
@@ -2000,11 +2167,12 @@ html, body { width:100%; height:100%; overflow:hidden; }
     j.classList.remove('show'); void j.offsetWidth; j.classList.add('show');
   }
   function burst(lane, n) {
-    if (reduceMotion) n = Math.ceil(n / 3);
+    if (reduceMotion) return;
+    const cap=CFG.effects==='light'?32:96;n=Math.min(n,CFG.effects==='light'?4:16);
     const x = sx + laneW * (lane + 0.5);
     for (let i = 0; i < n; i++) {
       const a = Math.random() * Math.PI * 2, sp = 80 + Math.random() * 220;
-      live.parts.push({ x, y: hitY, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, life: 0, max: 0.5 + Math.random() * 0.3, c: LANE_COLORS[lane] });
+      const p=live.parts[live.particleCursor++%cap];p.active=true;p.x=x;p.y=hitY;p.vx=Math.cos(a)*sp;p.vy=Math.sin(a)*sp-60;p.life=0;p.max=.5+Math.random()*.3;p.c=LANE_COLORS[lane];
     }
   }
   function hit(n, grade) {
@@ -2016,14 +2184,17 @@ html, body { width:100%; height:100%; overflow:hidden; }
     updateHearts('hit', n);
     hitSE(grade, live.combo); buzz(grade === 'perfect' ? 12 : 6);
     burst(n.lane, grade === 'perfect' ? 14 : 6);
+    if([25,50,100].includes(live.combo)||live.combo>100&&live.combo%100===0){live.waveAt=gameT();live.waveColor=LANE_COLORS[n.lane];uiSound('combo_milestone');}
     pop(grade === 'perfect' ? 'ぴったり！' : 'いいね', grade === 'perfect' ? '#ffcf4a' : '#3fe0b0');
     $('lscore').textContent = fmt(live.score);
+    const playable=live.notes.filter(note=>note.time<live.dur-.3).length;
+    if(live.miss===0&&live.perfect+live.good===playable&&playable>0){live.waveAt=gameT();live.waveColor='#ffcf4a';$('clearflash').textContent='FULL COMBO!';$('clearflash').hidden=false;uiSound('combo_milestone');}
   }
   function missNote(n) {
     n.st = 3; live.miss++; live.combo = 0;
     if (live.song) { live.stats[n.stage].miss++; live.stats[n.stage].combo = 0; }
     updateHearts('miss', n);
-    sfx('miss'); pop('ミス', '#c9a8ad');
+    if(!playSE('miss_thud'))sfx('miss'); pop('ミス', '#c9a8ad');
   }
   function liveTap(e) {
     const point = inputPoint(e);
@@ -2089,7 +2260,9 @@ html, body { width:100%; height:100%; overflow:hidden; }
     if (live.stopUntil && raw >= live.stopUntil) { $('encore').hidden = true; live.stopUntil = 0; }
     heartbeat(raw);
     if (live.dest && live.song && (!live.mayUnlockFull || live.stageIndex >= 3)) live.dest.gain.value = clamp((live.dur - raw) / BALANCE.fade, 0, 1);
-    $('lcombo').innerHTML = live.combo >= 2 ? `${live.combo}<small>COMBO</small>` : '';
+    if(live.displayedCombo!==live.combo){$('lcombo').innerHTML=live.combo>=2?`${live.combo}<small>COMBO</small>`:'';live.displayedCombo=live.combo;}
+    const comboBeat=reduceMotion||CFG.effects==='light'?0:Math.pow(1-((Math.max(0,raw)/(60/live.bpm))%1),3);
+    $('lcombo').style.transform=`scale(${1+comboBeat*.08})`;
     $('lprog').style.width = Math.max(0, Math.min(100, (raw / live.dur) * 100)) + '%';
     drawLive(t, dt);
     if (!live.song && raw >= live.end) { finishLive(); return; }
@@ -2106,6 +2279,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const recorded = !!L.song && !L.dev;
     const row = { stage:i+1, score, rank:rankOf(score).k, exp:recorded ? reward.exp : 0, supportExp:recorded ? reward.supportExp : 0, currency:recorded ? reward.currency : 0 };
     L.completed.push(row);
+    L.waveAt=gameT();L.waveColor='#ffcf4a';uiSound('unlock');
     $('clearstatus').hidden=false;
     const flash=$('clearflash');flash.textContent=i===0?'CLEAR!':`STAGE ${i+1} CLEAR!`;flash.hidden=false;
     flash.style.animation='none';void flash.offsetWidth;flash.style.animation='';
@@ -2155,11 +2329,11 @@ html, body { width:100%; height:100%; overflow:hidden; }
   function drawLive(t, dt) {
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.fillStyle = stagePaint.background; ctx.fillRect(0, 0, W, H);
-    const ph = (((t / 0.5) % 1) + 1) % 1, pulse = Math.pow(1 - ph, 3);
+    const ph = (((t / (60/live.bpm)) % 1) + 1) % 1, pulse = reduceMotion||CFG.effects==='light'?0:Math.pow(1 - ph, 3);
     // スポットライト
     ctx.globalCompositeOperation = 'lighter';
     for (let k = 0; k < 4; k++) {
-      const ox = W * (0.14 + 0.24 * k), sw = reduceMotion ? 0 : Math.sin(t * 0.9 + k * 1.7) * 0.32;
+      const ox = W * (0.14 + 0.24 * k), sw = reduceMotion||CFG.effects==='light' ? 0 : Math.sin(t * 0.9 + k * 1.7) * 0.32;
       const tx = ox + Math.tan(sw + (k - 1.5) * 0.12) * H;
       ctx.fillStyle = stagePaint.spots[k]; ctx.globalAlpha = .65 + pulse * .35;
       ctx.beginPath(); ctx.moveTo(ox - 8, 0); ctx.lineTo(ox + 8, 0); ctx.lineTo(tx + H * 0.16, H); ctx.lineTo(tx - H * 0.16, H); ctx.closePath(); ctx.fill();
@@ -2183,7 +2357,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = 1;
     stagePaint.edges.forEach(edge => { ctx.beginPath(); ctx.moveTo(edge.far.x, edge.far.y); ctx.lineTo(edge.near.x, edge.near.y); ctx.stroke(); });
     // 床の横線も同じ投影を使う。動きを減らす設定では位置を固定する。
-    const floorPhase = reduceMotion ? 0 : ((t / live.approach) % 1 + 1) % 1;
+    const floorPhase = reduceMotion||CFG.effects==='light' ? 0 : ((t / live.approach) % 1 + 1) % 1;
     for (let k = 0; k < 8; k++) {
       const depth = (k / 8 - floorPhase + 1) % 1;
       const left = projectLane(depth, 0, laneGeo), right = projectLane(depth, 1, laneGeo);
@@ -2212,13 +2386,16 @@ html, body { width:100%; height:100%; overflow:hidden; }
       ctx.globalAlpha = 1;
     }
     // キラキラ
-    for (let k = live.parts.length - 1; k >= 0; k--) {
-      const p = live.parts[k]; p.life += dt;
-      if (p.life > p.max) { live.parts.splice(k, 1); continue; }
+    for (const p of live.parts) {
+      if(!p.active)continue;
+      p.life += dt;
+      if (p.life > p.max || reduceMotion) { p.active=false; continue; }
       p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 300 * dt;
       ctx.fillStyle = rgba(p.c, 1 - p.life / p.max);
       ctx.fillRect(p.x - 3, p.y - 3, 6, 6);
     }
+    const wave=t-live.waveAt;
+    if(!reduceMotion&&wave>=0&&wave<.65){ctx.globalAlpha=(1-wave/.65)*.65;ctx.strokeStyle=live.waveColor;ctx.lineWidth=CFG.effects==='light'?2:5;ctx.beginPath();ctx.ellipse(W/2,hitY,Math.max(1,wave*W),Math.max(1,wave*H*.5),0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}
   }
 
   // ---- リザルト
@@ -2250,17 +2427,24 @@ html, body { width:100%; height:100%; overflow:hidden; }
     for (let k = vBefore + 1; k <= venueIdx(); k++) pendingStory.push(k + 1);
     if (CFG.call && !L.failed && L.miss === 0 && L.perfect + L.good === L.notes.length) playSE('clap');
     const r = { bday, clear, rank:rankOf(L.score).k, currency, stages:L.completed, stageCount:L.stages.length, dev:L.dev, mode: L.mode, failed: L.failed, h: L.h, m: L.m, score: L.score, perfect: L.perfect, good: L.good, miss: L.miss, maxCombo: L.maxCombo, gain, mult, song: L.song, best, before, after: { lv, exp }, vBefore, vAfter: venueIdx() };
+    r.fullCombo=!L.failed&&L.miss===0&&L.perfect+L.good>0&&L.perfect+L.good===L.notes.filter(n=>n.time<L.dur-.3).length&&(L.song?L.completed.length===L.stages.length:songT()>=L.dur);
     r.travel=travel;showResult(r);
     if (L.song && !L.dev) $('rgain').textContent += `${L.first && L.completed.length ? ' ／ 今日の最初 ×1.5' : ''}${L.support ? ` ／ ${byH(L.support).name} +${L.earned.supportExp} EXP` : ''}`;
     if (L.dev && L.song) $('rsong').textContent = `${L.song.title} ［開発URL・記録なし］`;
   }
   let resultId = 0;
+  let resultSkip=null;
+  $('resultskip').addEventListener('click',()=>{if(resultSkip)resultSkip();});
+  $('result').addEventListener('click',e=>{if(!e.target.closest('button,select,input')&&resultSkip)resultSkip();});
   const setBar = (el, pct, anim) => {
     el.style.transition = anim ? '' : 'none'; el.style.width = pct + '%';
     if (!anim) void el.offsetWidth; el.style.transition = '';
   };
   async function showResult(r) {
     const id = ++resultId, m = r.m;
+    let finished=false;
+    const result=$('result');result.classList.remove('result-rank','result-exp','result-rewards');result.classList.add('result-sequence');result.classList.toggle('result-failed',r.failed);
+    $('rankstamp').classList.remove('stamped');$('rankstamp').textContent=r.rank+(r.fullCombo?' · FULL COMBO':'');$('rankstamp').classList.toggle('full-combo',!!r.fullCombo);$('resultskip').hidden=false;
     $('live').hidden = true; $('home').hidden = true; $('result').hidden = false;
     if (r.failed) bgmJingle('jingle_fail'); else if (r.clear) bgmJingle('jingle_clear');
     releaseLandscape(); $('rotate').hidden = true;
@@ -2277,7 +2461,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
       r.stages.forEach(stage => { const p = document.createElement('p'); p.textContent = `STAGE ${stage.stage} · ${stage.rank} · ${fmt(stage.score)}pt ／ 確定 EXP +${stage.exp}${stage.supportExp ? `（相棒 +${stage.supportExp}）` : ''} ／ 景気 +${stage.currency}`; $('rstage').appendChild(p); });
       if (r.failed) { const p = document.createElement('p'); p.textContent = `STAGE ${r.stages.length+1} · 未クリア・報酬なし`; $('rstage').appendChild(p); }
     }
-    $('sPerfect').textContent = r.perfect; $('sGood').textContent = r.good; $('sMiss').textContent = r.miss; $('sCombo').textContent = r.maxCombo;
+    const counts=[['sPerfect',r.perfect],['sGood',r.good],['sMiss',r.miss],['sCombo',r.maxCombo]];
+    counts.forEach(([key])=>$(key).textContent='0');
     $('rgain').textContent = `+${r.gain} EXP` + (r.mult !== 1 ? `（×${r.mult}）` : '');
     $('rsong').textContent = r.song ? `${r.song.title}　［${r.song.df.label}・${r.mode.lanes}レーン・アンコール］` : '練習モード（仮のビート）';
     $('rbest').textContent = !r.best ? '' : r.best.isNew ? 'ベストスコア更新！' : `ベスト ${fmt(r.best.prev)}`;
@@ -2289,40 +2474,47 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const lvEl = $('rlv'); lvEl.textContent = 'Lv' + r.before.lv;
     $('rtitle').innerHTML = '称号　<b></b>'; $('rtitle').lastChild.textContent = TITLES[r.before.lv - 1];
     setBar(bar, r.before.lv >= MAXLV ? 100 : (r.before.exp / needExp(r.before.lv)) * 100, false);
+    const leveled=r.after.lv>r.before.lv;
+    function revealFinal(skipped=false){
+      if(finished||id!==resultId)return;finished=true;resultSkip=null;
+      result.classList.add('result-rank','result-exp','result-rewards');$('resultskip').hidden=true;
+      $('rscore').textContent=fmt(r.score);counts.forEach(([key,value])=>$(key).textContent=value);
+      lvEl.textContent='Lv'+r.after.lv;setBar(bar,r.after.lv>=MAXLV?100:r.after.exp/needExp(r.after.lv)*100,false);$('rtitle').lastChild.textContent=TITLES[r.after.lv-1];
+      if(r.vAfter>r.vBefore){$('rbanner').hidden=false;$('rbanner').textContent=`会場がアップ！　${VENUES[r.vBefore].n} → ${VENUES[r.vAfter].n}`;if(!skipped)confetti(80);}
+      if(r.fullCombo&&!skipped)confetti(100);
+      if(leveled&&!skipped)showLevelUp(r);else {if(leveled){$('rbanner').hidden=false;$('rbanner').textContent+=`　LEVEL UP! Lv${r.before.lv} → Lv${r.after.lv}`;}flushStory();}
+    }
+    resultSkip=()=>revealFinal(true);
     sfx('result');
     // スコアのカウントアップ
-    const dur = reduceMotion ? 0 : 1100, t0 = performance.now();
+    const dur = reduceMotion ? 0 : 1100, t0 = performance.now();let lastTick=-100;
     await new Promise((res) => {
       const tick = () => {
-        if (id !== resultId) return res();
+        if (id !== resultId||finished) return res();
         const p = dur ? Math.min(1, (performance.now() - t0) / dur) : 1;
         $('rscore').textContent = fmt(r.score * (1 - Math.pow(1 - p, 3)));
+        counts.forEach(([key,value])=>$(key).textContent=Math.round(value*(1-Math.pow(1-p,3))));
+        if(p<1&&performance.now()-lastTick>=75){uiSound('count_tick');lastTick=performance.now();}
         p < 1 ? requestAnimationFrame(tick) : res();
       };
       tick();
     });
-    if (id !== resultId) return;
+    if (id !== resultId||finished) return;
     $('rscore').textContent = fmt(r.score);
-    await sleep(250);
+    result.classList.add('result-rank');$('rankstamp').classList.add('stamped');uiSound('rank_stamp');
+    await sleep(360);if(id!==resultId||finished)return;
+    result.classList.add('result-exp');
     // EXPバー
-    const leveled = r.after.lv > r.before.lv;
     if (leveled) {
-      setBar(bar, 100, true); await sleep(750); if (id !== resultId) return;
+      setBar(bar, 100, true); await sleep(750); if (id !== resultId||finished) return;
       setBar(bar, 0, false);
     }
     lvEl.textContent = 'Lv' + r.after.lv;
     setBar(bar, r.after.lv >= MAXLV ? 100 : (r.after.exp / needExp(r.after.lv)) * 100, true);
     $('rtitle').lastChild.textContent = TITLES[r.after.lv - 1];
-    await sleep(600); if (id !== resultId) return;
-    if (r.vAfter > r.vBefore) {
-      const b = $('rbanner'); b.hidden = false;
-      b.textContent = `会場がアップ！　${VENUES[r.vBefore].n} → ${VENUES[r.vAfter].n}`;
-      confetti(80);
-    }
-    if (leveled) {
-      await sleep(500); if (id !== resultId) return;
-      showLevelUp(r);
-    } else flushStory();
+    await sleep(600);if(id!==resultId||finished)return;
+    result.classList.add('result-rewards');
+    await sleep(250);revealFinal();
   }
   function showLevelUp(r) {
     const a = $('lvav'); a.textContent = ''; a.appendChild(avatar(r.h, 92));
@@ -2330,7 +2522,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     $('lvnum').textContent = r.after.lv - r.before.lv > 1 ? `Lv${r.before.lv} → Lv${r.after.lv}` : `Lv${r.after.lv}`;
     $('lvtitle').textContent = TITLES[r.after.lv - 1];
     $('lvup').hidden = false;
-    sfx('fanfare'); buzz([40, 40, 80]);
+    uiSound('level_up'); buzz([40, 40, 80]);
     confetti(140);
   }
   $('lvok').addEventListener('click', () => { $('lvup').hidden = true; flushStory(); });
@@ -2339,7 +2531,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
   const fxc = $('fx'), fctx = fxc.getContext('2d');
   let conf = [], confRaf = 0, confLast = 0;
   function confetti(n) {
-    if (reduceMotion) n = Math.min(n, 24);
+    if (reduceMotion) return;
+    n=Math.min(n,CFG.effects==='light'?24:100,Math.max(0,(CFG.effects==='light'?24:160)-conf.length));
     const cols = MEMBERS.map((m) => m.color).concat(['#ffcf4a', '#ffffff']);
     for (let i = 0; i < n; i++) {
       conf.push({ x: Math.random() * W, y: -20 - Math.random() * H * 0.4, vx: (Math.random() - 0.5) * 140, vy: 120 + Math.random() * 220, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 10, s: 6 + Math.random() * 8, c: cols[i % cols.length] });
@@ -2360,8 +2553,10 @@ html, body { width:100%; height:100%; overflow:hidden; }
   }
 
   function goHome() {
+    stopPreview();cancelAnimationFrame(confRaf);confRaf=0;conf=[];fctx.clearRect(0,0,W,H);
     stopMini(); $('playboard').hidden = true; $('members').hidden = true; $('wave2panel').hidden=true;
     resultId++;
+    resultSkip=null;
     pendingLive = null; $('rotate').hidden = true;
     $('live').hidden = true; $('result').hidden = true; $('lvup').hidden = true; $('songs').hidden = true; $('loading').hidden = true; $('home').hidden = false;
     renderHome();
@@ -2382,6 +2577,48 @@ html, body { width:100%; height:100%; overflow:hidden; }
   const modeFor = (slug, df) => ({ ...(pickModes[slug] || { lanes: 3, length: 'short' }), diff: df.k });
   const chartCache = {};
   let audioCache = { slug: '', buf: null };
+  // 曲の色はメンバーと独立した定数。画像・公式音源の複製は作らない。
+  const SONG_ART = {
+    'overture-01':['#34396e','#b35d91'], 'miracle-express':['#08527d','#7c50aa'],
+    'chokkan-aisho-chekira':['#972c60','#e8893e'], hometive:['#286b68','#b58b42'],
+    'super-energy':['#762d56','#dc4d3d'], 'peaceful-cabinet':['#334c75','#4b9c89'],
+    'saikyo-louder':['#4e2773','#ab3e57'], 're-start':['#263b81','#a67b42'],
+  };
+  const JACKET_IMG = new Set(Object.keys(SONG_ART)); // assets/jk/<slug>.webp（グラ m20261022a）
+  function songJacket(s){const el=document.createElement('div');el.className='song-jacket';el.setAttribute('aria-hidden','true');const colors=SONG_ART[s.slug]||['#34396e','#b35d91'];el.style.setProperty('--song-a',colors[0]);el.style.setProperty('--song-b',colors[1]);if(JACKET_IMG.has(s.slug)){const img=document.createElement('img');img.src=`assets/jk/${s.slug}.webp`;img.alt='';img.decoding='async';el.classList.add('has-img');el.appendChild(img);}const text=document.createElement('span');text.textContent=s.title||s.slug;el.appendChild(text);return el;}
+  let previewSource=null,previewGain=null,previewCtl=null,previewSeq=0,previewSlug='',previewPending=false,previewTimer=0;
+  function stopPreview(){
+    previewSeq++;clearTimeout(previewTimer);if(previewCtl)previewCtl.abort();previewCtl=null;previewPending=false;previewSlug='';
+    if(previewSource){previewSource.onended=null;try{previewSource.stop();previewSource.disconnect();}catch(e){}}
+    if(previewGain)previewGain.disconnect();previewSource=null;previewGain=null;$('previewstatus').textContent='';bgmSync();
+  }
+  function previewSong(s){
+    if(!s||shopOnly||$('songs').hidden||document.hidden){stopPreview();return;}
+    if(previewSlug===s.slug)return;stopPreview();previewSlug=s.slug;
+    const id=previewSeq,ctl=previewCtl=new AbortController();
+    previewTimer=setTimeout(async()=>{
+      try{
+        if(!ac||CFG.bgm<=0)return;
+        const auth=await fetch('/api/check',{credentials:'same-origin',cache:'no-store',signal:ctl.signal});
+        if(!auth.ok||(await auth.json()).ok!==true)return;
+        if(id!==previewSeq)return;previewPending=true;bgmSync();
+        let chart=chartCache[s.slug];if(!chart){const r=await fetch(`charts/${encodeURIComponent(s.slug)}.json`,{credentials:'same-origin',signal:ctl.signal});if(!r.ok)return;chart=await r.json();chartCache[s.slug]=chart;}
+        let buf=audioCache.slug===s.slug?audioCache.buf:null;
+        if(!buf){const r=await fetch(`music/${encodeURIComponent(s.slug)}.mp3`,{credentials:'same-origin',signal:ctl.signal});if(!r.ok)return;buf=await decode(await r.arrayBuffer());}
+        if(id!==previewSeq||!ac||!bgmGain||ac.state==='closed'||$('songs').hidden||document.hidden)return;
+        audioCache={slug:s.slug,buf};
+        const end=Math.min(buf.duration,Number(chart.short_end)||buf.duration),start=Math.max(0,end-10),duration=Math.min(10,end-start);
+        if(duration<=0)return;
+        const src=ac.createBufferSource(),gain=ac.createGain(),at=ac.currentTime;src.buffer=buf;src.connect(gain);gain.connect(bgmGain);
+        gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(.16,at+.3);gain.gain.setValueAtTime(.16,at+Math.max(.3,duration-.5));gain.gain.linearRampToValueAtTime(0,at+duration);
+        previewSource=src;previewGain=gain;previewPending=false;$('previewstatus').textContent='試聴中 · サビの手前10秒';
+        src.onended=()=>{if(id!==previewSeq)return;src.disconnect();gain.disconnect();previewSource=null;previewGain=null;$('previewstatus').textContent='試聴おわり';bgmSync();};src.start(at,start,duration);
+      }catch(e){/* 未ログイン・取得失敗・取消時は無音で継続する。 */}
+      finally{if(id===previewSeq){previewPending=false;previewCtl=null;if(!previewSource){previewSlug='';$('previewstatus').textContent='';}bgmSync();}}
+    },200);
+  }
+  new MutationObserver(()=>{if($('songs').hidden)stopPreview();}).observe($('songs'),{attributes:true,attributeFilter:['hidden']});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPreview();});
   const fmtDur = (sec) => { const t = Math.round(sec); return `${Math.floor(t / 60)}:${pad2(t % 60)}`; };
   function songNote(text) {
     const box = $('songlist'); box.textContent = '';
@@ -2409,6 +2646,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     }
   }
   function openSongs(h) {
+    resultId++;resultSkip=null;
     if (pickH !== h) supportH = null;
     pickH = h;
     S.ux.center=h;saveUx();shopOnly=false;
@@ -2446,7 +2684,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     renderDevButton(box);
     MEMBERS.filter(m => birthdayWindow(PROFILES[m.h].bd)).forEach(m => {
       const special = document.createElement('div'); special.className = 'wavepanel'; special.style.setProperty('--mc',m.color); special.style.borderColor=m.color;
-      const text = document.createElement('p'); text.textContent = `🎂 ${m.name} 誕生日スペシャルライブ · ${PROFILES[m.h].bd.replace('-','/')} 前後1週間` + (isBirthday(m.h) ? ' · 当日はEXP×2！' : ''); special.appendChild(text);
+      const text = document.createElement('p'); text.textContent = `${m.name} 誕生日スペシャルライブ · ${PROFILES[m.h].bd.replace('-','/')} 前後1週間` + (isBirthday(m.h) ? ' · 当日はEXP×2！' : ''); text.prepend(icon('star'),' '); special.appendChild(text);
       if (pickH !== m.h) waveButton('この子をセンターにする',() => openSongs(m.h),special);
       else { const s = SONGS.find(s => S.ownedSongs.includes(s.slug)); if (s) waveButton('特別ライブを始める（かんたん・アンコール）',() => { audio(); beginSong(m.h,s,DIFFS[0],{lanes:3,length:'short'}); },special); }
       box.appendChild(special);
@@ -2461,12 +2699,13 @@ html, body { width:100%; height:100%; overflow:hidden; }
       const title=document.createElement('b');title.textContent=s.title||s.slug;
       addBadge(title,unreadNotices().some(n=>n.key===`song:${s.slug}`||n.key.startsWith(`song:${s.slug}:`)),true);
       const info=document.createElement('small');info.textContent=S.ownedSongs.includes(s.slug)?`到達★ ${S.stageRecords[s.slug]||0} / ${s.stages?.length||(s.slug==='overture-01'?3:4)}`:`${fmt(BALANCE.prices[s.slug])} 景気`;
-      choice.append(title,info);choice.addEventListener('click',()=>{selectedSongSlug=s.slug;renderSongs();});box.appendChild(choice);
+      choice.append(songJacket(s),title,info);choice.addEventListener('click',()=>{selectedSongSlug=s.slug;renderSongs();});box.appendChild(choice);
       if(s.slug===selectedSongSlug)$('songdetail').appendChild(card);
     }
     [...SONGS].sort((a, b) => BALANCE.prices[a.slug] - BALANCE.prices[b.slug]).forEach((s) => {
       if(shopOnly&&S.ownedSongs.includes(s.slug))return;
       const card = document.createElement('div'); card.className = 'song';
+      card.appendChild(songJacket(s));
       const h3 = document.createElement('h3'); h3.textContent = s.title || s.slug; card.appendChild(h3);
       const fresh=unreadNotices().filter(n=>n.key===`song:${s.slug}`||n.key.startsWith(`song:${s.slug}:`));
       addBadge(h3,fresh.length>0,true);
@@ -2493,7 +2732,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
         for (const option of options) {
           const choice = document.createElement('button'); choice.type = 'button';
           const allowed = key === 'lanes' ? option === 3 || (progress.hard3 || 0) >= BALANCE.unlock.lanes5 : option === 'short' || (progress.short5 || 0) >= BALANCE.unlock.full;
-          choice.textContent = (key === 'lanes' ? `${option}レーン` : option === 'full' ? 'フル' : 'ショート') + (allowed ? '' : ' 🔒');
+          choice.textContent = key === 'lanes' ? `${option}レーン` : option === 'full' ? 'フル' : 'ショート';
+          if(!allowed)choice.append(' ',icon('lock'));
           choice.disabled = !allowed; choice.setAttribute('aria-pressed', String(selected[key] === option));
           choice.addEventListener('click', () => { selected[key] = option; renderSongs(); }); modes.appendChild(choice);
         }
@@ -2517,11 +2757,12 @@ html, body { width:100%; height:100%; overflow:hidden; }
       });
       card.appendChild(row);
       const chosen=DIFFS.find(df=>df.k===(pickDifficulty[s.slug]||'easy'))||DIFFS[0];
-      const start=waveButton('▶ ライブ開始',()=>{acknowledge(`song:${s.slug}`);audio();beginSong(pickH,s,chosen,modeFor(s.slug,chosen));},card,!modeUnlocked(progress,modeFor(s.slug,chosen)));start.className='btn pri';start.style.width='100%';
+      const start=waveButton(' ライブ開始',()=>{acknowledge(`song:${s.slug}`);audio();beginSong(pickH,s,chosen,modeFor(s.slug,chosen));},card,!modeUnlocked(progress,modeFor(s.slug,chosen)));start.prepend(icon('live'));start.className='btn pri';start.style.width='100%';
       const note = document.createElement('div'); note.className = 'locknote';
       note.textContent = nextUnlock(progress,stageCount===4);
       card.appendChild(note); placeCard(s,card);
     });
+    if(!shopOnly)previewSong(SONGS.find(s=>s.slug===selectedSongSlug));else stopPreview();
   }
   $('songback').addEventListener('click', goHome);
   $('purchasecancel').addEventListener('click', () => { purchaseSong = null; $('purchase').hidden = true; });
@@ -2529,13 +2770,14 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const s = purchaseSong; if (!s || S.ownedSongs.includes(s.slug)) return;
     const price = BALANCE.prices[s.slug];
     if (!Number.isFinite(price) || S.wallet < price) { $('purchaseerror').textContent = '景気が足りません'; return; }
-    S.wallet -= price; S.ownedSongs.push(s.slug); save();
+    S.wallet -= price; S.ownedSongs.push(s.slug);uiSound('buy_coin');uiSound('unlock'); save();
     purchaseSong = null; $('purchase').hidden = true;if(shopOnly)acknowledge('shop');renderSongs();
   });
   $('practice').addEventListener('click', () => beforeLive(()=>requestLive(pickH)));
 
   let loadSeq = 0, loadCtl = null;
   function showLoading(title, msg) {
+    stopPreview();
     $('ltitle').textContent = title; $('lmsg').textContent = msg || '';
     $('lbar').style.width = '0%'; $('loading').hidden = false;
   }
@@ -2665,6 +2907,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     $('setcall').checked = CFG.call; $('setbgm').value = Math.round(CFG.bgm * 100); $('setse').value = Math.round(CFG.se * 100); $('setoff').value = CFG.off;
     $('setspeed').value = CFG.speed;
     $('setintro').checked=CFG.intro;
+    $('seteffects').value=CFG.effects;
     syncSet(); $('settings').hidden = false; $('settings').querySelector('.sheet').scrollTop = 0;
   });
   $('setcall').addEventListener('change', (e) => { CFG.call = e.target.checked; saveCfg(); });
@@ -2674,6 +2917,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   $('setoff').addEventListener('input', (e) => { CFG.off = clamp(Math.round(+e.target.value || 0), -150, 150); syncSet(); saveCfg(); });
   $('setspeed').addEventListener('input', (e) => { CFG.speed = clamp(Math.round(+e.target.value || 5), 1, 10); syncSet(); saveCfg(); });
   $('setintro').addEventListener('change',e=>{CFG.intro=e.target.checked;saveCfg();});
+  $('seteffects').addEventListener('change',e=>{CFG.effects=e.target.value==='light'?'light':'normal';$('app').classList.toggle('effects-light',CFG.effects==='light');saveCfg();syncHomeAtmosphere();});
   $('setclose').addEventListener('click', closeSettings);
   $('settings').addEventListener('click', (e) => { if (e.target === $('settings')) closeSettings(); });
 
