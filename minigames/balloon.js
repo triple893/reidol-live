@@ -26,20 +26,21 @@
   }
   const grade=(question,index)=>Number.isInteger(index)&&index===question.answer;
   function score(correct,attempts){const n=Math.max(0,Math.floor(Number(attempts)||0));return {correct:Math.max(0,Math.min(n,Math.floor(Number(correct)||0))),attempts:n};}
-  function mount(container,{questions,seconds=45,roundSeconds=5,onFinish,onCancel,asset,now=()=>performance.now(),rng=Math.random}){
+  function mount(container,{questions,seconds=45,roundSeconds=5,onFinish,onCancel,asset,now=()=>performance.now(),rng=Math.random,session}){
     if(!questions?.length)throw new Error('クイズの確認済みデータがありません');
-    const start=now();let born=start,dead=false,correct=0,attempts=0,index=0,q,lastStage=-1;
+    const start=now();let born=start,dead=false,correct=0,attempts=0,index=0,q,lastStage=-1,interval,unwatch=()=>{};
+    const left=()=>session?session.remaining():Math.max(0,seconds-(now()-start)/1000),limit=()=>session?[5,4,3][session.level()-1]:roundSeconds;
     const node=(tag,text,parent=container)=>{const el=document.createElement(tag);el.textContent=text;parent.appendChild(el);return el;};
-    container.classList.add('wave2-game');node('h2','風船クイズ');node('p','風船が割れる前に3択で答えよう。間違えると風船は膨らみ続けます。');
+    container.classList.add('wave2-game');node('h2','風船クイズ');node('p','風船が割れる前に3択で答えよう。間違えると風船は膨らみ続けます。').className='mini-rules';
     const timer=node('p',''),scene=node('div','');scene.className='w2-quiz';
     const image=node('img','',scene);image.alt='膨らむ風船';image.className='w2-balloon';
     const question=node('p','',scene),feedback=node('p','');feedback.setAttribute('role','status');
-    const choices=node('div','');choices.className='minichoices';const cancel=node('button','やめて一覧へ');cancel.className='btn sec';cancel.type='button';
-    function stop(){dead=true;clearInterval(interval);container.classList.remove('wave2-game');}
-    function next(){q=shuffleQuestion(questions[index++%questions.length],rng);born=now();lastStage=-1;question.textContent=q.text;choices.textContent='';q.choices.forEach((text,i)=>{const b=node('button',text,choices);b.type='button';b.onclick=()=>{if(dead)return;if(now()-start>=seconds*1000){finish();return;}attempts++;if(grade(q,i)){correct++;feedback.textContent='正解！';next();}else feedback.textContent='もう一度、確認してみよう';};});}
-    function finish(){if(dead)return;stop();onFinish(score(correct,attempts));}
-    function update(){if(dead)return;const t=(now()-start)/1000;if(t>=seconds){finish();return;}if(now()-born>=roundSeconds*1000){attempts++;feedback.textContent='風船が割れた！ 次の問題へ';next();}const stage=Math.min(2,Math.floor((now()-born)/(roundSeconds*1000)*3));if(stage!==lastStage){lastStage=stage;image.src=asset('a2_balloon_'+['small','medium','large'][stage]);}timer.textContent=`残り${Math.ceil(seconds-t)}秒 · 正解${correct} / ${attempts}`;}
-    const interval=setInterval(update,100);cancel.onclick=()=>{if(!dead){stop();onCancel();}};next();update();return stop;
+    timer.className='mini-local-timer';const choices=node('div','');choices.className='minichoices';choices.style.gridTemplateColumns='repeat(3,minmax(0,1fr))';const cancel=node('button','やめて一覧へ');cancel.className='btn sec mini-cancel';cancel.type='button';
+    function stop(){if(dead)return;dead=true;clearInterval(interval);unwatch();container.classList.remove('wave2-game');}
+    function next(){q=shuffleQuestion(questions[index++%questions.length],rng);born=now();lastStage=-1;question.textContent=q.text;choices.textContent='';q.choices.forEach((text,i)=>{const b=node('button',text,choices);b.type='button';b.onclick=()=>{if(dead)return;if(left()<=0){finish();return;}attempts++;const ok=grade(q,i);session?.answer(ok,{button:b});if(ok){correct++;feedback.textContent='正解！';next();}else feedback.textContent='もう一度、確認してみよう';};});}
+    function finish(){if(dead)return;stop();const stats=score(correct,attempts);if(session)session.end(stats);else onFinish(stats);}
+    function update(){if(dead)return;if(left()<=0){finish();return;}const duration=limit();if(now()-born>=duration*1000){attempts++;session?.answer(false);feedback.textContent='風船が割れた！ 次の問題へ';next();}const stage=Math.min(2,Math.floor((now()-born)/(duration*1000)*3));if(stage!==lastStage){lastStage=stage;image.src=asset('a2_balloon_'+['small','medium','large'][stage]);image.dataset.stage=String(stage+1);}timer.textContent=`残り${Math.ceil(left())}秒 · 正解${correct} / ${attempts}`;}
+    if(session)unwatch=session.onTick(update);else interval=setInterval(update,100);cancel.onclick=()=>{if(!dead){stop();onCancel();}};next();update();return stop;
   }
   return {makeQuestions,shuffleQuestion,grade,score,mount};
 });
