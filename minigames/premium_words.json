@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "note": "指示書記載のクロによる字幕書き起こし。独立した動画再照合は未実施。小書き仮名は1文字、長音は母音へ正規化。",
+  "words": [
+    {"text":"ざ","reading":"ざ","source":"https://youtube.com/shorts/YjmH2-f1lzw"},
+    {"text":"ざる","reading":"ざる","source":"https://youtube.com/shorts/YjmH2-f1lzw"},
+    {"text":"ルビィ","reading":"るびぃ","source":"https://youtube.com/shorts/YjmH2-f1lzw"},
+    {"text":"イカ寿司","reading":"いかずし","source":"https://youtube.com/shorts/YjmH2-f1lzw"},
+    {"text":"シンデレラ","reading":"しんでれら","source":"https://youtube.com/shorts/YjmH2-f1lzw"},
+    {"text":"ラプンツェル","reading":"らぷんつぇる","source":"https://youtube.com/shorts/YjmH2-f1lzw"},
+    {"text":"クイニーアマン","reading":"くいにいあまん","source":"https://youtube.com/shorts/YjmH2-f1lzw"},
+    {"text":"ぴ","reading":"ぴ","source":"https://youtube.com/shorts/B6yi0DIoDmw"},
+    {"text":"ピザ","reading":"ぴざ","source":"https://youtube.com/shorts/B6yi0DIoDmw"},
+    {"text":"座椅子","reading":"ざいす","source":"https://youtube.com/shorts/B6yi0DIoDmw"},
+    {"text":"スクエア","reading":"すくえあ","source":"https://youtube.com/shorts/B6yi0DIoDmw"},
+    {"text":"アンモニア","reading":"あんもにあ","source":"https://youtube.com/shorts/B6yi0DIoDmw"}
+  ]
+}

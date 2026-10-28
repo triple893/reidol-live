@@ -28,19 +28,62 @@
     const wrong = shuffled(data.pool[size].filter(w => w[0] !== head), rng).slice(0,choiceCount-1);
     return { size, head, answer, choices:shuffled([answer,...wrong],rng) };
   }
-  function mount(container, {words, seconds=60, onFinish, onCancel, now=()=>performance.now(), rng=Math.random, session}) {
-    const data=prepare(words), start=now(); let dead=false, correct=0, attempts=0, state={word:'',size:1}, current, nextAllowed=0,born=now(),lastLevel=1,interval,unwatch=()=>{};
+  function preparePremium(raw, words) {
+    if (!raw || !Array.isArray(raw.words) || !raw.words.length) throw new Error('原作キーワードがありません');
+    const rows=raw.words, merged=Object.fromEntries(Object.entries(words).map(([k,v])=>[k,[...v]])), deck=[];
+    const labels=new Map();let previous=null;
+    for(const row of rows){
+      if(!row || typeof row.text!=='string' || !/^[ぁ-ゖ]+$/.test(row.reading) || !/^https:\/\/youtube\.com\/shorts\/[\w-]+$/.test(row.source))throw new Error('原作キーワードの形式が不正です');
+      const size=[...row.reading].length;labels.set(row.reading,row.text);
+      if(size===1||size>8){previous=null;continue;}
+      if(!merged[size].includes(row.reading))merged[size].push(row.reading);
+      if(['ん','ー'].includes(last(row.reading))){previous=null;continue;}
+      // 動画の並びを捏造しない。2文字の開始語と、実際につながる続きだけ固定出題する。
+      const reset=size===2;
+      if(reset || previous && size===previous.size+1 && row.reading[0]===last(previous.reading)){
+        deck.push({...row,size,reset});previous={...row,size};
+      }else previous=null;
+    }
+    if(!deck.length)throw new Error('2文字から始まる原作キーワードがありません');
+    return {data:prepare(merged),rows,labels,deck};
+  }
+  function premiumQuestion(premium,index,state,rng=Math.random,choiceCount=4){
+    const entry=premium.deck[index];let q;
+    if(entry){
+      const wrong=shuffled(premium.data.pool[entry.size].filter(w=>w[0]!==entry.reading[0]),rng).slice(0,choiceCount-1);
+      q={size:entry.size,head:entry.reading[0],answer:entry.reading,choices:shuffled([entry.reading,...wrong],rng),reset:entry.reset};
+    }else{
+      const size=state.word?Math.min(8,state.size+1):2,connects=premium.data.viable[size].some(w=>!state.word||w[0]===last(state.word));
+      q=question(premium.data,connects?state:{word:'',size:1},rng,choiceCount);q.reset=!connects;
+    }
+    // 同字数の原作語は誤答候補にも優先表示（末尾んの語もつながる正解とは扱わない）。
+    const reserved=premium.rows.filter(r=>[...r.reading].length===q.size&&r.reading[0]!==q.head).map(r=>r.reading);
+    if(reserved.length){const wrong=[...new Set([...reserved,...q.choices.filter(w=>w!==q.answer)])].slice(0,choiceCount-1);q.choices=shuffled([q.answer,...wrong],rng);}
+    return {...q,premium:premium.labels.has(q.answer)};
+  }
+  function mount(container, {words, premiumWords, seconds=30, onFinish, onCancel, now=()=>performance.now(), rng=Math.random, session}) {
+    const premium=preparePremium(premiumWords,words),data=premium.data,start=now(); let dead=false, correct=0, attempts=0, state={word:'',size:1}, current, premiumIndex=0,nextAllowed=0,born=now(),lastLevel=1,interval,unwatch=()=>{};
     const node=(tag,text,parent=container)=>{const e=document.createElement(tag);e.textContent=text;parent.appendChild(e);return e;};
-    node('h2','限界しりとりパズル'); node('p','最後の文字から始まる言葉を選ぼう。2→3→…→8文字。8文字でつなぎ続けます。').className='mini-rules';
+    node('h2','限界しりとりパズル'); node('p','最後の文字から始まる言葉を選ぼう。2→3→…→8文字。原作の次の組では2文字から再開。').className='mini-rules';
+    const ribbon=node('div','');ribbon.className='premium-ribbon';ribbon.setAttribute('aria-label','原作プレミアムキーワード');
+    for(const row of premium.rows){const chip=node('span',row.text,ribbon);chip.title=row.reading;chip.dataset.reading=row.reading;}
     const timer=node('p',''), instruction=node('p',''), feedback=node('p',''), choices=node('div',''); instruction.className='mini-instruction';feedback.setAttribute('role','status');choices.className='minichoices';
-    timer.className='mini-local-timer';const cancel=node('button','やめて一覧へ'); cancel.type='button';cancel.className='btn sec mini-cancel';
+    timer.className='mini-local-timer';choices.classList.add('word-choices');const cancel=node('button','やめて一覧へ'); cancel.type='button';cancel.className='btn sec mini-cancel';
     const stop=()=>{if(dead)return;dead=true;clearInterval(interval);unwatch();};
     const finish=()=>{if(dead)return;stop();const stats={correct,attempts};if(session)session.end(stats);else onFinish(stats);};
     const level=()=>session?session.level():1;
     function remaining(){return session?session.remaining():Math.max(0,seconds-(now()-start)/1000);}
-    function draw(){born=now();current=question(data,state,rng,[4,5,6][level()-1]);instruction.textContent=`${state.word ? '前の言葉「'+state.word+'」' : 'はじめの文字「'+current.head+'」'} → ${current.size}文字・「${current.head}」から`;choices.textContent='';choices.style.gridTemplateColumns=level()===1?'repeat(4,minmax(0,1fr))':'repeat(3,minmax(0,1fr))';for(const word of current.choices){const b=node('button',word,choices);b.type='button';b.onclick=()=>{if(dead)return;if(remaining()<=0){finish();return;}if(now()<nextAllowed)return;nextAllowed=now()+180;attempts++;const ok=word===current.answer;session?.answer(ok,{button:b});if(ok){correct++;if(session&&session.combo()>=2)session.extend(.4);state={word,size:current.size};feedback.textContent='正解！';}else feedback.textContent='もう一度、頭の文字を見てみよう';draw();};}}
+    function draw(){born=now();current=premiumQuestion(premium,premiumIndex,state,rng,[4,5,6][level()-1]);
+      const previous=current.reset?'原作の開始文字「'+current.head+'」':state.word?'前の言葉「'+(premium.labels.get(state.word)||state.word)+'」':'はじめの文字「'+current.head+'」';
+      instruction.textContent=`${previous} → ${current.size}文字・「${current.head}」から`;
+      ribbon.querySelectorAll('span').forEach(e=>e.classList.toggle('current',e.dataset.reading===current.answer));
+      choices.textContent='';choices.style.gridTemplateColumns=level()===1?'repeat(4,minmax(0,1fr))':'repeat(3,minmax(0,1fr))';
+      for(const word of current.choices){const b=node('button',premium.labels.get(word)||word,choices);b.type='button';b.dataset.reading=word;
+        if(premium.labels.has(word)){b.classList.add('premium-choice');b.setAttribute('aria-label',b.textContent+'（'+word+'）原作キーワード');const reading=node('small',word,b);reading.className='premium-reading';}
+        b.onclick=()=>{if(dead)return;if(remaining()<=0){finish();return;}if(now()<nextAllowed)return;nextAllowed=now()+180;attempts++;const ok=word===current.answer;session?.answer(ok,{button:b,premium:current.premium});
+          if(ok){correct++;if(session&&session.combo()>=2)session.extend(.4);state={word,size:current.size};if(premiumIndex<premium.deck.length)premiumIndex++;feedback.textContent='';}else feedback.textContent='もう一度、頭の文字を見てみよう';draw();};}}
     function tick(){if(dead)return;const left=remaining();if(left<=0){finish();return;}if(lastLevel!==level()){lastLevel=level();draw();}const limit=session?[12,9,6][level()-1]:Infinity;if((now()-born)/1000>=limit){attempts++;session?.answer(false);feedback.textContent='時間切れ。次の言葉へ';draw();}timer.textContent=`残り ${Math.ceil(left)}秒 · 正解${correct} / ${attempts}`;}
     if(session)unwatch=session.onTick(tick);else interval=setInterval(tick,100);cancel.onclick=()=>{if(dead)return;stop();onCancel();};draw();tick();return stop;
   }
-  return {last,prepare,question,mount};
+  return {last,prepare,question,preparePremium,premiumQuestion,mount};
 });
