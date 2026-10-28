@@ -3,7 +3,7 @@
   "short_name": "Re:IDOL",
   "start_url": "./",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "landscape",
   "background_color": "#1a0f17",
   "theme_color": "#1a0f17",
