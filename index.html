@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "0bec86b7a4";</script>
+<script>window.APP_VERSION = "864f3f2791";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -501,6 +501,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
 /* キービジュアル（グラ m20261023a）: 7人は右寄り、左3分の1にロゴとボタン */
 #app #opening { place-content:center start; padding-left:max(6vw,var(--safe-l)); background:linear-gradient(90deg,#140d11d9 0%,#140d1180 28%,transparent 48%), url("assets/key_opening.jpg") 65% center/cover no-repeat, #140d11; }
 #app #opening .brand { text-shadow:0 2px 16px #000c; }
+#app #installnote { max-width:280px; margin:0; font-size:13px; line-height:1.5; color:#fff; text-shadow:0 1px 6px #000; }
 /* 見本003_横ホームの配置。残高・Lv・通知・センターは進行データで描画する。 */
 #app #home { position:absolute; inset:0; min-height:0; padding:0; overflow:hidden; }
 #app .hbg { position:absolute; filter:blur(4px); transform:scale(1.03); }
@@ -798,7 +799,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   <symbol id="i-back" viewBox="0 0 24 24"><path d="m10 4-8 8 8 8M2 12h20"/></symbol>
   <symbol id="i-live" viewBox="0 0 24 24"><path d="m9 4 12 8L9 20ZM3 5v14"/></symbol>
 </defs></svg>
-<section id="opening"><div class="brand">Re:IDOL<br><b>ライブ</b></div><button class="btn pri" id="openingstart" type="button">タップしてはじめる</button><button class="btn sec" id="openingupdate" type="button" hidden>アップデートがあります</button><p id="updatestatus" role="status"></p><small id="appversion"></small></section>
+<section id="opening"><div class="brand">Re:IDOL<br><b>ライブ</b></div><button class="btn pri" id="openingstart" type="button">タップしてはじめる</button><button class="btn sec" id="openingupdate" type="button" hidden>アップデートがあります</button><button class="btn sec" id="installbtn" type="button" hidden>ホーム画面に追加</button><p id="installnote" hidden></p><p id="updatestatus" role="status"></p><small id="appversion"></small></section>
 <main id="home" hidden>
   <div class="hbg" id="hbg"></div>
   <canvas id="home-lights" aria-hidden="true"></canvas>
@@ -2184,16 +2185,21 @@ html, body { width:100%; height:100%; overflow:hidden; }
     return notes;
   }
   // so が無ければ練習モード（合成ビート）。so = { s: 曲, df: 難易度, chart, buf }
+  function isStandalone() { return matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone === true; }
+  let fullscreenAsked = false;
   function tryLandscape() {
     // ユーザー操作の直後に呼ぶ。拒否・未対応なら舞台のCSS回転で継続する。
+    // 全画面は起動時に1回だけ頼む。頼むたびにブラウザの「全画面表示を終了するには」が出て、ライブ開始直後のレーンを隠すため。
+    // ホーム画面に置いたアプリは最初から全画面なので頼まない。
     try {
-      const p = !document.fullscreenElement && document.documentElement.requestFullscreen ? document.documentElement.requestFullscreen() : Promise.resolve();
+      const ask = !fullscreenAsked && !isStandalone() && !document.fullscreenElement && document.documentElement.requestFullscreen;
+      fullscreenAsked = true;
+      const p = ask ? document.documentElement.requestFullscreen() : Promise.resolve();
       Promise.resolve(p).then(() => screen.orientation && screen.orientation.lock ? screen.orientation.lock('landscape') : null).catch(() => {});
     } catch (e) {}
   }
   function releaseLandscape() {
-    try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
-    try { if (document.fullscreenElement && document.exitFullscreen) Promise.resolve(document.exitFullscreen()).catch(() => {}); } catch (e) {}
+    // アプリ全体が横長なので、ライブが終わっても横向き・全画面は解かない（解くと次のライブで頼み直しになる）。
   }
   function requestLive(h, so) {
     $('rotate').hidden = true; pendingLive = null; startLive(h, so);
@@ -3222,6 +3228,27 @@ html, body { width:100%; height:100%; overflow:hidden; }
     if(release&&release.version===APP_VERSION&&release.notes&&S.ux.notesVersion!==key){showGuide([release.notes],'新しくなったこと',()=>{S.ux.notesVersion=key;S.ux.pendingRelease=null;saveUx();done();});}else done();
   }
   $('openingstart').addEventListener('click',()=>{audio();tryLandscape();$('opening').hidden=true;goHome();bgmSync();releaseNotes(()=>withTip('home',()=>{}));});
+  // ---- ホーム画面に置く案内。LINEなどアプリの中のブラウザでは置けないので、普段のブラウザで開き直してもらう。
+  const UA=navigator.userAgent,IOS=/iPhone|iPad|iPod/.test(UA)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),ANDROID=/Android/.test(UA);
+  const INAPP=/\bLine\/|FBAN|FBAV|FB_IAB|Instagram|Twitter|KAKAOTALK|; wv\)/i.test(UA);
+  let installPrompt=null;
+  function renderInstall() {
+    const btn=$('installbtn'),note=$('installnote');
+    const show=(b,text)=>{btn.hidden=!b;if(b)btn.textContent=b;note.hidden=!text;note.textContent=text||'';};
+    if(isStandalone())show(null,'');
+    else if(INAPP)show(ANDROID?'Chromeで開く':null,IOS?'アプリの中のブラウザでは、ホーム画面に置けないよ。「…」や共有ボタンから「Safariで開く」を選んでね。':'アプリの中のブラウザでは、ホーム画面に置けないよ。Chromeで開き直してね。');
+    else if(installPrompt)show('ホーム画面に追加','');
+    else if(IOS)show(null,'ホーム画面に置くと全画面で遊べるよ。下の共有ボタン →「ホーム画面に追加」');
+    else show(null,'');
+  }
+  if(/\bLine\//i.test(UA)&&!/[?&]openExternalBrowser=1/.test(location.search)){const u=new URL(location.href);u.searchParams.set('openExternalBrowser','1');location.replace(u.href);} // LINEはこの印で普段のブラウザに渡す
+  addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;renderInstall();});
+  addEventListener('appinstalled',()=>{installPrompt=null;renderInstall();});
+  $('installbtn').addEventListener('click',async()=>{
+    if(INAPP){location.href=`intent://${location.host}${location.pathname}${location.search}#Intent;scheme=https;package=com.android.chrome;end`;return;}
+    const p=installPrompt;if(!p)return;installPrompt=null;p.prompt();try{await p.userChoice;}catch(e){}renderInstall();
+  });
+  renderInstall();
   $('appversion').textContent=`バージョン ${APP_VERSION}`;
   renderHome();checkForUpdate(true);achievementState=achievementSnapshot();achievementReady=true;
   loadWave2Stories().then(()=>{renderToday();if(!$('slist').hidden)renderStoryList();achievementState=achievementSnapshot();});
