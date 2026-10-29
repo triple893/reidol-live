@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "93eb80c1ee";</script>
+<script>window.APP_VERSION = "f65e2e358b";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -949,6 +949,13 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #app .mini-arena .w2-menu > div { grid-template-rows:84px 24px 44px;padding:4px;gap:0; }
 #app .mini-arena .w2-menu > div > button:first-child { grid-template-rows:28px 40px;padding:4px;gap:2px; }
 #app .mini-arena .w2-menu img { height:28px; }.mini-arena .w2-drive { padding:6px; }
+/* ドライブスルー: 品物のカード自体が「足す」ボタンだと分かるように。金の縁と「＋1個」の札、押した時の沈み */
+#app .mini-arena .w2-menu > div > button:first-child { position:relative; border:2px solid var(--gold); border-radius:12px; background:color-mix(in srgb,var(--gold) 14%,#241a2bcc); padding:2px 4px 24px; min-height:0; height:100%; align-content:start; gap:2px; overflow:hidden; cursor:pointer; transition:transform 80ms ease; }
+#app .mini-arena .w2-menu > div > button:first-child span { font-size:14px; line-height:17px; }
+#app .mini-arena .w2-menu > div { height:178px; grid-template-rows:minmax(0,1fr) 24px 44px; }
+#app .mini-arena .w2-menu > div > button:first-child:active { transform:scale(.95); }
+#app .mini-arena .w2-menu > div > button:first-child::after { content:'＋1個'; position:absolute; left:50%; bottom:3px; transform:translateX(-50%); padding:0 12px; border-radius:999px; background:var(--gold); color:#2a1626; font:700 14px/20px var(--body); white-space:nowrap; }
+#app .mini-arena .w2-menu img { height:32px; }
 #app .mini-arena .w2-drive > p { font-size:16px;line-height:20px;padding:2px 6px;margin:0 8px 4px 0; }
 #app .mini-arena .ux-actions { margin:4px 0;gap:6px; }.mini-arena .ux-actions button { min-height:44px;font-size:14px;padding:0 12px; }
 #app .mini-arena .answer-hit-ok { outline:3px solid var(--mint);box-shadow:0 0 20px #3fe0b088; }
@@ -2926,7 +2933,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const raw = songT(), t = raw + CFG.off / 1000;
     if(raw<0){
       const count=Math.floor((raw+4*live.countPlan.beat)/live.countPlan.beat);
-      $('countin').hidden=false;$('countin').textContent=count<0?'':String(Math.min(4,count+1));
+      $('countin').hidden=false;$('countin').textContent=count<0?'':String(Math.max(1,Math.min(4,Math.ceil(-raw/live.countPlan.beat)))); // 曲の頭まで残りの拍を4・3・2・1と減らして見せる
       $('lcombo').textContent='';drawLive(t,dt);raf=requestAnimationFrame(liveFrame);return;
     }
     $('countin').hidden=true;
