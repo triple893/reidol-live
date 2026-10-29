@@ -48,5 +48,5 @@
     }
     if(session)unwatch=session.onTick(update);else interval=setInterval(update,100);cancel.onclick=()=>{if(dead)return;stop();onCancel();};draw();update();return stop;
   }
-  return {instruction,question,expected,mount};
+  return {instruction,question,expected,mount,handSVG};
 });

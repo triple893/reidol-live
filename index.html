@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "f65e2e358b";</script>
+<script>window.APP_VERSION = "4340a17726";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -642,7 +642,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
 .w2-accessory { width:54px; height:54px; object-fit:contain; flex:none; }
 #homeaccessory { position:absolute; z-index:2; left:58%; bottom:76px; }
 /* 選んだ小物は床に置かず、センターの子の頭の横に「身に着けとる物」として浮かべる */
-#app #homeaccessory { left:40%; top:13%; bottom:auto; width:60px; height:60px; padding:6px; box-sizing:border-box; border-radius:50%; background:radial-gradient(circle at 35% 30%,#ffffffee,#f3e9f4cc); border:2px solid #ffffffcc; box-shadow:0 4px 14px #0007,0 0 0 3px color-mix(in srgb,var(--mc,#ffd23f) 55%,transparent); pointer-events:none; animation:acc-float 3.2s ease-in-out infinite; }
+#app #homeaccessory { left:52%; top:19%; bottom:auto; width:60px; height:60px; padding:6px; box-sizing:border-box; border-radius:50%; background:radial-gradient(circle at 35% 30%,#ffffffee,#f3e9f4cc); border:2px solid #ffffffcc; box-shadow:0 4px 14px #0007,0 0 0 3px color-mix(in srgb,var(--mc,#ffd23f) 55%,transparent); pointer-events:none; animation:acc-float 3.2s ease-in-out infinite; }
 @keyframes acc-float { 50% { transform:translateY(-6px) rotate(-4deg); } }
 @media (prefers-reduced-motion:reduce) { #app #homeaccessory { animation:none; } }
 .w2-route { display:flex; align-items:center; gap:0; overflow-x:auto; padding:18px 0; }
@@ -1169,10 +1169,10 @@ html, body { width:100%; height:100%; overflow:hidden; }
 .home-wallet { margin-left:auto;padding:8px 12px;font-size:14px; }
 #app #setbtn { width:48px;height:48px;padding:0;font-size:0;border-radius:14px; }
 #setbtn .icon { width:23px;height:23px; }
-#app .home-center { left:16%;bottom:-6px;width:36%;height:100%;padding:0; }
+#app .home-center { left:29%;bottom:-6px;width:34%;height:calc(100% - 58px);padding:0; } /* 顔が上の帯に隠れんよう、帯の下から立たせて左の列とも重ねない */
 .home-center::before { content:'';position:absolute;left:18%;right:18%;bottom:3%;height:20px;border-radius:50%;background:#050512aa;filter:blur(7px); }
 .home-center img { position:relative;filter:drop-shadow(0 10px 20px #0009); }
-#app .home-say { left:46%;top:26%;max-width:40%;padding:10px 14px;border-radius:18px 18px 18px 0;line-height:1.5;font-size:14px; }
+#app .home-say { left:60%;top:24%;max-width:27%;padding:10px 14px;border-radius:18px 18px 18px 0;line-height:1.5;font-size:14px; }
 #app #home .home-today { top:78px;bottom:auto;width:224px;padding:0;border:0;background:none;box-shadow:none;backdrop-filter:none;overflow:visible; }
 #app .home-today h2 { margin:0 0 6px;font:14px var(--body);color:var(--dim); }
 #app .home-today .todaylist { display:grid;height:auto;grid-template-rows:none;gap:5px; }
@@ -1243,6 +1243,85 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #settings .setrow select { min-height:44px;min-width:120px;font-size:14px; }
 #app #settings #sethelp { grid-row:6;grid-column:1; }#app #settings .btns { grid-row:6;grid-column:2; }
 /* POLISH6 LISTS END */
+
+/* POLISH7 MINI HELP BEGIN */
+#app .mini-shell { position:relative; }
+#app .mini-hud .mini-name { min-width:188px;max-width:250px;flex:1;font:700 14px/18px var(--body); }
+.mini-name .mini-cue { display:block;color:var(--gold);font:700 14px/18px var(--body);white-space:nowrap; }
+#app .mini-help-button { order:9;flex:none;width:44px;min-height:44px;border:1px solid var(--gold);border-radius:12px;background:var(--glass);font-size:22px; }
+#app .mini-countdown { pointer-events:none; }
+#app .mini-hud>.quit { order:10; }
+#app .mini-howto { position:absolute;inset:0;z-index:8;display:grid;grid-template-columns:30% minmax(0,1fr);grid-template-rows:32px minmax(0,1fr) 44px;gap:10px 20px;padding:16px;border:1px solid var(--edge);border-radius:var(--radius);background:linear-gradient(140deg,#302944fa,#141428fc);box-shadow:var(--shadow); }
+#app .mini-howto h2 { grid-column:1/-1;margin:0;font:700 22px/30px var(--body);letter-spacing:.03em; }
+.mini-help-picture { min-height:0;display:flex;flex-direction:column;justify-content:center;gap:8px; }
+.mini-help-art { display:flex;align-items:center;justify-content:center;gap:6px;min-height:0; }
+.mini-help-art img { width:23%;max-height:144px;object-fit:contain; }.mini-help-art img:only-child { width:90%; }
+.mini-help-art .hand-icon { width:30%;height:100px;color:var(--gold); }.mini-help-word { font:700 18px var(--body);color:var(--gold); }
+.mini-help-picture p { margin:0;font-size:14px;line-height:1.5;text-align:center; }
+.mini-help-steps { margin:0;padding:0;list-style:none;counter-reset:step;display:flex;flex-direction:column;justify-content:center;gap:10px; }
+.mini-help-steps li { position:relative;padding-left:38px;font:700 18px/1.5 var(--body);counter-increment:step; }
+.mini-help-steps li::before { content:counter(step);position:absolute;left:0;top:0;width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--gold);border-radius:50%;color:var(--gold); }
+.mini-help-actions { grid-column:1/-1;display:grid;grid-template-columns:1fr 2fr;gap:12px; }.mini-help-actions button { min-height:44px;margin:0;font-size:18px; }
+#app .mini-arena .minichoices button,#app .mini-arena .w2-faces button { border:1px solid #d7b1eb80;box-shadow:0 3px 0 #080817a0,inset 0 1px #ffffff24; }
+#app .mini-arena button:active { transform:translateY(2px) scale(.98); }
+#app .w2-grill button:has(img[alt="焼けた肉"]) { border:2px solid var(--gold);box-shadow:0 0 12px #ffcf4a55; }
+#app .w2-grill button:has(img[alt="生の肉"]),#app .w2-grill button:has(img[alt="焦げた肉"]) { border-color:#ff69758c; }
+/* POLISH7 MINI HELP END */
+
+/* POLISH7 CARDS BEGIN */
+#app #wave2panel { overflow:hidden; }
+#app #wave2panel header { display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px; }
+#app #wave2title { margin:0;font:700 20px/1.25 var(--body);letter-spacing:.04em;white-space:normal; }
+#app #wave2back { min-width:100px;padding:4px 12px; }
+#app #wave2content { overflow:hidden; }
+#app #wave2content .strip-panel { display:grid;grid-template-rows:28px minmax(0,1fr);gap:8px;height:100%;padding:8px;margin:0; }
+#app #wave2content .strip-panel>h2 { display:block;font:700 18px/26px var(--body);margin:0; }
+.card-carousel { display:grid;grid-template-rows:minmax(0,1fr) 44px;gap:6px;min-width:0;min-height:0;height:100%;overflow:clip; }
+#app #wave2content .hcards { display:flex;flex-wrap:nowrap;align-items:stretch;gap:12px;width:100%;height:100%;min-height:0;margin:0;padding:0;border:0;overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain;scroll-snap-type:x mandatory;scrollbar-width:none;touch-action:pan-x; }
+.hcards::-webkit-scrollbar { display:none; }
+#app #wave2content .hcards>* { flex:0 0 var(--card-width);width:var(--card-width);min-width:0;min-height:0;height:100%;scroll-snap-align:start;scroll-snap-stop:always;box-sizing:border-box; }
+.hcards[data-left=true][data-right=true] { mask-image:linear-gradient(90deg,transparent,#000 18px,#000 calc(100% - 18px),transparent); }
+.hcards[data-left=false][data-right=true] { mask-image:linear-gradient(90deg,#000,#000 calc(100% - 18px),transparent); }
+.hcards[data-left=true][data-right=false] { mask-image:linear-gradient(90deg,transparent,#000 18px,#000); }
+.card-position { display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:10px;height:44px; }
+#app .card-position button { width:44px;height:44px;min-height:44px;padding:0;margin:0;border:1px solid var(--edge);border-radius:12px;background:var(--glass);font-size:24px; }
+.card-position button:disabled { opacity:.3; }.card-position input { width:100%;height:44px;margin:0;accent-color:var(--gold);cursor:pointer; }
+#app .strip-panel .detail-entry { padding:16px;justify-content:center;gap:14px; }.strip-panel .detail-entry p { font-size:18px;line-height:1.55; }.strip-panel .detail-entry button { margin-top:auto;min-height:44px; }
+.bond-pair { display:flex;justify-content:center;gap:18px; }
+#wave2content[data-panel=collection]>.card-carousel { height:calc(100% - 28px); }
+#wave2content[data-panel=collection]>p { height:20px;margin:0 0 8px;font-size:14px; }
+#app .hcards .w2-card { display:flex;flex-direction:column;justify-content:center;gap:8px;padding:12px;overflow:hidden; }
+#app .hcards .w2-card img { width:100%;height:calc(100% - 36px);min-height:0;max-height:none;object-fit:contain; }
+#app .hcards .w2-card b,#app .hcards .w2-card h3 { margin:0;font:700 18px/24px var(--body); }
+#app .hcards .w2-locked { flex:1;min-height:0; }.hcards .w2-card p { margin:0;font-size:16px;line-height:1.5; }
+.card-tabs-layout { display:grid;grid-template-rows:44px minmax(0,1fr);gap:8px;min-height:0; }
+.card-tabs { display:flex;gap:8px;height:44px; }.card-tabs button { flex:1;min-height:44px;font-size:16px;margin:0; }.card-tabs button[aria-selected=true] { color:var(--gold);border:1px solid var(--gold); }
+.card-tab-panel { min-height:0; }
+#app .wardrobe-pages { height:calc(100% - 52px);margin-top:8px;grid-template-columns:28% minmax(0,1fr);gap:14px; }
+#app .wardrobe-pages .w2-preview { display:grid;grid-template-rows:minmax(0,1fr) 44px;min-height:0;gap:6px; }
+#app .wardrobe-pages .w2-preview>img:not(.w2-accessory) { width:100%;height:100%;min-height:0;max-height:none;object-fit:contain; }
+#app .wardrobe-center-action { min-height:44px;margin:0;padding:4px;font-size:14px; }
+#app .wardrobe-controls { padding:0;min-height:0; }
+#app .wardrobe-page { display:grid;grid-template-rows:36px minmax(0,1fr);gap:4px;min-height:0; }.wardrobe-page>p { margin:0;font-size:14px;line-height:18px; }.wardrobe-page>button { min-height:44px;margin:0;font-size:14px; }
+#app .wardrobe-page:has(.w2-accessories) { grid-template-rows:44px minmax(0,1fr); }
+#app .outfit-card { display:flex;flex-direction:column;gap:4px;padding:6px;border:1px solid var(--edge);border-radius:14px;background:var(--glass); }
+.outfit-card img { flex:1;width:100%;min-height:0;object-fit:contain; }.outfit-card button { width:100%;min-height:44px;padding:4px;font-size:14px; }
+#app .wardrobe-page .w2-accessories { position:static;padding-bottom:0;height:100%; }.wardrobe-page .w2-accessories>div { display:flex;flex-direction:column;justify-content:center;gap:8px;padding:8px;border:1px solid var(--edge);border-radius:14px; }
+#app .wardrobe-page .w2-accessories img { flex:1;min-height:0;width:100%;height:70px;object-fit:contain; }.wardrobe-page .w2-accessories button { min-height:44px; }
+#app .tour-pages { padding:0;height:100%; }.tour-page { display:grid;grid-template-rows:40px minmax(0,1fr);gap:6px;min-height:0; }.tour-page>p { margin:0;font-size:14px;line-height:20px; }.tour-page>h2 { margin:0;font:700 18px/26px var(--body); }
+#app .hcards .w2-station { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border:1px solid var(--edge);border-bottom:4px solid var(--gold);border-radius:14px;padding:12px;background:var(--glass); }
+.hcards .w2-station b { font-size:24px; }.hcards .w2-station p { margin:0;font-size:16px; }.hcards .w2-station .w2-train { height:84px;width:160px; }
+.album-detail { display:grid;grid-template-columns:56% minmax(0,1fr);gap:20px;height:100%;min-height:0;padding:8px;border:1px solid var(--edge);border-radius:var(--radius);background:var(--glass); }
+#app .album-photo { width:100%;height:100%;min-height:0;max-height:100%;object-fit:contain; }
+.album-caption { display:flex;flex-direction:column;gap:14px;min-width:0;padding:12px; }.album-caption h2 { margin:0;font:700 22px/1.4 var(--body);letter-spacing:.03em; }.album-caption p { font-size:16px;line-height:1.6;margin:0; }.album-caption button { margin-top:auto;min-height:44px; }
+@media (orientation:portrait) { #app #wave2content .hcards { touch-action:none; } }
+/* POLISH7 CARDS END */
+
+/* POLISH7 HEADINGS BEGIN */
+#app :is(h1,h2,.slhead,.pname,.mini-name,.playcard strong,.w2-card b) { font-family:var(--body);font-weight:700;letter-spacing:.03em; }
+#app .playcard strong { font-size:17px;line-height:1.4; }
+#app #memberstitle,#app #playtitle { font:700 22px/1.3 var(--body); }
+/* POLISH7 HEADINGS END */
 </style>
 <section id="live" hidden>
   <div id="live-backdrop" aria-hidden="true"></div>
@@ -1878,6 +1957,26 @@ html, body { width:100%; height:100%; overflow:hidden; }
   function saveMiniRecord(){try{localStorage.setItem(MINI_KEY,JSON.stringify(MINI_RECORD));}catch(e){}}
   const miniRank=(score,target)=>score>=target*100?'S':score>=target*70?'A':score>=target*40?'B':'C';
   const miniNode=(tag,cls,text,parent)=>{const e=document.createElement(tag);e.className=cls;e.textContent=text;if(parent)parent.appendChild(e);return e;};
+  const miniHelpSeen=new Set();
+  const MINI_HELP={
+    shiritori:{cue:'はじめの文字と文字数を見る',steps:['帯の「はじめの文字」と「何文字」を見よう。','両方に合う言葉をタップしよう。','最後の文字で次へつなごう。原作の言葉の区切りでは2文字から始まるよ。'],label:'いぬ → ぬりえ → えんぴつ'},
+    abekobe:{cue:'毎回、帯の指示を見て押す',steps:['帯の「勝て・負けろ」「長い・短い」を見よう。','「勝て」は相手に勝つ手、「負けろ」は負ける手。言葉は一番長い・短いものを押そう。','途中で指示が反対になるよ。毎回、帯を見よう。'],label:'相手の手と、上の指示を見よう'},
+    balloon:{cue:'風船が割れる前に答えよう',steps:['問題を読んで、3つの答えを見よう。','風船が割れる前に、答えをタップしよう。','まちがいは同じ問題。風船が割れたら次の問題へ。'],images:['a2_balloon_small','a2_balloon_medium','a2_balloon_large'],label:'風船が大きくなる前に答えよう'},
+    creampuff:{cue:'我慢している顔をタップ',steps:['3人の顔をよく見くらべよう。','我慢している顔の人をタップしよう。','選ぶたびに新しい3人に変わるよ。'],images:['a3_cream_puff','a3_fuka_endure'],label:'いつもの顔と我慢している顔を見くらべよう'},
+    bbq:{cue:'焼けた肉を押す・タレはよける',steps:['焼けた肉だけタップ！ 生の肉・焦げた肉はさわらない。','タレが来たら、左右ボタンか白Tの場所を動かしてよけよう。','焼けた肉とタレ回避で成績アップ。生・焦げ・タレには注意！'],images:['a4_meat_raw','a4_meat_cooked','a4_meat_burnt','a4_white_tshirt'],label:'生 ／ 焼けた肉 ／ 焦げ ／ 守る白T'},
+    drive:{cue:'品物を足して、ぴったり注文',steps:['「目標」と「いま」の金額を見よう。','品物カードの「＋1個」で足そう。戻すボタンで数を直せるよ。','目標と同じ金額になったら「この金額で注文」を押そう。'],images:['a6_menu_burger','a6_menu_fries','a6_menu_shake'],label:'品物カードを押すと1個ずつ足せるよ'}
+  };
+  function miniHowTo(shell,kind,game,done,cancel){
+    const spec=MINI_HELP[kind],card=miniNode('section','mini-howto','',shell);card.setAttribute('role','dialog');card.setAttribute('aria-modal','true');card.setAttribute('aria-label',PLAY_ENTRIES.find(e=>e.id===kind).title+' あそびかた');
+    miniNode('h2','',PLAY_ENTRIES.find(e=>e.id===kind).title+' あそびかた',card);
+    const picture=miniNode('div','mini-help-picture','',card),art=miniNode('div','mini-help-art','',picture);
+    if(kind==='abekobe')for(const hand of ['グー','チョキ','パー'])art.appendChild(game.handSVG(hand));
+    else if(kind==='shiritori')for(const word of ['いぬ','ぬりえ','えんぴつ'])miniNode('b','mini-help-word',word,art);
+    else for(const stem of spec.images){const im=miniNode('img','','',art);im.src=wave2Asset(stem);im.alt=stem==='a4_meat_cooked'?'焼けた肉':stem==='a4_meat_raw'?'生の肉':stem==='a4_meat_burnt'?'焦げた肉':kind==='creampuff'?'我慢顔とシュークリーム':'ゲームで使う絵';}
+    miniNode('p','',spec.label,picture);const list=miniNode('ol','mini-help-steps','',card);for(const step of spec.steps)miniNode('li','',step,list);
+    const actions=miniNode('div','mini-help-actions','',card);waveButton('一覧へ',cancel,actions);const yes=waveButton('わかった！',()=>{card.remove();done();},actions);yes.className='btn pri';
+    requestAnimationFrame(()=>yes.focus({preventScroll:true}));return card;
+  }
   // ライブとミニゲームで使う、取消可能な数字のカウントアップと判子。
   function countResult(node,score,counters,valid){
     const at=performance.now(),duration=reduceMotion?0:1100;let soundAt=-100;
@@ -1887,9 +1986,10 @@ html, body { width:100%; height:100%; overflow:hidden; }
   function createMiniFrame(kind,h,rule,token,onFinish){
     const host=$('playcontent');host.textContent='';$('playboard').classList.add('mini-playing');
     const shell=miniNode('section','mini-shell','',host),hud=miniNode('header','mini-hud','',shell);
-    miniNode('strong','mini-name',PLAY_ENTRIES.find(e=>e.id===kind).title,hud);
+    const name=miniNode('strong','mini-name',PLAY_ENTRIES.find(e=>e.id===kind).title,hud);miniNode('small','mini-cue',MINI_HELP[kind].cue,name);
     const time=miniNode('b','mini-time','',hud),levelText=miniNode('span','mini-level','Lv1',hud),comboText=miniNode('b','mini-combo','0 COMBO ×1',hud),scoreText=miniNode('b','mini-score-hud','0 pt',hud);
     const cancel=miniNode('button','quit','もどる',hud);cancel.type='button';cancel.onclick=renderPlayMenu;
+    const help=miniNode('button','mini-help-button','？',hud);help.type='button';help.setAttribute('aria-label','あそびかたを見直す');
     const arena=miniNode('div','mini-arena','',shell),toast=miniNode('div','mini-toast','',shell),ghost=miniNode('div','mini-tap-ghost','',shell);arena.dataset.kind=kind;toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');ghost.hidden=true;ghost.setAttribute('aria-hidden','true');
     const count=miniNode('div','mini-countdown','3',shell);count.setAttribute('aria-live','polite');
     let start=0,extension=0,ended=false,playing=false,clock=0,countClock=0,hideCount=0,feedbackTimer=0,toastTimer=0,mountCleanup=null,feedbackButton=null,stage=1,combo=0,maxCombo=0,correct=0,attempts=0,score=0;
@@ -1919,12 +2019,15 @@ html, body { width:100%; height:100%; overflow:hidden; }
       end:stats=>{if(!valid())return;if(session.remaining()<=0)uiSound('mg_timeup');const result={correct,attempts,...stats,score,maxCombo};dispose();onFinish(result);},
       snapshot:()=>({playing,ended,stage,combo,maxCombo,correct,attempts,score,extension,remaining:session.remaining()}),
       cancel:dispose,
-      begin:mount=>{
-        let number=3;uiSound('mg_countdown');
-        countClock=setInterval(()=>{if(!valid())return dispose();number--;count.textContent=number>0?String(number):'スタート！';if(number>0){uiSound('mg_countdown');return;}clearInterval(countClock);uiSound('unlock');start=performance.now();playing=true;
+      begin:(mount,game)=>{
+        let number=3,helpCard=null;count.hidden=true;
+        const countdown=()=>{if(!valid())return dispose();number--;count.textContent=number>0?String(number):'スタート！';if(number>0){uiSound('mg_countdown');return;}clearInterval(countClock);help.hidden=true;uiSound('unlock');start=performance.now();playing=true;
           try{mountCleanup=mount(arena,session);arena.querySelectorAll(':scope > p:not([class])').forEach(e=>{e.classList.add('mini-feedback');e.setAttribute('aria-hidden','true');e.removeAttribute('role');});}catch(e){dispose();miniRun=null;miniCleanup=null;arena.textContent='読み込みに失敗しました。'+e.message;count.remove();waveButton('あそぶ一覧へ',renderPlayMenu,arena);return;}hideCount=setTimeout(()=>count.remove(),350);
           clock=setInterval(()=>{if(!valid())return dispose();const next=Math.min(3,1+Math.floor(session.elapsed()/rule.seconds*3));if(next!==stage){stage=next;levelText.textContent='Lv'+stage;toast.textContent='レベルアップ！';shell.classList.remove('stage-up');void shell.offsetWidth;shell.classList.add('stage-up');uiSound('level_up');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.textContent='';shell.classList.remove('stage-up');},900);}const left=session.remaining();time.textContent=Math.ceil(left)+'秒';time.classList.toggle('urgent',left<=5);for(const fn of [...listeners]){if(!valid())break;fn();}if(valid()&&left<=0){uiSound('mg_timeup');session.end({correct,attempts});}},100);
-        },1000);
+        };
+        const resumeCount=()=>{if(!valid())return;helpCard=null;miniHelpSeen.add(kind);count.hidden=false;uiSound('mg_countdown');countClock=setInterval(countdown,1000);};
+        const explain=()=>{if(!valid()||playing||helpCard)return;clearInterval(countClock);count.hidden=true;helpCard=miniHowTo(shell,kind,game,resumeCount,renderPlayMenu);};help.onclick=explain;
+        if(miniHelpSeen.has(kind))resumeCount();else explain();
       }
     };
     time.textContent=Math.ceil(rule.seconds)+'秒';miniRun=session;return session;
@@ -2003,19 +2106,19 @@ html, body { width:100%; height:100%; overflow:hidden; }
     stopMini();if($('wave2panel').hidden)wave2Return=!$('members').hidden?'members':'home';wave2Kind=kind;
     for(const id of ['home','members','playboard','songs','result'])$(id).hidden=true;
     $('wave2panel').hidden=false;$('wave2title').textContent=PLAY_ENTRIES.find(e=>e.id===kind)?.title||'';$('wave2wallet').textContent=`景気 ${fmt(S.wallet)}`;
-    const host=$('wave2content');host.textContent='';
+    const host=$('wave2content');host.textContent='';host.dataset.panel=kind;waveBackLabel();
     if (kind === 'missions') {
       const panel = wavePanel(`今日のミッション · ${ensureDaily().date}`,host);
       missionItems().forEach(m => { const row = document.createElement('div'); row.className = 'stamp' + (m.done ? ' done' : ''); row.textContent = `${m.done ? '達成' : 'あと少し'} · ${m.text}`; row.prepend(icon(m.done?'star':'notice'),' '); panel.appendChild(row); });
       const p = document.createElement('p'); p.textContent = '3つ達成でほめる演出。最初の1曲×1.5はミッションの達成前から受け取れます。'; panel.appendChild(p);
     } else if (kind === 'bonds') {
       const panel = wavePanel('2人の絆',host);
-      MEMBERS.forEach((a,i) => MEMBERS.slice(i+1).forEach(b => { const entry=miniNode('div','detail-entry','',panel),points = S.bonds[bondKey(a.h,b.h)] || 0, p = document.createElement('p'); p.textContent = `${a.name}と${b.name} · 絆Lv${bondLevel(points)} · ${points} / ${(BALANCE.wave1.bond.maxLevel-1)*BALANCE.wave1.bond.perLevel}`; entry.appendChild(p); const meter = document.createElement('progress'); meter.max = (BALANCE.wave1.bond.maxLevel-1)*BALANCE.wave1.bond.perLevel; meter.value = points; meter.setAttribute('aria-label', `${a.name}と${b.name}の絆`); entry.appendChild(meter); }));
-      panel.classList.add('paged-detail');paginate(panel,4,'2人の絆',[...panel.querySelectorAll('.detail-entry')]);
+      MEMBERS.forEach((a,i) => MEMBERS.slice(i+1).forEach(b => { const entry=miniNode('div','detail-entry','',panel),points = S.bonds[bondKey(a.h,b.h)] || 0, p = document.createElement('p'); p.textContent = `${a.name}と${b.name} · 絆Lv${bondLevel(points)} · ${points} / ${(BALANCE.wave1.bond.maxLevel-1)*BALANCE.wave1.bond.perLevel}`; const faces=miniNode('div','bond-pair','',entry);faces.append(avatar(a.h,64),avatar(b.h,64));entry.appendChild(p); const meter = document.createElement('progress'); meter.max = (BALANCE.wave1.bond.maxLevel-1)*BALANCE.wave1.bond.perLevel; meter.value = points; meter.setAttribute('aria-label', `${a.name}と${b.name}の絆`); entry.appendChild(meter); }));
+      detailStrip(panel,'2人の絆');
     } else if (kind === 'cabinet') {
       const points = cabinetPoints(MEMBERS.map(m => S.members[m.h].lv), S.skills), panel = wavePanel(`ピースフル内閣 · 残り${points}ポイント`,host);
       BALANCE.wave1.cabinet.skills.forEach(skill => { const entry=miniNode('div','detail-entry','',panel),owned = S.skills.includes(skill.id), prereq = skill.requires.every(id => S.skills.includes(id)); const p = document.createElement('p'); p.textContent = `${skill.label}: ${skill.detail}（${skill.cost}pt）` + (skill.requires.length ? ` / 前提: ${skill.requires.map(id => BALANCE.wave1.cabinet.skills.find(s => s.id === id).label).join('・')}` : ''); entry.appendChild(p); waveButton(owned ? '解放済み' : '解放する', () => { if (DEV) return; const now = cabinetPoints(MEMBERS.map(m => S.members[m.h].lv),S.skills); if (S.skills.includes(skill.id) || now < skill.cost || !skill.requires.every(id => S.skills.includes(id))) return; S.skills.push(skill.id); save(); renderPlayDetail('cabinet'); },entry, DEV || owned || !prereq || points < skill.cost); });
-      panel.classList.add('paged-detail','cabinet-pages');paginate(panel,2,'ピースフル内閣',[...panel.querySelectorAll('.detail-entry')]);
+      detailStrip(panel,'ピースフル内閣');
     }
   }
   async function launchMini(kind) {
@@ -2048,7 +2151,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
         $('wavefeedback').textContent = DEV ? '開発URLのため報酬なし。' : '報酬とミッションを保存しました。';
       });
       miniCleanup=frame.cancel;
-      frame.begin((arena,session)=>game.mount(arena,{...rule,words,premiumWords,questions,members:MEMBERS,asset:wave2Asset,point:e=>window.ReidolInput.point(e),session,onCancel:renderPlayMenu,onFinish:session.end}));
+      frame.begin((arena,session)=>game.mount(arena,{...rule,words,premiumWords,questions,members:MEMBERS,asset:wave2Asset,point:e=>window.ReidolInput.point(e),session,onCancel:renderPlayMenu,onFinish:session.end}),game);
     } catch (e) { if (token === miniSequence) { $('wavefeedback').textContent = e.message; waveButton('あそぶ一覧へ',renderPlayMenu,$('playcontent')); } }
   }
   MEMBERS.forEach(m => { const o = document.createElement('option'); o.value=m.h; o.textContent=m.name; $('minicenter').appendChild(o); });
@@ -2340,7 +2443,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     wave2Kind=kind;wardrobeH ||= S.ux.center;$('wave2panel').hidden=false;renderWave2Panel();
   }
   function renderWave2Panel(){
-    refreshWave2Album();$('wave2wallet').textContent=`景気 ${fmt(S.wallet)}`;$('wave2content').textContent='';
+    refreshWave2Album();$('wave2wallet').textContent=`景気 ${fmt(S.wallet)}`;$('wave2content').textContent='';$('wave2content').dataset.panel=wave2Kind;waveBackLabel();
     $('wave2title').textContent={wardrobe:'衣装クローゼット',tour:'日本縦断すごろく',collection:'思い出ポラロイド図鑑'}[wave2Kind];
     if(wave2Kind==='wardrobe'){acknowledge('wardrobe');renderWardrobe();}
     else if(wave2Kind==='tour'){acknowledge('tour');renderWave2Tour();}
@@ -2399,7 +2502,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const root=$('wave2content'),cards=wave2AlbumCards();wave2Node('p',`集めた思い出 ${S.wave2.album.unlocked.length}/${cards.length}。カードの解放は景気を消費しません。`,root);const grid=wave2Node('div','',root);grid.className='w2-grid';
     cards.forEach(card=>{const unlocked=S.wave2.album.unlocked.includes(card.id),b=waveButton('',()=>{
       if(!unlocked)return;if(!S.wave2.album.read.includes(card.id)){S.wave2.album.read.push(card.id);saveUx();}
-      renderToday();root.textContent='';waveButton('図鑑へもどる',renderWave2Panel,root);wave2Node('h2',card.title,root);const image=wave2Image(card.image,card.title,root);image.style.maxHeight='65cqh';image.style.maxWidth='100%';image.style.objectFit='contain';
+      renderToday();root.textContent='';const detail=miniNode('section','album-detail','',root);wave2Image(card.image,card.title,detail,'album-photo');const caption=miniNode('div','album-caption','',detail);wave2Node('h2',card.title,caption);wave2Node('p',card.hint,caption);waveButton('図鑑へもどる',renderWave2Panel,caption);
     },grid,!unlocked);b.className='w2-card';if(unlocked){wave2Image(card.image,card.title,b);wave2Node('b',card.title,b);addBadge(b,!S.wave2.album.read.includes(card.id),true);}else{const silhouette=wave2Node('div','？？？',b);silhouette.className='w2-locked';wave2Node('p',card.hint,b);}});
   }
   let profH = null;
@@ -2481,10 +2584,43 @@ html, body { width:100%; height:100%; overflow:hidden; }
   for(const [key,text]of [['live','ライブ'],['info','曲の情報'],['formation','編成・練習']]){const b=document.createElement('button');b.type='button';b.textContent=text;b.dataset.tab=key;b.onclick=()=>showSongTab(key);songTabs.appendChild(b);}
   function showSongTab(key){songTab=key;$('songdetail').hidden=key!=='live';songInfo.hidden=key!=='info';songFormation.hidden=key!=='formation';songTabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===key)));}
   function arrangeSongDetail(){songFacts.textContent='';const card=$('songdetail').querySelector('.song');if(card){for(const e of card.querySelectorAll(':scope > .meta,:scope > .locknote'))songFacts.appendChild(e);card.querySelectorAll('.diff').forEach(b=>{const details=[...b.querySelectorAll('small')];if(!details.length)return;const p=document.createElement('p');p.textContent=b.querySelector('b').textContent+'：'+details.map(e=>e.textContent).join(' ／ ');songFacts.appendChild(p);details.forEach(e=>e.remove());});}showSongTab(songTab);}
+  function waveBackLabel(){$('wave2back').textContent={members:'メンバーへ',play:'あそぶへ',home:'ホームへ'}[wave2Return]||'ホームへ';}
+  const cardPositions=new Map(),cardHintsSeen=new Set(),cardTabState=new Map();
+  function cardStrip(host,key,items=[...host.children]){
+    const frame=document.createElement('div');frame.className='card-carousel';host.replaceWith(frame);frame.appendChild(host);host.replaceChildren(...items);host.classList.add('hcards');host.dataset.cards=key;host.tabIndex=0;host.setAttribute('aria-label',key+'・左右にスクロール');
+    const nav=miniNode('nav','card-position','',frame);nav.setAttribute('aria-label',key+'の位置');
+    const prev=waveButton('‹',()=>go(current-1),nav),position=document.createElement('input');position.type='range';position.min=0;position.max=Math.max(0,items.length-1);position.step=1;position.value=0;position.setAttribute('aria-label',key+' カードの位置');nav.appendChild(position);const next=waveButton('›',()=>go(current+1),nav);prev.setAttribute('aria-label',key+' 前のカード');next.setAttribute('aria-label',key+' 次のカード');position.oninput=()=>go(Number(position.value));
+    let stride=1,current=cardPositions.get(key)||0,drag=null;
+    const update=()=>{current=Math.max(0,Math.min(items.length-1,Math.round(host.scrollLeft/stride)));cardPositions.set(key,current);position.value=current;position.setAttribute('aria-valuetext',(current+1)+'枚目');prev.disabled=current<=0;next.disabled=current>=items.length-1;host.dataset.left=String(host.scrollLeft>1);host.dataset.right=String(host.scrollLeft+host.clientWidth<host.scrollWidth-1);};
+    function go(index){host.scrollLeft=Math.max(0,Math.min(items.length-1,index))*stride;update();}
+    const measure=()=>{const width=host.clientWidth;if(!width)return;const at=cardPositions.get(key)||0,cardWidth=Math.round(width*.66);stride=cardWidth+12;host.style.setProperty('--card-width',cardWidth+'px');host.style.paddingRight=Math.max(0,width-cardWidth)+'px';go(at);
+      if(!cardHintsSeen.has(key)){cardHintsSeen.add(key);if(!reduceMotion&&CFG.effects!=='light')host.animate([{transform:'translateX(14px)'},{transform:'translateX(0)'}],{duration:550,easing:'ease-out'});}
+    };
+    const observer=new ResizeObserver(()=>{if(!host.isConnected){observer.disconnect();return;}measure();});observer.observe(host);host.addEventListener('scroll',update,{passive:true});requestAnimationFrame(measure);
+    host.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();go(current+(e.key==='ArrowRight'?1:-1));}});
+    host.addEventListener('pointerdown',e=>{host.cardDragged=false;if(e.pointerType==='mouse'||innerWidth>=innerHeight)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:host.scrollLeft,moved:false};},{passive:true});
+    host.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!drag.moved){if(Math.abs(dy)<8||Math.abs(dy)<Math.abs(dx))return;drag.moved=true;host.cardDragged=true;host.style.scrollSnapType='none';host.setPointerCapture(e.pointerId);}e.preventDefault();host.scrollLeft=drag.left-dy*host.clientWidth/host.getBoundingClientRect().height;},{passive:false});
+    const finish=e=>{if(!drag||drag.id!==e.pointerId)return;if(drag.moved){host.style.scrollSnapType='';go(Math.round(host.scrollLeft/stride));}drag=null;};host.addEventListener('pointerup',finish);host.addEventListener('pointercancel',finish);
+    host.addEventListener('click',e=>{if(host.cardDragged){e.preventDefault();e.stopImmediatePropagation();host.cardDragged=false;}},true);return frame;
+  }
+  function detailStrip(panel,key){panel.classList.add('strip-panel');const rail=miniNode('div','','',panel),items=[...panel.querySelectorAll('.detail-entry')];items.forEach(item=>rail.appendChild(item));cardStrip(rail,key);}
+  function cardTabs(parent,key,panels){
+    parent.classList.add('card-tabs-layout');const nav=miniNode('nav','card-tabs','',parent);nav.setAttribute('role','tablist');nav.setAttribute('aria-label',key);parent.prepend(nav);let at=cardTabState.get(key)||0;const buttons=[];
+    const select=index=>{at=index;cardTabState.set(key,index);panels.forEach(([label,panel],i)=>{panel.hidden=i!==index;buttons[i].setAttribute('aria-selected',String(i===index));buttons[i].tabIndex=i===index?0:-1;});};
+    panels.forEach(([label,panel],i)=>{const b=waveButton(label,()=>select(i),nav);b.setAttribute('role','tab');b.id=key+'-tab-'+i;panel.id=key+'-panel-'+i;b.setAttribute('aria-controls',panel.id);panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',b.id);panel.classList.add('card-tab-panel');buttons.push(b);});select(at);
+    nav.onkeydown=e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();select((at+(e.key==='ArrowRight'?1:-1)+panels.length)%panels.length);buttons[at].focus();}};
+  }
   function arrangeWave2(){const root=$('wave2content');
-    if(wave2Kind==='collection'){const grid=root.querySelector('.w2-grid');if(grid){grid.classList.add('collection-grid');paginate(grid,3,'思い出図鑑');}}
-    if(wave2Kind==='wardrobe'){const layout=root.querySelector('.w2-wardrobe');layout.classList.add('wardrobe-pages');const controls=layout.lastElementChild;controls.classList.add('wardrobe-controls');const children=[...controls.children],split=children.findIndex(e=>e.tagName==='H2'),a=miniNode('div','wardrobe-page','',controls),b=miniNode('div','wardrobe-page','',controls);children.forEach((e,i)=>(i<split?a:b).appendChild(e));paginate(controls,1,'衣装・小物',[a,b],['衣装','小物']);paginate(b.querySelector('.w2-accessories'),4,'小物一覧');}
-    if(wave2Kind==='tour'){const nodes=[...root.children],pages=miniNode('div','tour-pages','',root),a=miniNode('div','tour-page','',pages),b=miniNode('div','tour-page','',pages);nodes.forEach((e,i)=>(i<2?a:b).appendChild(e));paginate(pages,1,'列車・スタンプ',[a,b],['列車','スタンプ']);}
+    if(wave2Kind==='collection'){const grid=root.querySelector('.w2-grid');if(grid)cardStrip(grid,'思い出図鑑');}
+    if(wave2Kind==='wardrobe'){
+      const layout=root.querySelector('.w2-wardrobe'),preview=layout.firstElementChild,controls=layout.lastElementChild;layout.classList.add('wardrobe-pages');controls.classList.add('wardrobe-controls');const children=[...controls.children],split=children.findIndex(e=>e.tagName==='H2'),a=miniNode('div','wardrobe-page','',controls),b=miniNode('div','wardrobe-page','',controls);
+      children.forEach((e,i)=>(i<split?a:b).appendChild(e));const center=a.querySelectorAll('button')[2];center.classList.add('wardrobe-center-action');preview.appendChild(center);
+      const outfits=miniNode('div','outfit-cards','',a),buttons=[...a.querySelectorAll(':scope>button')];buttons.forEach((button,i)=>{const card=miniNode('div','outfit-card','',outfits);wave2Image(i?wave2Asset('b3_'+wardrobeH+'_casual_full'):'assets/'+wardrobeH+'_full.webp',i?'私服':'ステージ衣装',card);card.appendChild(button);});cardStrip(outfits,'衣装');
+      b.querySelector('h2').remove();cardStrip(b.querySelector('.w2-accessories'),'小物');cardTabs(controls,'wardrobe',[['衣装',a],['小物',b]]);
+    }
+    if(wave2Kind==='tour'){
+      const nodes=[...root.children],pages=miniNode('div','tour-pages','',root),a=miniNode('div','tour-page','',pages),b=miniNode('div','tour-page','',pages);nodes.forEach((e,i)=>(i<2?a:b).appendChild(e));cardStrip(a.querySelector('.w2-route'),'列車');cardStrip(b.querySelector('.w2-grid'),'スタンプ');cardTabs(pages,'tour',[['列車',a],['スタンプ',b]]);
+    }
   }
   for(const [kind,title]of [['missions','ミッション'],['cabinet','ピースフル内閣']]){const b=document.createElement('button');b.type='button';b.className='btn sec';b.textContent=title;b.dataset.activity=kind;b.onclick=()=>renderPlayDetail(kind);$('members').querySelector('.member-actions').appendChild(b);}
   $('membersbonds').dataset.activity='bonds';
