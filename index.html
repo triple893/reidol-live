@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "804e03b5dd";</script>
+<script>window.APP_VERSION = "d32ddd3eb5";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -578,25 +578,31 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #app .rscorelab { margin-top:0; }#app .rscore { font-size:46px; }
 #app #result .stats { margin:8px 0; }#app #rstage { margin:8px 0; }
 #app #result .btns { grid-template-columns:1fr; }
-/* クリア直後に1画面で全部見せる（スクロールさせない）。成績は2×2、ボタンは3列 */
-#app .result-detail { overflow:hidden; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); grid-template-areas:"lab stamp" "score best" "stats exp" "stage stage" "bday banner" "keiki skip" "btns btns"; column-gap:12px; row-gap:6px; align-content:start; padding-bottom:0; }
+/* クリア直後の結果。上（スコア・成績・EXP）と下のボタンは必ず見せ、増える欄（列車・ステージ別・お祝い・景気）だけ間の枠でスクロールする */
+#app .result-detail { overflow:hidden; height:100%; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); grid-template-rows:auto auto auto auto minmax(0,1fr) auto auto; grid-template-areas:"lab stamp" "score best" "stats stats" "exp exp" "extra extra" "skip skip" "btns btns"; column-gap:12px; row-gap:6px; padding-bottom:0; }
 #app .result-detail > * { margin:0; min-width:0; }
-#app #result #rrank { grid-area:lab; line-height:1.3; }
+#app #result #rrank { grid-area:lab; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #app #result .rscore { grid-area:score; font-size:36px; line-height:1.1; white-space:nowrap; }
 #app #result #rankstamp { grid-area:stamp; align-self:end; justify-self:center; white-space:nowrap; font-size:18px; padding:0 10px; }
 #app #result #rbest { grid-area:best; align-self:center; text-align:center; }
-#app #result #rstage { grid-area:stage; }
-#app #result .stats { grid-area:stats; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
-#app #result .stat { padding:4px 6px; display:flex; align-items:baseline; justify-content:center; gap:6px; }
-#app #result .stat b { font-size:20px; line-height:1.4; }
-#app #result .exppanel { grid-area:exp; padding:6px 12px; align-self:start; }
-#app #result .exptop { margin:0; }
+#app #result .stats { grid-area:stats; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+#app #result .stat { padding:3px 4px; display:grid; justify-items:center; }
+#app #result .stat b { font-size:20px; line-height:1.25; }
+#app #result .stat span { font-size:14px; line-height:1.3; white-space:nowrap; }
+#app #result .exppanel { grid-area:exp; padding:6px 12px; display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; column-gap:12px; }
+#app #result .exptop { margin:0; display:flex; align-items:center; gap:10px; }
 #app #result .exptop .lvbadge { font-size:20px; }
-#app #result .exppanel .bar { margin:4px 0; }
-#app #result .rtitle { margin:0; }
-#app #result .bday { grid-area:bday; }
-#app #result .banner { grid-area:banner; padding:6px 12px; }
-#app #result .keiki { grid-area:keiki; align-self:center; }
+#app #result .rtitle { grid-column:2; grid-row:1; margin:0; justify-self:end; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+#app #result .exppanel .bar { grid-column:1 / -1; grid-row:2; margin:4px 0 0; }
+#app #result .result-extra { grid-area:extra; min-height:0; overflow-y:auto; display:grid; gap:6px; align-content:start; padding-right:6px; scrollbar-width:thin; scrollbar-color:var(--gold) transparent; -webkit-mask-image:linear-gradient(#000 calc(100% - 14px),transparent); mask-image:linear-gradient(#000 calc(100% - 14px),transparent); }
+#app #result .result-extra > * { margin:0; }
+#app #result .result-extra::-webkit-scrollbar { width:4px; }
+#app #result .result-extra::-webkit-scrollbar-thumb { background:var(--gold); border-radius:2px; }
+#app #result #rstage { max-width:none; display:grid; gap:4px; }
+#app #result #rstage:empty { display:none; }
+#app #result #rstage p { margin:0; padding:6px 10px; font-size:14px; line-height:1.4; }
+#app #result .banner { padding:6px 12px; }
+#app #result .keiki { padding-bottom:10px; }
 #app #result #resultskip { grid-area:skip; width:auto; min-height:44px; padding:0 14px; }
 #app #result .btns { grid-area:btns; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
 #app #result .btns .btn { min-height:48px; padding:6px 6px; font-size:14px; line-height:1.3; }
@@ -1271,7 +1277,6 @@ html, body { width:100%; height:100%; overflow:hidden; }
     <div id="rankstamp" aria-label="ランク"></div>
     <button id="resultskip" class="quit" type="button">タップで演出をスキップ</button>
     <div class="rbest" id="rbest"></div>
-    <div id="rstage"></div>
     <div class="stats">
       <div class="stat"><b id="sPerfect">0</b><span>ぴったり</span></div>
       <div class="stat"><b id="sGood">0</b><span>いいね</span></div>
@@ -1283,9 +1288,12 @@ html, body { width:100%; height:100%; overflow:hidden; }
       <div class="bar big"><i id="rbar"></i></div>
       <div class="rtitle" id="rtitle"></div>
     </div>
+    <div class="result-extra">
     <div class="bday" id="rbday" hidden><svg class="icon" aria-hidden="true"><use href="#i-star"/></svg> お誕生日ボーナス EXP×2</div>
     <div class="banner" id="rbanner" hidden></div>
+    <div id="rstage"></div>
     <div class="keiki" id="rkeiki"></div>
+    </div>
     <div class="btns">
       <button class="btn pri" id="again" type="button">同じセンターでもう一回</button>
       <button class="btn sec" id="tosongs" type="button">曲をえらびなおす</button>
