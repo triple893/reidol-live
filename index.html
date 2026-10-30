@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "b4f01a62d8";</script>
+<script>window.APP_VERSION = "f75b11296a";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -1363,6 +1363,31 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #app .playcard strong { font-size:17px;line-height:1.4; }
 #app #memberstitle,#app #playtitle { font:700 22px/1.3 var(--body); }
 /* POLISH7 HEADINGS END */
+
+/* POLISH9 SETTINGS FIT BEGIN */
+#app #settings .sheet { height:100%; }
+/* POLISH9 SETTINGS FIT END */
+
+/* POLISH9 PROFILE/HOME BEGIN */
+#app #prof #sheet.with-profile-poses { width:min(820px,calc(100% - 24px));height:min(366px,calc(100% - 24px));max-height:none;overflow:hidden;padding:12px;display:grid;grid-template-columns:28% 24% minmax(0,1fr);grid-template-rows:32px 22px minmax(0,1fr) 44px;gap:8px 12px; }
+#app #prof .with-profile-poses #pav { grid-column:1;grid-row:1/-1;min-height:0;align-items:center; }
+#app #prof .with-profile-poses .pfull { width:100%;height:260px;max-height:100%;max-width:100%;object-fit:contain; }
+#app #prof .with-profile-poses .pname { grid-column:3;grid-row:1;font:700 20px/30px var(--body);align-self:center; }
+#app #prof .with-profile-poses .pkana { grid-column:3;grid-row:2;margin:0;font-size:14px;line-height:22px; }
+#app #prof .with-profile-poses #prows { grid-column:3;grid-row:3;min-height:0;max-height:none;overflow:auto;margin:0;padding:4px 8px 4px 0;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:var(--mc) #19182f; }
+#app #prof .with-profile-poses .btns { grid-column:3;grid-row:4;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+#app #prof .with-profile-poses .btns button { min-height:44px;height:44px;padding:4px;font-size:14px;line-height:18px; }
+#app .profile-poses { grid-column:2;grid-row:1/-1;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0;border:1px solid color-mix(in srgb,var(--mc) 60%,transparent);border-radius:14px;padding:8px;background:#11112480; }
+.profile-poses h2 { margin:0;font:700 16px/24px var(--body);color:var(--mc);text-align:center; }
+.profile-pose-art { flex:1;min-height:0;display:grid;place-items:center; }.profile-pose-art>img { width:100%;height:100%;min-height:0;object-fit:contain; }
+.profile-pose-picks { display:flex;gap:8px;justify-content:center;min-height:44px; }.profile-pose-picks button { width:60px;height:44px;padding:2px;border:1px solid var(--edge);border-radius:10px;background:var(--glass); }.profile-pose-picks button[aria-pressed=true] { border-color:var(--mc);box-shadow:0 0 0 1px var(--mc); }.profile-pose-picks img { width:100%;height:100%;object-fit:contain; }
+#app #homecenter #homepose { position:absolute;inset:0;width:100%;height:100%;padding-top:18px;padding-bottom:96px;object-fit:contain;animation:none;pointer-events:none; }
+#app #homecenter.is-pose-preview #homeidol { opacity:0; }
+@media(prefers-reduced-motion:reduce) { #app #homecenter #homepose { display:none; } }
+@media(orientation:portrait) { #app #prof .with-profile-poses #prows { touch-action:none; } }
+.profile-text-rail { position:absolute;z-index:2;width:5px;border-radius:4px;background:#f4deac29;pointer-events:none; }.profile-text-rail>i { position:absolute;left:0;right:0;top:0;border-radius:4px;background:var(--mc); }
+@media(orientation:portrait) { #app #prof #prows { touch-action:none; } }
+/* POLISH9 PROFILE/HOME END */
 </style>
 <section id="live" hidden>
   <div id="live-backdrop" aria-hidden="true"></div>
@@ -1526,6 +1551,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
 <div id="prof" hidden>
   <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="pname">
     <div id="pav"></div>
+    <section id="profileposes" class="profile-poses" aria-label="決めポーズ" hidden><h2>決めポーズ</h2><div class="profile-pose-art"></div><div class="profile-pose-picks"></div></section>
     <div class="pname" id="pname"></div>
     <div class="pkana" id="pkana"></div>
     <dl class="prows" id="prows"></dl>
@@ -2579,11 +2605,13 @@ html, body { width:100%; height:100%; overflow:hidden; }
     });
     $('prof').hidden = false;
     $('sheet').scrollTop = 0;
+    renderProfilePoses(h);
+    profileTextScroll();
   }
   const closeProfile = () => { $('prof').hidden = true; profH = null; };
   $('pclose').addEventListener('click', closeProfile);
   $('prof').addEventListener('click', (e) => { if (e.target === $('prof')) closeProfile(); });
-  $('plive').textContent = 'センターにして曲をえらぶ';
+  $('plive').replaceChildren(document.createTextNode('センターにして'),document.createElement('br'),document.createTextNode('曲をえらぶ'));
   $('plive').addEventListener('click', () => { const h = profH; closeProfile(); if (h) { audio(); openSongs(h); } });
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('prof').hidden) closeProfile(); });
 
@@ -2675,7 +2703,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const center=byH(S.ux.center);
     $('homelevel').textContent=sum;$('homewallet').textContent=fmt(S.wallet);
     if(!$('home').hidden){$('homeidol').src=outfitPath(center.h);accessoryImage('homeaccessory',center.h);}$('homeidol').alt=center.name;
-    $('homecenter').setAttribute('aria-label',`${center.name}にタップして応援`);
+    $('homecenter').setAttribute('aria-label',`${center.name}のプロフィールを開く`);
     $('homesay').textContent=sayFor(center.h);markSpeaker($('homesay'),center);
     homeBirthday=MEMBERS.find(m=>birthdayWindow(PROFILES[m.h].bd))||null;
     $('homebanner').textContent=homeBirthday?`${homeBirthday.name} 誕生日ライブへ`:nx?`次の会場：${nx.n} · 合計Lv${nx.at}`:'ドームに到達！ みんなとライブを続けよう';
@@ -2726,6 +2754,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const el=$('homecenter');el.classList.remove('is-jumping');void el.offsetWidth;el.classList.add('is-jumping');
     $('homesay').textContent=PROFILES[S.ux.center].catchphrase||'今日もライブを楽しもう！';
     clearTimeout(homeJumpTimer);homeJumpTimer=setTimeout(()=>el.classList.remove('is-jumping'),450);
+    stopHomePose();openProfile(S.ux.center);
   });
   // 論理舞台上のcanvas。ホームが見える時だけ、最大30fps・24粒で描く。
   const homeCanvas=$('home-lights'),homeCtx=homeCanvas.getContext('2d');
@@ -3989,6 +4018,41 @@ html, body { width:100%; height:100%; overflow:hidden; }
     if(fuka&&poseSets.fuka?.[1])setTimeout(()=>{if(live===endingLive&&live.ending&&!live.done&&!$('live-ending').hidden)fuka.src=poseSets.fuka[1];},1600);
   };
   // POLISH8 POSES END
+  // POLISH9 PROFILE POSES BEGIN — ライブ描画・解放・保存の意味は変えない。
+  const profilePoseSets=Object.create(null),homePoseSeen=new Set();let homePoseTimer=0,homePoseVersion=0;
+  const homePose=document.createElement('img');homePose.id='homepose';homePose.hidden=true;homePose.setAttribute('aria-hidden','true');$('homecenter').appendChild(homePose);
+  fetch('assets/polish5/poses.json?v=G20261030c',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{
+    if(!data?.poses)return;for(const m of MEMBERS){const raw=data.poses[m.h],names=Array.isArray(raw)?raw:[raw],valid=names.filter(name=>typeof name==='string'&&new RegExp('^pose_'+m.h+'(?:_[2-9][0-9]*)?\\.webp$').test(name));if(valid.length)profilePoseSets[m.h]=[...new Set(valid)].map(name=>'assets/polish5/'+name);}
+    if(profH)renderProfilePoses(profH);maybeHomePose();
+  }).catch(()=>{});
+  function renderProfilePoses(h){
+    const files=profilePoseSets[h]||[],panel=$('profileposes'),art=panel.querySelector('.profile-pose-art'),picks=panel.querySelector('.profile-pose-picks');art.replaceChildren();picks.replaceChildren();panel.hidden=!files.length;$('sheet').classList.toggle('with-profile-poses',!!files.length);if(!files.length)return;
+    const image=document.createElement('img');image.alt=byH(h).name+' 決めポーズ';image.decoding='async';image.src=files[0];art.appendChild(image);picks.hidden=files.length<2;
+    files.forEach((src,i)=>{if(files.length<2)return;const button=document.createElement('button');button.type='button';button.setAttribute('aria-label',byH(h).name+' 決めポーズ '+(i+1));button.setAttribute('aria-pressed',String(i===0));const thumb=document.createElement('img');thumb.src=src;thumb.alt='';button.appendChild(thumb);button.onclick=()=>{image.src=src;[...picks.children].forEach((b,n)=>b.setAttribute('aria-pressed',String(n===i)));};picks.appendChild(button);});
+  }
+  function profileTextScroll(){
+    const host=$('prows');host.tabIndex=0;host.setAttribute('aria-label','プロフィール');
+    if(!host.profileRail){const rail=document.createElement('span');rail.className='profile-text-rail';rail.setAttribute('aria-hidden','true');rail.appendChild(document.createElement('i'));host.parentElement.appendChild(rail);host.profileRail=rail;
+      let drag=null;host.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||innerWidth>=innerHeight)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,top:host.scrollTop,moved:false};},{passive:true});
+      host.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!drag.moved){if(Math.abs(dx)<8||Math.abs(dx)<Math.abs(dy))return;drag.moved=true;host.setPointerCapture(e.pointerId);}e.preventDefault();host.scrollTop=drag.top+dx*host.clientHeight/host.getBoundingClientRect().width;},{passive:false});
+      const finish=e=>{if(drag?.id===e.pointerId)drag=null;};host.addEventListener('pointerup',finish);host.addEventListener('pointercancel',finish);host.addEventListener('scroll',()=>host.profileUpdate?.(),{passive:true});new ResizeObserver(()=>host.profileUpdate?.()).observe(host);
+    }
+    host.profileUpdate=()=>{const rail=host.profileRail,height=host.clientHeight,max=host.scrollHeight-height;rail.hidden=!height||max<=1;rail.style.cssText='top:'+host.offsetTop+'px;left:'+(host.offsetLeft+host.clientWidth-5)+'px;height:'+height+'px';const thumb=Math.max(24,height*height/Math.max(height,host.scrollHeight));rail.firstChild.style.height=thumb+'px';rail.firstChild.style.transform='translateY('+(max>0?host.scrollTop/max*(height-thumb):0)+'px)';};host.scrollTop=0;requestAnimationFrame(host.profileUpdate);
+  }
+  function stopHomePose(){homePoseVersion++;clearTimeout(homePoseTimer);homePoseTimer=0;homePose.hidden=true;$('homecenter').classList.remove('is-pose-preview');}
+  async function maybeHomePose(){
+    const h=S.ux.center;if($('home').hidden||!$('prof').hidden||document.hidden||reduceMotion||CFG.effects==='light'||homePoseSeen.has(h))return;
+    const files=profilePoseSets[h];if(!files?.length)return;const version=++homePoseVersion;homePose.src=h==='fuka'&&files[1]?files[1]:files[0];try{await homePose.decode();}catch(e){return;}
+    if(version!==homePoseVersion||$('home').hidden||!$('prof').hidden||S.ux.center!==h||reduceMotion||CFG.effects==='light')return;
+    homePoseSeen.add(h);homePose.hidden=false;$('homecenter').classList.add('is-pose-preview');homePoseTimer=setTimeout(stopHomePose,1400);
+  }
+  new MutationObserver(()=>{if($('home').hidden)stopHomePose();else maybeHomePose();}).observe($('home'),{attributes:true,attributeFilter:['hidden']});
+  new MutationObserver(()=>{stopHomePose();maybeHomePose();}).observe($('homeidol'),{attributes:true,attributeFilter:['src']});
+  new MutationObserver(()=>{if(!$('prof').hidden)stopHomePose();else maybeHomePose();}).observe($('prof'),{attributes:true,attributeFilter:['hidden']});
+  new MutationObserver(()=>{if(CFG.effects==='light')stopHomePose();}).observe($('app'),{attributes:true,attributeFilter:['class']});
+  matchMedia('(prefers-reduced-motion:reduce)').addEventListener('change',e=>{if(e.matches)stopHomePose();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopHomePose();else maybeHomePose();});
+  // POLISH9 PROFILE POSES END
   $('appversion').textContent=`バージョン ${APP_VERSION}`;
   renderHome();checkForUpdate(true);achievementState=achievementSnapshot();achievementReady=true;
   loadWave2Stories().then(()=>{renderToday();if(!$('slist').hidden)renderStoryList();achievementState=achievementSnapshot();});
