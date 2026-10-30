@@ -1,0 +1,259 @@
+{
+  "task": "G20261030b",
+  "sourceRoot": "_素材/Re_IDOL/illust/polish5/",
+  "sourceSelection": "_素材/Re_IDOL/research/m20261029a/POSE_NAMES.md 採用2026-10-30",
+  "referenceRoot": "01_ReIdolゲーム/assets/",
+  "method": "指定の色差による背景除去、外周連結と確認済み閉領域seed、余白切詰め、長辺576px、WebP品質92。新規作画なし。",
+  "images": [
+    {
+      "id": "ruri",
+      "source": "pose_ruri_01_v2.png",
+      "sourceSha256": "d4134f9bce544456d8e8e5104c186107b04e26b4aa458264821716884f474f2b",
+      "target": "pose_ruri.webp",
+      "bytes": 87150,
+      "sha256": "a1e81f50cc77f0d68ca9660cf78668ac37287731dba3ab739fd426601a0c4148",
+      "size": [
+        401,
+        576
+      ],
+      "crop": {
+        "left": 117,
+        "top": 77,
+        "width": 635,
+        "height": 912
+      },
+      "removedBackgroundPixels": 744175,
+      "dustRemoved": 1,
+      "closedBackgroundSeeds": [
+        [
+          335,
+          305
+        ],
+        [
+          455,
+          295
+        ],
+        [
+          270,
+          470
+        ],
+        [
+          502,
+          500
+        ]
+      ],
+      "whiteInteriorPixelsPreserved": 16847,
+      "references": [
+        "ruri_face.jpg",
+        "ruri_full.webp"
+      ],
+      "usage": "ライブ応援・ゴール"
+    },
+    {
+      "id": "nana",
+      "source": "pose_nana_02.png",
+      "sourceSha256": "6f247cd5ae2d02b1cf10344f510869eb83ab7127665bac3d80120cdc1ebc81f4",
+      "target": "pose_nana.webp",
+      "bytes": 70514,
+      "sha256": "5c683e02ebc6b69fb273857def693534d0cabde6e86fcfcd35b591670f2b6457",
+      "size": [
+        563,
+        576
+      ],
+      "crop": {
+        "left": 31,
+        "top": 411,
+        "width": 727,
+        "height": 744
+      },
+      "removedBackgroundPixels": 838384,
+      "dustRemoved": 0,
+      "closedBackgroundSeeds": [],
+      "whiteInteriorPixelsPreserved": 36116,
+      "references": [
+        "nana_face.jpg",
+        "nana_full.webp"
+      ],
+      "usage": "ライブ応援・ゴール"
+    },
+    {
+      "id": "aira",
+      "source": "pose_aira_03_v2.png",
+      "sourceSha256": "5fd04b62a21f034fb00e1d7ab4e5d25cd492771de9cf8ac4f2596993a2f37deb",
+      "target": "pose_aira.webp",
+      "bytes": 66232,
+      "sha256": "222126bfcc1526c2535a48a57c777171cc589372462b32f1ee7445ddee1310c0",
+      "size": [
+        376,
+        576
+      ],
+      "crop": {
+        "left": 45,
+        "top": 158,
+        "width": 711,
+        "height": 1090
+      },
+      "removedBackgroundPixels": 753006,
+      "dustRemoved": 5,
+      "closedBackgroundSeeds": [],
+      "whiteInteriorPixelsPreserved": 24020,
+      "references": [
+        "aira_face.jpg",
+        "aira_full.webp"
+      ],
+      "usage": "ライブ応援・ゴール"
+    },
+    {
+      "id": "saaya",
+      "source": "pose_saaya_04.png",
+      "sourceSha256": "a7dd1e91e157e4014ebd3bc22c5a48bf36074877a37188ab36f9689f7e52e5e1",
+      "target": "pose_saaya.webp",
+      "bytes": 62896,
+      "sha256": "2dfaeca57799627ac80d7e1e61727cee81f30976d4f3e03ffb3c60fce1edf038",
+      "size": [
+        576,
+        503
+      ],
+      "crop": {
+        "left": 13,
+        "top": 405,
+        "width": 745,
+        "height": 651
+      },
+      "removedBackgroundPixels": 898625,
+      "dustRemoved": 0,
+      "closedBackgroundSeeds": [],
+      "whiteInteriorPixelsPreserved": 8438,
+      "references": [
+        "saaya_face.jpg",
+        "saaya_full.webp"
+      ],
+      "usage": "ライブ応援・ゴール"
+    },
+    {
+      "id": "neiro",
+      "source": "pose_neiro_05.png",
+      "sourceSha256": "3d7552cb7c7100d3fc8a7c6b52673b791711905f84dc3b7258388cc91b8fd298",
+      "target": "pose_neiro.webp",
+      "bytes": 53558,
+      "sha256": "01e20c5915a3fcff56b0474ff4c83565f7a6a257324c17c4ec7ce12de400820a",
+      "size": [
+        288,
+        576
+      ],
+      "crop": {
+        "left": 70,
+        "top": 69,
+        "width": 638,
+        "height": 1275
+      },
+      "removedBackgroundPixels": 759095,
+      "dustRemoved": 6,
+      "closedBackgroundSeeds": [],
+      "whiteInteriorPixelsPreserved": 24841,
+      "references": [
+        "neiro_face.jpg",
+        "neiro_full.webp"
+      ],
+      "usage": "ライブ応援・ゴール"
+    },
+    {
+      "id": "arisu",
+      "source": "pose_arisu_06_v2.png",
+      "sourceSha256": "9105e9cefde3dcd2461f24f0cb47496f2514ba15823019dda10317fcaa9460f3",
+      "target": "pose_arisu.webp",
+      "bytes": 67854,
+      "sha256": "4330ba6c92156c60663633092afd95c890f7dcf49d16a5ec04a9410fa0942864",
+      "size": [
+        369,
+        576
+      ],
+      "crop": {
+        "left": 0,
+        "top": 119,
+        "width": 749,
+        "height": 1169
+      },
+      "removedBackgroundPixels": 714956,
+      "dustRemoved": 0,
+      "closedBackgroundSeeds": [
+        [
+          602,
+          238
+        ],
+        [
+          541,
+          279
+        ],
+        [
+          180,
+          290
+        ],
+        [
+          231,
+          306
+        ]
+      ],
+      "whiteInteriorPixelsPreserved": 64257,
+      "references": [
+        "arisu_face.jpg",
+        "arisu_full.webp"
+      ],
+      "usage": "ライブ応援・ゴール"
+    },
+    {
+      "id": "fuka",
+      "source": "pose_fuka_07.png",
+      "sourceSha256": "988ee0a5b70fc6a49313208f241c61375fe1ad1ddb5ba879e5d0aa94168fbaf4",
+      "target": "pose_fuka.webp",
+      "bytes": 48182,
+      "sha256": "17213686c37f41badb8879621b01b3dced1eb7c87a2d8c11d182b99a6385cd6c",
+      "size": [
+        362,
+        576
+      ],
+      "crop": {
+        "left": 25,
+        "top": 119,
+        "width": 723,
+        "height": 1151
+      },
+      "removedBackgroundPixels": 868846,
+      "dustRemoved": 15,
+      "closedBackgroundSeeds": [],
+      "whiteInteriorPixelsPreserved": 3974,
+      "references": [
+        "fuka_face.jpg",
+        "fuka_full.webp"
+      ],
+      "usage": "ライブ応援・ゴール"
+    },
+    {
+      "id": "fuka_2",
+      "source": "pose_fuka_08_v2.png",
+      "sourceSha256": "75f3e48c7aa79e6a65e54ba8e13e88165f4b2dfd17591d34b1311f03c9820a42",
+      "target": "pose_fuka_2.webp",
+      "bytes": 40430,
+      "sha256": "1f269a7d7887479c70983a55fecd27b44826df0e6c81ae8d0129878992ff9abf",
+      "size": [
+        576,
+        330
+      ],
+      "crop": {
+        "left": 10,
+        "top": 456,
+        "width": 754,
+        "height": 432
+      },
+      "removedBackgroundPixels": 946278,
+      "dustRemoved": 0,
+      "closedBackgroundSeeds": [],
+      "whiteInteriorPixelsPreserved": 5074,
+      "references": [
+        "fuka_face.jpg",
+        "fuka_full.webp"
+      ],
+      "usage": "ゴール後半"
+    }
+  ]
+}

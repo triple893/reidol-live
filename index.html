@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "4340a17726";</script>
+<script>window.APP_VERSION = "b4f01a62d8";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -1317,6 +1317,47 @@ html, body { width:100%; height:100%; overflow:hidden; }
 @media (orientation:portrait) { #app #wave2content .hcards { touch-action:none; } }
 /* POLISH7 CARDS END */
 
+/* POLISH8 POSES BEGIN */
+#app #live-support { top:24%;bottom:auto;height:36%; }
+#app #live-support.right { left:1%;right:auto; }
+#app #live-support.right.active { animation-name:support-enter; }
+#app #live-ending-members { align-items:end;gap:5px; }
+#app #live-ending-members figure { width:11%;height:82%; }
+#app #live-ending-members figure.is-center { width:24%;height:100%;order:-1; }
+#app #live-ending-members figure.is-center figcaption { border-bottom:2px solid var(--support-color); }
+/* POLISH8 POSES END */
+
+/* POLISH8 SPEECH BEGIN — 担当色は縁と札に限定、本文の明暗は固定。 */
+#app #homesay { background:#fff3eb;color:#30192e;border:1px solid #786374;border-left:4px solid var(--speaker-color); }
+#app :is(#homesay,#celebration-phrase)::before { content:attr(data-speaker);display:block;font:700 12px/18px var(--body);margin-bottom:3px; }
+#app #live-callout.active { background:#181629;color:#fff3eb;border-bottom:3px solid var(--speaker-color);border-radius:10px;text-shadow:none; }
+#app #live-callout.active::before { content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--speaker-color);position:absolute;left:10px;top:10px; }
+#app #rsay { background:#211b32;color:#fff3eb;border-color:var(--mc);border-left-width:4px; }
+#app #celebration-phrase { background:#211b32;color:#fff3eb;border:1px solid #786374;border-left:4px solid var(--speaker-color);border-radius:12px;padding:8px 12px; }
+/* POLISH8 SPEECH END */
+
+/* POLISH8 ALBUM BADGE BEGIN */
+#app .hcards .w2-card { position:relative; }
+#app .hcards .w2-card .newmark { position:absolute;top:8px;right:8px;align-self:flex-start;flex:none;width:auto;min-width:0;margin:0;padding:2px 6px;font:700 12px/18px var(--body);border-radius:5px;pointer-events:none;box-shadow:none; }
+/* POLISH8 ALBUM BADGE END */
+
+/* POLISH8 LOCKED ALBUM BEGIN */
+#app .hcards .w2-locked { position:relative;display:grid;place-items:center;overflow:hidden;border:1px dashed #857b9a;border-radius:12px;background:#19172d; }
+#app .hcards .w2-locked .locked-photo { width:100%;height:100%;max-height:none;object-fit:contain;filter:grayscale(1) brightness(.25) blur(6px);opacity:.75; }
+#app .hcards .w2-locked>.icon { position:absolute;width:32px;height:32px;inset:calc(50% - 16px);color:#fff3eb;filter:drop-shadow(0 2px 3px #000); }
+/* POLISH8 LOCKED ALBUM END */
+
+/* POLISH8 OUTFIT BEGIN */
+#app .outfit-card { display:grid;grid-template-columns:45% minmax(0,1fr);grid-template-rows:minmax(0,1fr);align-items:center;gap:8px; }
+#app .outfit-card img { width:100%;height:100%;min-height:0;object-fit:contain; }
+#app .outfit-card button { min-height:64px;font-size:16px;line-height:1.4; }
+/* POLISH8 OUTFIT END */
+
+/* POLISH8 SETTINGS BEGIN — ネイティブ操作と保存値は維持。 */
+#app #settings select { color:var(--ink);background:#211724;border:1px solid var(--edge);border-radius:10px;padding:0 10px;color-scheme:dark; }
+#app #settings input[type=checkbox] { accent-color:var(--gold);color-scheme:dark; }
+/* POLISH8 SETTINGS END */
+
 /* POLISH7 HEADINGS BEGIN */
 #app :is(h1,h2,.slhead,.pname,.mini-name,.playcard strong,.w2-card b) { font-family:var(--body);font-weight:700;letter-spacing:.03em; }
 #app .playcard strong { font-size:17px;line-height:1.4; }
@@ -1959,7 +2000,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   const miniNode=(tag,cls,text,parent)=>{const e=document.createElement(tag);e.className=cls;e.textContent=text;if(parent)parent.appendChild(e);return e;};
   const miniHelpSeen=new Set();
   const MINI_HELP={
-    shiritori:{cue:'はじめの文字と文字数を見る',steps:['帯の「はじめの文字」と「何文字」を見よう。','両方に合う言葉をタップしよう。','最後の文字で次へつなごう。原作の言葉の区切りでは2文字から始まるよ。'],label:'いぬ → ぬりえ → えんぴつ'},
+    shiritori:{cue:'はじめの文字と文字数を見る',steps:['帯の「はじめの文字」と「何文字」を見よう。','両方に合う言葉をタップしよう。','最後の文字で次へつなごう。とちゅうで2文字に戻ることもあるよ。毎回、帯の文字と文字数を見よう。'],label:'いぬ → ぬりえ → えんぴつ'},
     abekobe:{cue:'毎回、帯の指示を見て押す',steps:['帯の「勝て・負けろ」「長い・短い」を見よう。','「勝て」は相手に勝つ手、「負けろ」は負ける手。言葉は一番長い・短いものを押そう。','途中で指示が反対になるよ。毎回、帯を見よう。'],label:'相手の手と、上の指示を見よう'},
     balloon:{cue:'風船が割れる前に答えよう',steps:['問題を読んで、3つの答えを見よう。','風船が割れる前に、答えをタップしよう。','まちがいは同じ問題。風船が割れたら次の問題へ。'],images:['a2_balloon_small','a2_balloon_medium','a2_balloon_large'],label:'風船が大きくなる前に答えよう'},
     creampuff:{cue:'我慢している顔をタップ',steps:['3人の顔をよく見くらべよう。','我慢している顔の人をタップしよう。','選ぶたびに新しい3人に変わるよ。'],images:['a3_cream_puff','a3_fuka_endure'],label:'いつもの顔と我慢している顔を見くらべよう'},
@@ -2069,7 +2110,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     if(['opening','guide','liveintro','settings','prof','slist','story','pass','loading','notice','purchase','wave2purchase','lvup'].some(id=>!$(id).hidden))return;
     const item=celebrationActive=celebrationQueue.shift(),card=$('celebration').querySelector('.celebration-card');
     card.dataset.size=item.size||'medium';$('celebration-title').textContent=item.title;$('celebration-detail').textContent=item.detail||'';
-    const h=MEMBERS.some(m=>m.h===item.h)?item.h:S.ux.center;$('celebration-face').textContent='';$('celebration-face').appendChild(avatar(h,item.size==='small'?56:76));$('celebration-phrase').textContent='「'+sayFor(h)+'」';
+    const h=MEMBERS.some(m=>m.h===item.h)?item.h:S.ux.center;$('celebration-face').textContent='';$('celebration-face').appendChild(avatar(h,item.size==='small'?56:76));$('celebration-phrase').textContent='「'+sayFor(h)+'」';markSpeaker($('celebration-phrase'),byH(h));
     const bg=$('celebration-bg');bg.hidden=item.size!=='large';if(!bg.hidden){const n=(item.venue??venueIdx())+1;bg.src=`assets/bg_${n}${WIDE_BG.has(n)?'w':''}.jpg`;}
     $('celebration-next').textContent=celebrationQueue.length?`つぎへ（あと${celebrationQueue.length}件）`:'閉じる';$('celebration').hidden=false;$('app').classList.add('celebrating');
     uiSound(item.size==='large'?'level_up':'unlock');if(!reduceMotion&&CFG.effects!=='light'){confetti(item.size==='small'?24:item.size==='large'?100:60);buzz(35);}
@@ -2503,7 +2544,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     cards.forEach(card=>{const unlocked=S.wave2.album.unlocked.includes(card.id),b=waveButton('',()=>{
       if(!unlocked)return;if(!S.wave2.album.read.includes(card.id)){S.wave2.album.read.push(card.id);saveUx();}
       renderToday();root.textContent='';const detail=miniNode('section','album-detail','',root);wave2Image(card.image,card.title,detail,'album-photo');const caption=miniNode('div','album-caption','',detail);wave2Node('h2',card.title,caption);wave2Node('p',card.hint,caption);waveButton('図鑑へもどる',renderWave2Panel,caption);
-    },grid,!unlocked);b.className='w2-card';if(unlocked){wave2Image(card.image,card.title,b);wave2Node('b',card.title,b);addBadge(b,!S.wave2.album.read.includes(card.id),true);}else{const silhouette=wave2Node('div','？？？',b);silhouette.className='w2-locked';wave2Node('p',card.hint,b);}});
+    },grid,!unlocked);b.className='w2-card';if(unlocked){wave2Image(card.image,card.title,b);wave2Node('b',card.title,b);addBadge(b,!S.wave2.album.read.includes(card.id),true);}else{const silhouette=wave2Node('div','',b);silhouette.className='w2-locked';silhouette.setAttribute('aria-label','未解放');wave2Image(card.image,'',silhouette,'locked-photo');silhouette.appendChild(icon('lock'));wave2Node('p',card.hint,b);}});
   }
   let profH = null;
   function openProfile(h) {
@@ -2635,7 +2676,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     $('homelevel').textContent=sum;$('homewallet').textContent=fmt(S.wallet);
     if(!$('home').hidden){$('homeidol').src=outfitPath(center.h);accessoryImage('homeaccessory',center.h);}$('homeidol').alt=center.name;
     $('homecenter').setAttribute('aria-label',`${center.name}にタップして応援`);
-    $('homesay').textContent=sayFor(center.h);
+    $('homesay').textContent=sayFor(center.h);markSpeaker($('homesay'),center);
     homeBirthday=MEMBERS.find(m=>birthdayWindow(PROFILES[m.h].bd))||null;
     $('homebanner').textContent=homeBirthday?`${homeBirthday.name} 誕生日ライブへ`:nx?`次の会場：${nx.n} · 合計Lv${nx.at}`:'ドームに到達！ みんなとライブを続けよう';
     $('hvenue').textContent = v.n;
@@ -3917,6 +3958,37 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const p=installPrompt;if(!p)return;installPrompt=null;p.prompt();try{await p.userChoice;}catch(e){}renderInstall();
   });
   renderInstall();
+  function markSpeaker(el,m){el.style.setProperty('--speaker-color',m.color);el.dataset.speaker=m.name;el.dataset.member=m.h;}
+  const journeyBeforePolish8=updateLiveJourney;
+  updateLiveJourney=function(progress){
+    journeyBeforePolish8(progress);
+    const h=$('live-support').querySelector('img')?.dataset.member;
+    if(h)markSpeaker($('live-callout'),byH(h));
+  };
+  // POLISH8 POSES BEGIN — 既存のライブ判定・報酬・結果処理を保った描画アダプター。
+  const poseSets=Object.create(null),posePreloads=[];
+  fetch('assets/polish5/poses.json?v=G20261030b',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{
+    if(!data?.poses)return;
+    for(const m of MEMBERS){
+      const raw=data.poses[m.h],names=Array.isArray(raw)?raw:[raw];
+      const valid=names.filter(name=>typeof name==='string'&&new RegExp('^pose_'+m.h+'(?:_[2-9][0-9]*)?\\.webp$').test(name));
+      if(valid.length){poseSets[m.h]=[...new Set(valid)].map(name=>'assets/polish5/'+name);livePoses[m.h]=poseSets[m.h][0];for(const src of poseSets[m.h]){const img=new Image();img.src=src;posePreloads.push(img);img.decode().catch(()=>{});}}
+    }
+  }).catch(()=>{});
+  const poseImageBeforePolish8=livePoseImage;
+  livePoseImage=function(m){
+    const img=poseImageBeforePolish8(m);img.dataset.member=m.h;return img;
+  };
+  const endingBeforePolish8=startLiveEnding;
+  startLiveEnding=function(){
+    endingBeforePolish8();if(!live?.ending||$('live-ending').hidden)return;
+    const endingLive=live,figures=[...$('live-ending-members').children];
+    figures.forEach(fig=>fig.classList.toggle('is-center',fig.querySelector('img')?.dataset.member===live.h));
+    // ふうかは前半に側転、後半に腕組み開脚。同じ終了時間の中で2枚を見せる。
+    const fuka=figures.find(fig=>fig.querySelector('img')?.dataset.member==='fuka')?.querySelector('img');
+    if(fuka&&poseSets.fuka?.[1])setTimeout(()=>{if(live===endingLive&&live.ending&&!live.done&&!$('live-ending').hidden)fuka.src=poseSets.fuka[1];},1600);
+  };
+  // POLISH8 POSES END
   $('appversion').textContent=`バージョン ${APP_VERSION}`;
   renderHome();checkForUpdate(true);achievementState=achievementSnapshot();achievementReady=true;
   loadWave2Stories().then(()=>{renderToday();if(!$('slist').hidden)renderStoryList();achievementState=achievementSnapshot();});
