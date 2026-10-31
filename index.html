@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "3a9bb0c33b";</script>
+<script>window.APP_VERSION = "7382bac1ee";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -1089,7 +1089,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   <section class="home-today"><h2>今日やること</h2>
     <div id="todaylist" class="todaylist" aria-label="今日やること"></div>
   </section>
-  <aside class="home-side"><button id="homenotice" type="button">お知らせ<span id="noticedot" class="dot" hidden></span></button><button id="helpbtn" type="button">あそびかた</button><button id="homeupdate" type="button" hidden>アップデート<span class="dot"></span></button></aside>
+  <aside class="home-side"><button id="homenotice" type="button">お知らせ<span id="noticedot" class="dot" hidden></span></button><button id="helpbtn" type="button">あそびかた</button><button id="homefeedback" type="button" hidden>感想を送る</button><button id="homeupdate" type="button" hidden>アップデート<span class="dot"></span></button></aside>
   <button class="home-banner" id="homebanner" type="button"></button>
   <nav class="home-nav" aria-label="ホームの入口">
     <button id="storybtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-story"/></svg> ストーリー<span id="storydot" class="dot" hidden></span></button>
@@ -1435,6 +1435,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #feedbackpreview #feedbackpayload { margin:0;min-height:0;max-height:none; }#feedbackpreview #feedbacknumbers { max-height:75px; }#feedbackpreview .btns { margin:0;min-height:44px; }
 #feedbacknumbers { overflow:auto;max-height:125px; }#feedback table { border-collapse:collapse;white-space:nowrap;font-size:14px; }#feedback th,#feedback td { padding:6px;border:1px solid #857b9a; }#feedbackstatus { min-height:21px; }
 #app #result .result-character { position:relative; }
+#app #homefeedback { border-color:var(--gold);color:var(--gold); }
 #app #feedbackprompt { position:absolute;left:8px;right:8px;bottom:4px;display:flex;align-items:center;z-index:3;background:#211b32;border:1px solid #857b9a;border-radius:10px; }
 #feedbackprompt button { min-height:44px;border:0;background:none;color:#fff3eb;font:14px var(--body);padding:4px 8px; }#feedbackpromptopen { flex:1; }#feedbackpromptclose { min-width:44px; }
 /* POLISH11 FEEDBACK END */
@@ -1737,7 +1738,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
 (() => {
   const DEV = new URLSearchParams(location.search).get('dev') === '1';
   const icon = name => { const e=document.createElementNS('http://www.w3.org/2000/svg','svg'); e.setAttribute('class','icon'); e.setAttribute('aria-hidden','true'); const u=document.createElementNS(e.namespaceURI,'use'); u.setAttribute('href','#i-'+name); e.appendChild(u); return e; };
-  const ICON_BUTTONS = {homenotice:'notice',helpbtn:'help',homeupdate:'update',openingupdate:'update',songback:'back',membersback:'back',wave2back:'back',playback:'back',shopopen:'shop',shopback:'back',songhelp:'help',sethelp:'help',tohome:'back',tosongs:'back',plive:'live'};
+  const ICON_BUTTONS = {homenotice:'notice',helpbtn:'help',homefeedback:'star',homeupdate:'update',openingupdate:'update',songback:'back',membersback:'back',wave2back:'back',playback:'back',shopopen:'shop',shopback:'back',songhelp:'help',sethelp:'help',tohome:'back',tosongs:'back',plive:'live'};
   for(const [id,name] of Object.entries(ICON_BUTTONS)){const e=document.getElementById(id);if(e)e.prepend(icon(name),' ');}
   // BALANCE PURE BEGIN — 数値の変更先と、DOMに依存しない計算。
   const BALANCE = {
@@ -4304,7 +4305,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
     const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),5000);
     try{const r=await fetch('/api/check',{credentials:'same-origin',cache:'no-store',signal:ctl.signal}),data=await r.json();feedbackAvailable=(r.ok||r.status===401)&&typeof data?.ok==='boolean';feedbackLoggedIn=feedbackAvailable&&r.ok&&data.ok===true;}
     catch(e){feedbackAvailable=false;feedbackLoggedIn=false;}finally{clearTimeout(timer);}
-    $('feedbackopen').hidden=!feedbackAvailable;if(!feedbackAvailable)$('feedbackprompt').hidden=true;else maybeFeedbackPrompt();
+    // ベータテストの間だけ、ホームの右の列にも「感想を送る」を出す（ベータが終わったらこの1行と #homefeedback を消す）
+    $('feedbackopen').hidden=!feedbackAvailable;$('homefeedback').hidden=!feedbackAvailable;if(!feedbackAvailable)$('feedbackprompt').hidden=true;else maybeFeedbackPrompt();
     return feedbackAvailable;
   }
   function feedbackAuthUI(){ $('feedbacklogin').hidden=feedbackLoggedIn;$('feedbackreview').disabled=!feedbackLoggedIn; }
@@ -4314,7 +4316,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     $('feedbackstatus').textContent='ログインを確認しています…';$('feedbackreview').disabled=true;
     await checkFeedback();feedbackAuthUI();$('feedbackstatus').textContent=feedbackAvailable?'':'今はつながりません。書いた内容は残っています。';$('feedbackclose').focus();
   }
-  $('feedbackopen').addEventListener('click',openFeedback);$('feedbackpromptopen').addEventListener('click',openFeedback);
+  $('feedbackopen').addEventListener('click',openFeedback);$('homefeedback').addEventListener('click',openFeedback);$('feedbackpromptopen').addEventListener('click',openFeedback);
   $('feedbackpromptclose').addEventListener('click',()=>{$('feedbackprompt').hidden=true;feedbackMeta.promptShown=true;saveFeedbackMeta();});
   $('feedbackclose').addEventListener('click',()=>{if(feedbackBusy)return;$('feedback').hidden=true;if(feedbackReturn?.id==='feedbackopen')$('settings').hidden=false;feedbackReturn?.focus();});
   let feedbackWaitingLogin=false;

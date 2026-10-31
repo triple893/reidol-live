@@ -17,11 +17,14 @@
     timer.className='mini-local-timer';const cancel=node('button','やめて一覧へ');cancel.className='btn sec mini-cancel';cancel.type='button';
     function stop(){if(dead)return;dead=true;clearInterval(interval);unwatch();container.classList.remove('wave2-game');}
     function finish(){if(dead)return;stop();const stats=score(correct,attempts);if(session)session.end(stats);else onFinish(stats);}
-    function draw(){round=makeRound(members.map(m=>m.h),rng);choices.textContent='';round.members.forEach((h,i)=>{const m=members.find(m=>m.h===h),b=node('button','',choices);b.type='button';
+    // 我慢の顔は半透明にせず（半透明だと元の顔と2重に見える）、Lvが上がるほど「見えている時間」を短くする
+    let roundStart=now();
+    const endureOpacity=i=>{if(i!==round.answer)return '0';const lv=session?session.level():1;if(lv<=1)return '1';return (now()-roundStart)%2000<(lv===2?1200:600)?'1':'0';};
+    function draw(){round=makeRound(members.map(m=>m.h),rng);roundStart=now();choices.textContent='';round.members.forEach((h,i)=>{const m=members.find(m=>m.h===h),b=node('button','',choices);b.type='button';
       const stack=node('span','',b);stack.className='w2-face-stack';const normal=node('img','',stack);normal.alt=m.name;normal.src=`assets/${h}_face.jpg`;
-      const endure=node('img','',stack);endure.alt='';endure.src=asset(`a3_${h}_endure`);endure.style.position='absolute';endure.style.inset='0';endure.style.opacity=i===round.answer?String([1,.8,.65][(session?session.level():1)-1]):'0';
+      const endure=node('img','',stack);endure.alt='';endure.src=asset(`a3_${h}_endure`);endure.style.position='absolute';endure.style.inset='0';endure.style.opacity=endureOpacity(i);
       node('span',m.name,b);b.onclick=()=>{if(dead||now()<nextAllowed)return;if(remaining()<=0){finish();return;}nextAllowed=now()+350;attempts++;const ok=grade(round,i);if(ok)correct++;session?.answer(ok,{button:b,special:ok});feedback.textContent=ok?'正解！':'表情の違いを見てみよう';draw();};});}
-    function update(){if(dead)return;if(remaining()<=0){finish();return;}choices.querySelectorAll('.w2-face-stack img:last-child').forEach((img,i)=>img.style.opacity=i===round.answer?String([1,.8,.65][(session?session.level():1)-1]):'0');timer.textContent=`残り${Math.ceil(remaining())}秒 · 正解${correct} / ${attempts}`;}
+    function update(){if(dead)return;if(remaining()<=0){finish();return;}choices.querySelectorAll('.w2-face-stack img:last-child').forEach((img,i)=>img.style.opacity=endureOpacity(i));timer.textContent=`残り${Math.ceil(remaining())}秒 · 正解${correct} / ${attempts}`;}
     if(session)unwatch=session.onTick(update);else interval=setInterval(update,100);cancel.onclick=()=>{if(!dead){stop();onCancel();}};draw();update();return stop;
   }
   return {makeRound,grade,score,mount};
