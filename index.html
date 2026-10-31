@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "36b4e569b1";</script>
+<script>window.APP_VERSION = "3a9bb0c33b";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -25,7 +25,7 @@ img { max-width: 100%; }
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <script>
 // ★ アバター（予備のSVG似顔絵）。通常は assets の顔アイコン画像を使う。
 // 髪型・色は宣材写真から拾った見た目。差し替えるときは AVATARS の値を直す。
@@ -1379,6 +1379,66 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #app #live-ending-members figure.is-center figcaption { border-bottom:2px solid var(--support-color); }
 /* POLISH8 POSES END */
 
+/* POLISH11 SPEECH BEGIN — 全員の本文は4.5:1を守る固定色。担当色は札と縁。 */
+#app :is(#homesay,#live-callout.active,#rsay,#celebration-phrase) { font-family:'Mochiy Pop One',var(--body);background:#211b32;color:#fff3eb;text-shadow:0 2px 2px #000; }
+#app :is(#homesay,#rsay,#celebration-phrase) { border-left:3px solid var(--speaker-color,var(--mc)); }
+#app :is(#homesay,#celebration-phrase)::before { border-bottom:2px solid var(--speaker-color);width:max-content;max-width:100%;color:#fff3eb; }
+#app :is(#homesay,#live-callout,#rsay,#celebration-phrase)[data-member=nana] { color:#fff;-webkit-text-stroke:1px #000;paint-order:stroke fill; }
+/* POLISH11 SPEECH END */
+
+/* POLISH11 FRAMES BEGIN */
+#app .home-top .venue { flex-basis:196px;border-color:#ffffff30;background:#17172dbb;box-shadow:none;padding:4px 12px; }
+#app .home-today button { border-color:#ffffff28;background:#17172dbb;box-shadow:none;padding:4px 8px; }
+#app .home-side button { height:56px;border-color:#ffffff28;background:#17172dbb;box-shadow:none;border-radius:10px; }
+#app .home-nav button { min-height:60px;border-color:#ffffff28;background:#17172dbb;box-shadow:none;border-radius:12px;gap:3px; }
+#app #livebtn { width:160px;min-height:80px;border-width:1px;border-radius:18px;box-shadow:0 4px 14px #0005; }
+#app #result .rscore small { font-size:14px; }#app #result :is(.rbest,.rtitle,.keiki) { font-size:14px; }
+#app #playlog .playlog-sheet { background:#211b32;color:#fff3eb; }#playlogtable { background:#171426; }#playlog td { background:#211b32; }
+/* POLISH11 FRAMES END */
+
+/* POLISH11 MINI BEGIN — 描画のみ。判定帯・既存の一行ヒントは同じ領域。 */
+#app .mini-arena[data-kind=abekobe] .mini-instruction { background:#225a91;color:white;-webkit-text-stroke:1px #111;paint-order:stroke fill;text-shadow:1px 2px #111; }
+#app .mini-arena[data-kind=abekobe] .mini-instruction.reverse { background:#a72c65;color:white; }
+#app .mini-arena[data-kind=abekobe] .mini-instruction.flipped { animation:mini-shake .3s; }
+#app .mini-arena[data-kind=balloon] .w2-quiz>p { color:#ffe36f;background:#252038;border-radius:8px;padding:4px 8px;-webkit-text-stroke:3px #111;paint-order:stroke fill;text-shadow:0 2px #111;font-weight:700; }
+.mini-arena .w2-balloon[data-stage="3"] { animation:balloon-danger .12s infinite alternate; }
+.w2-quiz.balloon-burst::after { content:'ぱん！';position:absolute;left:10px;top:24px;color:#ffe36f;font:bold 28px var(--body);text-shadow:2px 2px #111;pointer-events:none;border:4px dashed #ffce62;border-radius:50%;padding:15px 6px;animation:balloon-burst .65s both; }
+@keyframes balloon-burst { from{opacity:1;transform:scale(.6) rotate(-12deg)}to{opacity:0;transform:scale(1.65) rotate(12deg)} }
+#app .mini-arena .w2-drive>p:nth-child(2) { color:color-mix(in srgb,#fff3eb calc((1 - var(--order-near,0))*100%),#ffcf66);font-weight:700;transition:color .15s; }
+#app .mini-arena .w2-drive[data-total-state=over]>p:nth-child(2) { color:#ff8ab1; }
+.w2-drive>p.order-over { animation:mini-shake .3s; }.w2-drive>p:nth-child(2)::after { content:attr(data-warning);margin-left:10px;font-size:16px; }
+.w2-grill button.bbq-perfect { position:relative; }.w2-grill button.bbq-perfect::after { content:'✦ ぴったり！ ✦';position:absolute;inset:0;display:grid;place-content:center;color:#ffe36f;background:radial-gradient(ellipse,#7e4f1355,transparent 70%);font:bold 16px var(--body);text-shadow:1px 2px #111;pointer-events:none;animation:bbq-sparks .85s both; }
+@keyframes bbq-sparks { from{opacity:1;transform:scale(.85);box-shadow:0 0 0 0 #ffcf66}60%{opacity:1;box-shadow:0 0 18px 3px #ffcf66}to{opacity:0;transform:scale(1.2);box-shadow:0 0 28px 8px transparent} }
+.w2-dodge .bbq-stain { position:absolute;z-index:2;bottom:10px;width:20px;height:17px;transform:translateX(-50%) rotate(-12deg);border-radius:42% 58% 36% 64%;background:#713c1c;box-shadow:8px 2px 0 -5px #92542a,-7px -5px 0 -5px #713c1c;pointer-events:none; }
+#app .mini-shell.answer-ok .mini-toast { color:#ffe36f;border-color:#e6b34c;background:#44330f; }
+#app .mini-shell.answer-wrong .mini-toast { color:#ffd8e8;border-color:#f48bb5;background:#692342; }
+#app.effects-light :is(.order-over,.mini-instruction.flipped) { animation:none; }
+#app.effects-light .bbq-perfect::after,#app.effects-light .balloon-burst::after { animation:none;opacity:0; }
+@media(prefers-reduced-motion:reduce){.bbq-perfect::after,.balloon-burst::after{animation:none;opacity:0;}}
+/* POLISH11 MINI END */
+
+/* POLISH11 FEEDBACK BEGIN */
+#app #settings .btns { display:grid;grid-template-columns:1fr 1fr;gap:6px; }#app #settings .btns .btn { min-height:44px;margin:0;padding:4px;font-size:14px; }
+#app #settings #sethelp { width:calc(50% - 3px);justify-self:start;font-size:14px;padding:4px; }
+#app #settings #feedbackopen { grid-row:6;grid-column:1;min-height:44px;width:calc(50% - 3px);justify-self:end;margin:0;padding:4px;font-size:14px; }
+#app #settings .sheet:has(#feedbackopen[hidden]) #sethelp { width:100%; }
+#app #feedback .feedback-sheet { width:calc(100% - 32px);max-width:800px;height:calc(100% - 24px);padding:12px;display:flex;flex-direction:column;gap:6px;background:#211b32;color:#fff3eb; }
+#feedback h2,#feedback h3,#feedback p { margin:0;font-size:14px;line-height:1.5; }#feedback h2 { font-size:20px; }
+#feedbackbody { min-height:0;overflow:auto;overscroll-behavior:contain;touch-action:pan-y;flex:1; }
+#feedbackform { display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;align-items:center; }
+#feedback fieldset { grid-column:1/-1;border:1px solid #857b9a;border-radius:10px;margin:0;padding:4px 8px; }
+.feedback-stars { display:flex;gap:8px; }.feedback-stars label { min-width:64px;min-height:44px;display:flex;align-items:center;gap:4px; }
+#feedback :is(input,select,textarea) { font:inherit;accent-color:#ffcf66; }#feedback :is(select,textarea) { width:100%;min-height:44px;background:#181629;color:#fff3eb;border:1px solid #857b9a;border-radius:8px;padding:6px; }
+#feedback .feedback-opt { display:flex;align-items:center;gap:8px;min-height:44px;grid-column:1/-1; }#feedback input { width:22px;height:22px; }#feedback .btn { min-height:44px;margin:0; }
+#feedbackpayload { max-height:115px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#101024;border:1px solid #857b9a;padding:8px;font:14px/1.4 var(--body); }
+#feedbackpreview { height:100%;display:grid;grid-template-rows:24px minmax(0,1fr) auto 44px;gap:4px; }
+#feedbackpreview #feedbackpayload { margin:0;min-height:0;max-height:none; }#feedbackpreview #feedbacknumbers { max-height:75px; }#feedbackpreview .btns { margin:0;min-height:44px; }
+#feedbacknumbers { overflow:auto;max-height:125px; }#feedback table { border-collapse:collapse;white-space:nowrap;font-size:14px; }#feedback th,#feedback td { padding:6px;border:1px solid #857b9a; }#feedbackstatus { min-height:21px; }
+#app #result .result-character { position:relative; }
+#app #feedbackprompt { position:absolute;left:8px;right:8px;bottom:4px;display:flex;align-items:center;z-index:3;background:#211b32;border:1px solid #857b9a;border-radius:10px; }
+#feedbackprompt button { min-height:44px;border:0;background:none;color:#fff3eb;font:14px var(--body);padding:4px 8px; }#feedbackpromptopen { flex:1; }#feedbackpromptclose { min-width:44px; }
+/* POLISH11 FEEDBACK END */
+
 /* POLISH8 SPEECH BEGIN — 担当色は縁と札に限定、本文の明暗は固定。 */
 #app #homesay { background:#fff3eb;color:#30192e;border:1px solid #786374;border-left:4px solid var(--speaker-color); }
 #app :is(#homesay,#celebration-phrase)::before { content:attr(data-speaker);display:block;font:700 12px/18px var(--body);margin-bottom:3px; }
@@ -1557,9 +1617,29 @@ html, body { width:100%; height:100%; overflow:hidden; }
     <div class="setrow"><label for="seteffects">演出</label><select id="seteffects"><option value="normal">ふつう</option><option value="light">かるめ</option></select></div>
     <div class="setrow"><label for="sethaptics"><span>振動</span><input id="sethaptics" type="checkbox"></label></div>
     <button id="sethelp" class="btn sec" type="button">あそびかた</button>
+    <button id="feedbackopen" class="btn sec" type="button" hidden>感想を送る</button>
     <div class="btns"><button class="btn sec" id="playlogopen" type="button">遊んだ記録</button><button class="btn sec" id="setclose" type="button">閉じる</button></div>
   </div>
 </div>
+
+<!-- ベータ版の感想箱。下書き・自由記述は端末に保存しない。 -->
+<div id="feedback" class="ovl" hidden><div class="sheet feedback-sheet" role="dialog" aria-modal="true" aria-labelledby="feedbacktitle">
+  <h2 id="feedbacktitle">遊んでみてどう？</h2>
+  <div id="feedbackbody">
+    <p id="feedbacklogin" hidden>曲の合言葉でログインすると送れるよ。<button id="feedbackloginbtn" class="btn sec" type="button">合言葉を入れる</button></p>
+    <form id="feedbackform">
+      <fieldset><legend>楽しかった？（★1〜5）</legend><div class="feedback-stars">
+        <label><input type="radio" name="stars" value="1" required>★1</label><label><input type="radio" name="stars" value="2">★2</label><label><input type="radio" name="stars" value="3">★3</label><label><input type="radio" name="stars" value="4">★4</label><label><input type="radio" name="stars" value="5">★5</label>
+      </div></fieldset>
+      <label for="feedbackbest">一番楽しかった所</label><select id="feedbackbest" required><option value="">えらんでね</option><option value="live">ライブ</option><option value="mini">ミニゲーム</option><option value="members">メンバー</option><option value="story">ストーリー</option><option value="collect">集める</option><option value="other">その他</option></select>
+      <label for="feedbacktrouble">困った所・分かりにくかった所（任意）</label><textarea id="feedbacktrouble" rows="2" maxlength="300"></textarea><p id="feedbackremaining">残り300字</p>
+      <label class="feedback-opt"><input id="feedbacklog" type="checkbox">遊んだ記録の数字も一緒に送る</label>
+      <p>名前・端末情報は送りません。</p><button id="feedbackreview" class="btn pri" type="submit">送る内容を確認</button>
+    </form>
+    <div id="feedbackpreview" hidden><h3>送る内容</h3><pre id="feedbackpayload"></pre><div id="feedbacknumbers"></div><div class="btns"><button id="feedbacksend" class="btn pri" type="button">この内容で送る</button><button id="feedbackedit" class="btn sec" type="button">書き直す</button></div></div>
+  </div>
+  <p id="feedbackstatus" role="status" aria-live="polite"></p><button id="feedbackclose" class="btn sec" type="button">戻る</button>
+</div></div>
 
 <!-- リザルト -->
 <div id="playlog" class="ovl" hidden><div class="sheet playlog-sheet" role="dialog" aria-modal="true" aria-labelledby="playlogtitle">
@@ -1573,6 +1653,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     <div class="rwho"><div id="rav"></div><div class="rname" id="rname"></div><div class="rsong" id="rsong"></div></div>
     <div id="rgoal" role="status"><small>次の目標</small><strong></strong></div>
     <div class="rrow"><img class="rfull" id="rfull" alt="" hidden><img id="raccessory" class="w2-accessory" alt="" hidden><div class="say" id="rsay" hidden></div></div>
+    <div id="feedbackprompt" hidden><button id="feedbackpromptopen" type="button">遊んでみてどう？ 感想を送る</button><button id="feedbackpromptclose" type="button" aria-label="感想の案内を閉じる">×</button></div>
     </div>
     <div class="result-detail">
     <div class="rscorelab" id="rrank">スコア</div>
@@ -4206,6 +4287,67 @@ html, body { width:100%; height:100%; overflow:hidden; }
   matchMedia('(prefers-reduced-motion:reduce)').addEventListener('change',e=>{if(e.matches)stopHomePose();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopHomePose();else maybeHomePose();});
   // POLISH9 PROFILE POSES END
+  // 結果本文に担当者情報を付けるだけ。結果処理・目標・ボタンは不変。
+  new MutationObserver(()=>{const m=MEMBERS.find(m=>m.color===$('result').style.getPropertyValue('--mc'));if(m)markSpeaker($('rsay'),m);}).observe($('rsay'),{childList:true});
+  // POLISH11 FEEDBACK BEGIN — 感想だけの保存・通信。ゲームの進行記録は読むだけ。
+  const FEEDBACK_KEY='reidol.feedback.v1';
+  let feedbackMeta={sentCount:0,lastSentDay:'',promptShown:false};
+  try{const x=JSON.parse(localStorage.getItem(FEEDBACK_KEY)||'null');if(x&&typeof x==='object')feedbackMeta={sentCount:logNumber(x.sentCount),lastSentDay:/^\d{4}-\d{2}-\d{2}$/.test(x.lastSentDay)?x.lastSentDay:'',promptShown:x.promptShown===true};}catch(e){}
+  let feedbackAvailable=false,feedbackLoggedIn=false,feedbackBusy=false,feedbackDraft=null,feedbackReturn=null,feedbackViews=0;
+  function saveFeedbackMeta(){try{localStorage.setItem(FEEDBACK_KEY,JSON.stringify(feedbackMeta));}catch(e){/* 保存拒否でも感想画面を使える。 */}}
+  function maybeFeedbackPrompt(){
+    if(!feedbackAvailable||feedbackMeta.promptShown||$('result').hidden)return;
+    if(Math.max(feedbackViews,PLAYLOG.days.reduce((n,d)=>n+d.finished,0))<3)return;
+    feedbackMeta.promptShown=true;saveFeedbackMeta();$('feedbackprompt').hidden=false;
+  }
+  async function checkFeedback(){
+    const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),5000);
+    try{const r=await fetch('/api/check',{credentials:'same-origin',cache:'no-store',signal:ctl.signal}),data=await r.json();feedbackAvailable=(r.ok||r.status===401)&&typeof data?.ok==='boolean';feedbackLoggedIn=feedbackAvailable&&r.ok&&data.ok===true;}
+    catch(e){feedbackAvailable=false;feedbackLoggedIn=false;}finally{clearTimeout(timer);}
+    $('feedbackopen').hidden=!feedbackAvailable;if(!feedbackAvailable)$('feedbackprompt').hidden=true;else maybeFeedbackPrompt();
+    return feedbackAvailable;
+  }
+  function feedbackAuthUI(){ $('feedbacklogin').hidden=feedbackLoggedIn;$('feedbackreview').disabled=!feedbackLoggedIn; }
+  async function openFeedback(){
+    if(feedbackBusy)return;feedbackReturn=document.activeElement;$('settings').hidden=true;$('feedback').hidden=false;$('feedbackprompt').hidden=true;
+    $('feedbackbody').hidden=false;$('feedbackform').hidden=false;$('feedbackpreview').hidden=true;feedbackDraft=null;
+    $('feedbackstatus').textContent='ログインを確認しています…';$('feedbackreview').disabled=true;
+    await checkFeedback();feedbackAuthUI();$('feedbackstatus').textContent=feedbackAvailable?'':'今はつながりません。書いた内容は残っています。';$('feedbackclose').focus();
+  }
+  $('feedbackopen').addEventListener('click',openFeedback);$('feedbackpromptopen').addEventListener('click',openFeedback);
+  $('feedbackpromptclose').addEventListener('click',()=>{$('feedbackprompt').hidden=true;feedbackMeta.promptShown=true;saveFeedbackMeta();});
+  $('feedbackclose').addEventListener('click',()=>{if(feedbackBusy)return;$('feedback').hidden=true;if(feedbackReturn?.id==='feedbackopen')$('settings').hidden=false;feedbackReturn?.focus();});
+  let feedbackWaitingLogin=false;
+  new MutationObserver(()=>{if(feedbackWaitingLogin&&$('pass').hidden){feedbackWaitingLogin=false;$('feedback').hidden=false;$('feedbackloginbtn').focus();}}).observe($('pass'),{attributes:true,attributeFilter:['hidden']});
+  $('feedbackloginbtn').addEventListener('click',()=>{feedbackWaitingLogin=true;$('feedback').hidden=true;askPass(async()=>{await checkFeedback();feedbackAuthUI();$('feedbackstatus').textContent=feedbackLoggedIn?'ログインできたよ。送る内容を確認してね。':'ログインをもう一度確かめてね。';});});
+  $('feedbacktrouble').addEventListener('input',()=>{$('feedbackremaining').textContent=`残り${300-$('feedbacktrouble').value.length}字`;});
+  $('feedbackform').addEventListener('submit',e=>{
+    e.preventDefault();if(!feedbackLoggedIn||feedbackBusy)return;
+    const stars=Number(new FormData($('feedbackform')).get('stars')),best=$('feedbackbest').value;
+    if(!Number.isInteger(stars)||stars<1||stars>5||!['live','mini','members','story','collect','other'].includes(best))return;
+    feedbackDraft={v:1,appVersion:APP_VERSION,stars,best,trouble:$('feedbacktrouble').value.slice(0,300),playlog:$('feedbacklog').checked?JSON.parse(JSON.stringify(PLAYLOG)):null};
+    // 子どもも読めるよう、機械向けの JSON ではなく言葉で見せる（送る中身は同じ）
+    const bestLabel={live:'ライブ',mini:'ミニゲーム',members:'メンバー',story:'ストーリー',collect:'集める',other:'その他'}[best];
+    $('feedbackpayload').textContent=`楽しさ：${'★'.repeat(stars)}${'☆'.repeat(5-stars)}\n一番楽しかった所：${bestLabel}\n困った所：${feedbackDraft.trouble||'（なし）'}\n遊んだ記録の数字：${feedbackDraft.playlog?'いっしょに送る（下の表）':'送らない'}\nゲームの版：${APP_VERSION}`;$('feedbacknumbers').replaceChildren();
+    if(feedbackDraft.playlog){const table=document.createElement('table'),head=table.createTHead().insertRow();for(const label of ['日付','開始','結果まで','途中終了','60秒以内','うちもう1回','連続曲数',...PLAYLOG_KINDS,'最後の結果ボタン']){const th=document.createElement('th');th.scope='col';th.textContent=label;head.appendChild(th);}const body=table.createTBody();for(const d of feedbackDraft.playlog.days){const row=body.insertRow();for(const value of [d.date,d.started,d.finished,d.abandoned,d.retry60,d.retryButton,d.sessions.join(' / '),...PLAYLOG_KINDS.map(k=>d.mini[k]),d.lastResultAction])row.insertCell().textContent=String(value);}if(!feedbackDraft.playlog.days.length){const p=document.createElement('p');p.textContent='遊んだ記録：まだ数字はありません。';$('feedbacknumbers').appendChild(p);}$('feedbacknumbers').appendChild(table);}
+    $('feedbackform').hidden=true;$('feedbackpreview').hidden=false;$('feedbackbody').scrollTop=0;$('feedbackstatus').textContent='この内容を送ります。確認してから下のボタンを押してね。';$('feedbacksend').focus({preventScroll:true});
+  });
+  $('feedbackedit').addEventListener('click',()=>{if(feedbackBusy)return;feedbackDraft=null;$('feedbackpreview').hidden=true;$('feedbackform').hidden=false;$('feedbackstatus').textContent='';$('feedbackbest').focus();});
+  $('feedbacksend').addEventListener('click',async()=>{
+    if(feedbackBusy||!feedbackDraft)return;
+    const body=JSON.stringify(feedbackDraft);if(new TextEncoder().encode(body).length>64*1024){$('feedbackstatus').textContent='記録が大きいようです。書き直すから、記録のチェックを外してね。';return;}
+    feedbackBusy=true;for(const id of ['feedbacksend','feedbackedit','feedbackclose'])$(id).disabled=true;
+    const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),10000);$('feedbackstatus').textContent='送っています…';
+    try{const r=await fetch('/api/feedback',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body,signal:ctl.signal});
+      if(r.ok&&(await r.json()).ok===true){feedbackMeta.sentCount=logNumber(feedbackMeta.sentCount+1);feedbackMeta.lastSentDay=localDay();feedbackMeta.promptShown=true;saveFeedbackMeta();feedbackDraft=null;$('feedbackbody').hidden=true;$('feedbackstatus').textContent='ありがとう！ 感想を受け取ったよ。';}
+      else if(r.status===401){feedbackLoggedIn=false;feedbackAuthUI();$('feedbackpreview').hidden=true;$('feedbackform').hidden=false;$('feedbackstatus').textContent='曲の合言葉でログインすると送れるよ。書いた内容は残っています。';}
+      else $('feedbackstatus').textContent=r.status===429?'今は混んでるみたい。少し待ってから、もう一度送ってね。':r.status===400?'内容を確かめて、もう一度送ってね。':r.status===413?'記録が大きいようです。書き直すから記録のチェックを外してね。':r.status===503?'今は感想箱がお休みみたい。少し待ってから送ってね。':'今はつながりません。書いた内容は残っています。';
+    }catch(e){$('feedbackstatus').textContent='つながりませんでした。書いた内容は残っています。もう一度ためしてね。';}
+    finally{clearTimeout(timer);feedbackBusy=false;for(const id of ['feedbacksend','feedbackedit','feedbackclose'])$(id).disabled=false;}
+  });
+  new MutationObserver(()=>{if(!$('result').hidden){feedbackViews++;maybeFeedbackPrompt();}else $('feedbackprompt').hidden=true;}).observe($('result'),{attributes:true,attributeFilter:['hidden']});
+  checkFeedback();
+  // POLISH11 FEEDBACK END
   $('appversion').textContent=`バージョン ${APP_VERSION}`;
   renderHome();
   // 起動の幕（Donz-Lab.com）。アップデートの確認が終わるまで（最短1.2秒・最長3.5秒）タイトルの前に置く

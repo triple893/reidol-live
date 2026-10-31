@@ -18,7 +18,12 @@
     const target=node('p','',scene),sum=node('p','',scene),choices=node('div','',scene);choices.className='w2-menu';const labels=[];
     MENU.forEach((item,i)=>{const box=node('div','',choices),b=node('button','',box);b.type='button';const image=node('img','',b);image.src=asset('a6_menu_'+item.id);image.alt=item.name;node('span',`${item.name} ${item.price}円`,b);labels[i]=node('span','0個',box);const less=node('button','1個もどす',box);less.type='button';less.className='quit';less.setAttribute('aria-label',item.name+'を1個もどす');b.onclick=()=>{if(dead)return;counts[i]=Math.min(20,counts[i]+1);draw();};less.onclick=()=>{if(!dead){counts[i]=Math.max(0,counts[i]-1);draw();}};});
     timer.className='mini-local-timer';labels.forEach(label=>label.className='mini-quantity');const feedback=node('p','');feedback.setAttribute('role','status');const controls=node('div','');controls.className='ux-actions';const submit=node('button','この金額で注文',controls),reset=node('button','全部もどす',controls),cancel=node('button','やめて一覧へ',controls);for(const b of [submit,reset,cancel]){b.type='button';b.className='btn sec';}cancel.classList.add('mini-cancel');
-    function draw(){target.textContent=`目標 ${orders[index%orders.length].target.toLocaleString('ja-JP')}円`;sum.textContent=`いま ${total(counts).toLocaleString('ja-JP')}円`;labels.forEach((label,i)=>label.textContent=counts[i]+'個');}
+    function draw(){target.textContent=`目標 ${orders[index%orders.length].target.toLocaleString('ja-JP')}円`;sum.textContent=`いま ${total(counts).toLocaleString('ja-JP')}円`;labels.forEach((label,i)=>label.textContent=counts[i]+'個');
+      const amount=total(counts),goal=orders[index%orders.length].target,over=amount>goal;
+      scene.style.setProperty('--order-near',Math.min(1,amount/goal));
+      if(over&&scene.dataset.totalState!=='over'){sum.classList.remove('order-over');void sum.offsetWidth;sum.classList.add('order-over');}
+      scene.dataset.totalState=over?'over':amount===goal?'exact':'under';sum.dataset.warning=over?'買いすぎ！':'';
+    }
     function stop(){if(dead)return;dead=true;clearInterval(interval);unwatch();container.classList.remove('wave2-game');}
     function finish(){if(dead)return;stop();const stats=score(correct,attempts);if(session)session.end(stats);else onFinish(stats);}
     submit.onclick=()=>{if(dead)return;if(remaining()<=0){finish();return;}attempts++;const ok=exact(counts,orders[index%orders.length].target);if(ok){correct++;const elapsed=Math.max(0,(now()-questionStart)/1000),points=Math.max(1,1.5-elapsed/20);session?.answer(true,{points,button:submit,special:elapsed<=2});index++;counts=MENU.map(()=>0);questionStart=now();feedback.textContent='ぴったり！ 次の注文へ';}else{session?.answer(false,{button:submit});feedback.textContent='金額を確かめてみよう';}draw();};
