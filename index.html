@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "f75b11296a";</script>
+<script>window.APP_VERSION = "401cba31e5";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -1150,6 +1150,40 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #live.calm-fx :is(#live-callout,#live-support,#live-life-pop,#live-ending-title,#live-ending-members,#live-colorlights i,#live-ending-confetti i) { animation:none !important;transition:none !important; }
 #live.calm-fx #live-ending-confetti { display:none; }
 #live.calm-fx #live-ending .btn::after { animation:none; }
+/* POLISH10 FEEDBACK BEGIN */
+#combo-cue { position:absolute;left:auto;right:max(16px,var(--safe-r));top:168px;z-index:7;padding:3px 18px;border:1px solid #ffe8a188;border-radius:24px;background:#27213be8;color:var(--gold);font:18px var(--display);pointer-events:none;white-space:nowrap; }
+#live.combo-rise #combo-cue { animation:combo-arrive .55s ease-out; }
+#live.combo-rise #lcombo { color:#fff3b0;text-shadow:0 0 22px #ffcf4a; }
+#live.full-combo-finale #live-ending { background:radial-gradient(ellipse at 50% 30%,#816230ee,#20142af7);box-shadow:inset 0 0 0 3px #ffcf4a88; }
+#live.full-combo-finale #live-ending-title { font-size:40px;letter-spacing:.05em; }
+@keyframes combo-arrive { from{opacity:0;transform:scale(.8)}50%{transform:scale(1.12)}to{opacity:1;transform:scale(1)} }
+#live.calm-fx #combo-cue { animation:none; }
+@media(prefers-reduced-motion:reduce){#combo-cue{animation:none !important;}}
+/* POLISH10 FEEDBACK END */
+/* POLISH10 RESULT BEGIN */
+#rgoal { flex:none;margin:8px 0 2px;padding:10px 12px;border:1px solid #ffcf4a88;border-radius:16px;background:linear-gradient(120deg,#4a3748ee,#27213bdd);text-align:left; }
+#rgoal small { display:block;color:#ffe7a2;font-size:14px;line-height:20px; }
+#rgoal strong { display:block;font:30px/1.3 var(--display);color:#fff2bc;overflow-wrap:anywhere; }
+#app #result .rscore { font-size:28px; }
+#app #result .btns { grid-template-columns:1.7fr 1fr 1fr; }
+#app #result #again { min-height:56px;font-size:20px;background:linear-gradient(110deg,#ffe17c,#ffb6d2);color:#291b2c; }
+#again small { display:block;font:12px/1.35 var(--body); }
+#app #result .result-character .rrow { margin-top:2px; }
+#app #result .rwho { display:grid;grid-template-columns:52px minmax(0,1fr);grid-template-rows:26px 38px;column-gap:8px;align-items:center;text-align:left; }
+#app #result #rav { grid-row:1 / 3;grid-column:1; }
+#app #result #rav > * { width:48px;height:48px;max-width:48px;max-height:48px; }
+#app #result #rname { grid-column:2;grid-row:1;font-size:14px;margin:0; }
+#app #result #rsong { grid-column:2;grid-row:2;font-size:14px;line-height:18px;margin:0; }
+/* POLISH10 RESULT END */
+/* POLISH10 PLAYLOG VIEW BEGIN */
+#app #playlog .playlog-sheet { width:calc(100% - 32px);max-width:1100px;height:calc(100% - 24px);display:grid;grid-template-rows:28px auto minmax(0,1fr) auto 48px;gap:8px;padding:12px; }
+#playlog h2,#playlog p { margin:0;font-size:14px;line-height:1.35; }#playlog h2 { font-size:22px; }
+#playlogtable { min-height:0;overflow:auto;border:1px solid var(--edge);border-radius:10px;overscroll-behavior:contain;touch-action:pan-x pan-y; }
+#playlog table { border-collapse:collapse;width:max-content;min-width:100%;font-size:14px;font-variant-numeric:tabular-nums; }
+#playlog th,#playlog td { padding:10px;text-align:center;border:1px solid #ffffff22;max-width:220px; }
+#playlog th { position:sticky;top:0;background:#30243f;z-index:1; }#playlog td:first-child { white-space:nowrap; }
+#playlog .btns { display:grid;grid-template-columns:1fr 1fr;margin:0; }#playlog .btn { min-height:44px; }
+/* POLISH10 PLAYLOG VIEW END */
 #live-support,#live-colorlights { z-index:auto; }
 #live .lhud { z-index:7; }
 #app #live #live-route { position:fixed;top:36px;bottom:auto;left:27%;right:27%;width:auto;height:6px;flex:none; }
@@ -1321,6 +1355,9 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #app #live-support { top:24%;bottom:auto;height:36%; }
 #app #live-support.right { left:1%;right:auto; }
 #app #live-support.right.active { animation-name:support-enter; }
+/* クリア後は左に「ここで終わる」が出るけん、応援のポーズは右の判定文字の下へ逃がす */
+#app #live:has(#clearstatus:not([hidden])) #live-support { left:auto;right:1%;top:34%; }
+#app #live:has(#clearstatus:not([hidden])) #live-support.active { animation-name:support-enter-right; }
 #app #live-ending-members { align-items:end;gap:5px; }
 #app #live-ending-members figure { width:11%;height:82%; }
 #app #live-ending-members figure.is-center { width:24%;height:100%;order:-1; }
@@ -1413,6 +1450,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   </div>
   <div class="judge" id="judge"></div>
   <div class="lcombo" id="lcombo"></div>
+  <div id="combo-cue" aria-hidden="true" hidden></div>
   <div class="hintbar" id="lanehint">画面下のレーンを両手でタップ</div>
   <div id="live-ending" hidden aria-label="ゴール達成" role="group">
     <div id="live-ending-confetti" aria-hidden="true"></div>
@@ -1504,15 +1542,21 @@ html, body { width:100%; height:100%; overflow:hidden; }
     <div class="setrow"><label for="seteffects">演出</label><select id="seteffects"><option value="normal">ふつう</option><option value="light">かるめ</option></select></div>
     <div class="setrow"><label for="sethaptics"><span>振動</span><input id="sethaptics" type="checkbox"></label></div>
     <button id="sethelp" class="btn sec" type="button">あそびかた</button>
-    <div class="btns"><button class="btn sec" id="setclose" type="button">閉じる</button></div>
+    <div class="btns"><button class="btn sec" id="playlogopen" type="button">遊んだ記録</button><button class="btn sec" id="setclose" type="button">閉じる</button></div>
   </div>
 </div>
 
 <!-- リザルト -->
+<div id="playlog" class="ovl" hidden><div class="sheet playlog-sheet" role="dialog" aria-modal="true" aria-labelledby="playlogtitle">
+  <h2 id="playlogtitle">遊んだ記録</h2><p>この端末だけ・直近30日。外へは送りません。練習と開発ライブも含みます。</p>
+  <div id="playlogtable" tabindex="0" aria-label="日ごとの記録・横と縦にスクロールできます"></div>
+  <p id="playlogstatus" role="status"></p><div class="btns"><button id="playlogclear" class="btn sec" type="button">記録を消す</button><button id="playlogclose" class="btn pri" type="button">設定へ戻る</button></div>
+</div></div>
 <section id="result" hidden>
   <div class="pad-x">
     <div class="result-character">
     <div class="rwho"><div id="rav"></div><div class="rname" id="rname"></div><div class="rsong" id="rsong"></div></div>
+    <div id="rgoal" role="status"><small>次の目標</small><strong></strong></div>
     <div class="rrow"><img class="rfull" id="rfull" alt="" hidden><img id="raccessory" class="w2-accessory" alt="" hidden><div class="say" id="rsay" hidden></div></div>
     </div>
     <div class="result-detail">
@@ -1539,9 +1583,9 @@ html, body { width:100%; height:100%; overflow:hidden; }
     <div class="keiki" id="rkeiki"></div>
     </div>
     <div class="btns">
-      <button class="btn pri" id="again" type="button">同じセンターでもう一回</button>
-      <button class="btn sec" id="tosongs" type="button">曲をえらびなおす</button>
-      <button class="btn sec" id="tohome" type="button">ホームにもどる</button>
+      <button class="btn pri" id="again" type="button">もう1回<small>同じ曲・難しさ・センター</small></button>
+      <button class="btn sec" id="tosongs" type="button">曲えらびへ</button>
+      <button class="btn sec" id="tohome" type="button">ホームへ</button>
     </div>
     </div>
   </div>
@@ -2022,6 +2066,54 @@ html, body { width:100%; height:100%; overflow:hidden; }
   const MINI_RECORD={best:Object.create(null),firstDay:''};
   try{const raw=JSON.parse(localStorage.getItem(MINI_KEY)||'null');if(raw&&typeof raw==='object'){for(const k of MINI_KINDS)if(Number.isFinite(raw.best?.[k])&&raw.best[k]>=0)MINI_RECORD.best[k]=Math.floor(raw.best[k]);if(/^\d{4}-\d{2}-\d{2}$/.test(raw.firstDay))MINI_RECORD.firstDay=raw.firstDay;}}catch(e){}
   function saveMiniRecord(){try{localStorage.setItem(MINI_KEY,JSON.stringify(MINI_RECORD));}catch(e){}}
+  // POLISH10 PLAYLOG BEGIN: ゲームのSとは独立。入力は固定列だけ、最大30日・48KiB。
+  const PLAYLOG_KEY='reidol.playlog.v1',PLAYLOG_LIMIT=48*1024;
+  const PLAYLOG_KINDS=['shiritori','abekobe','balloon','creampuff','bbq','drive'];
+  const logNumber=v=>Number.isFinite(v)?Math.max(0,Math.min(999999,Math.floor(v))):0;
+  let PLAYLOG={version:1,days:[]},logSessionRow=null,logSessionDay='',logPendingResult=null,logStorageFailed=false;
+  function logCutoff(){const d=new Date();d.setDate(d.getDate()-29);return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
+  function prunePlayLog(){const today=localDay(),cutoff=logCutoff();PLAYLOG.days=PLAYLOG.days.filter(d=>d.date>=cutoff&&d.date<=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(-30);}
+  try{
+    const text=localStorage.getItem(PLAYLOG_KEY);
+    if(text&&text.length<=PLAYLOG_LIMIT){const raw=JSON.parse(text);if(raw?.version===1&&Array.isArray(raw.days)){
+      const dates=new Set();for(const d of raw.days.slice(-30)){
+        if(!d||!/^\d{4}-\d{2}-\d{2}$/.test(d.date)||dates.has(d.date))continue;dates.add(d.date);
+        const row={date:d.date};for(const k of ['started','finished','abandoned','retry60','retryButton'])row[k]=logNumber(d[k]);
+        row.sessions=Array.isArray(d.sessions)?d.sessions.slice(-100).map(logNumber):[];
+        row.mini=Object.fromEntries(PLAYLOG_KINDS.map(k=>[k,logNumber(d.mini?.[k])]));
+        row.lastResultAction=['again','home','songs'].includes(d.lastResultAction)?d.lastResultAction:'';PLAYLOG.days.push(row);
+      }prunePlayLog();
+    }}else if(text&&text.length>PLAYLOG_LIMIT)logStorageFailed=true;
+  }catch(e){logStorageFailed=true;/* 記録の破損・保存拒否でゲームを止めない。 */}
+  function logDay(){prunePlayLog();const date=localDay();let row=PLAYLOG.days.find(d=>d.date===date);if(!row){row={date,started:0,finished:0,abandoned:0,retry60:0,retryButton:0,sessions:[],mini:Object.fromEntries(PLAYLOG_KINDS.map(k=>[k,0])),lastResultAction:''};PLAYLOG.days.push(row);}return row;}
+  function savePlayLog(){try{prunePlayLog();const text=JSON.stringify(PLAYLOG);if(text.length>PLAYLOG_LIMIT)throw Error('記録上限');localStorage.setItem(PLAYLOG_KEY,text);logStorageFailed=false;}catch(e){logStorageFailed=true;}}
+  const logAdd=(row,key)=>row[key]=logNumber(row[key]+1);
+  function logLiveStart(){const row=logDay();logAdd(row,'started');
+    if(logPendingResult){const elapsed=performance.now()-logPendingResult.at;if(elapsed>=0&&elapsed<=60000){logAdd(row,'retry60');if(logPendingResult.action==='again')logAdd(row,'retryButton');}logPendingResult=null;}
+    if(logSessionDay!==row.date||!logSessionRow||!PLAYLOG.days.includes(logSessionRow)){logSessionDay=row.date;logSessionRow=row;row.sessions.push(0);if(row.sessions.length>100)row.sessions.shift();}
+    const i=row.sessions.length-1;row.sessions[i]=logNumber(row.sessions[i]+1);live.logRow=row;live.logOpen=true;savePlayLog();
+  }
+  function logLiveEnd(kind){if(!live?.logOpen)return;live.logOpen=false;const row=PLAYLOG.days.includes(live.logRow)?live.logRow:logDay();logAdd(row,kind);savePlayLog();}
+  function logResultAction(action){logDay().lastResultAction=action;if(logPendingResult)logPendingResult.action=action;savePlayLog();}
+  function logMiniStart(kind){if(!PLAYLOG_KINDS.includes(kind))return;const row=logDay();row.mini[kind]=logNumber(row.mini[kind]+1);savePlayLog();}
+  function renderPlayLog(){
+    prunePlayLog();const host=$('playlogtable');host.replaceChildren();
+    if(!PLAYLOG.days.length){const p=document.createElement('p');p.textContent='まだ記録はありません。';host.appendChild(p);}else{
+      const table=document.createElement('table'),head=table.createTHead().insertRow();
+      for(const text of ['日付','開始','結果まで','途中終了','60秒以内','うちもう1回','連続曲数（開いた回ごと）',...PLAYLOG_KINDS.map(k=>PLAY_ENTRIES.find(e=>e.id===k).title),'最後の結果ボタン']){const th=document.createElement('th');th.scope='col';th.textContent=text;head.appendChild(th);}
+      const body=table.createTBody();for(const d of [...PLAYLOG.days].reverse()){const row=body.insertRow();for(const value of [d.date,d.started,d.finished,d.abandoned,d.retry60,d.retryButton,d.sessions.join(' / '),...PLAYLOG_KINDS.map(k=>d.mini[k]),({again:'もう1回',home:'ホーム',songs:'曲えらび'})[d.lastResultAction]||'—'])row.insertCell().textContent=String(value);}host.appendChild(table);
+    }
+    $('playlogstatus').textContent=logStorageFailed?'保存できないため、この画面の記録は再読込で失われる場合があります。':'結果までは失敗・クリア後の終了を含みます。連続曲数はタブを開いている間の目安（各日直近100回分）。';
+  }
+  function clearPlayLog(){if(!confirm('この端末の遊んだ記録をすべて消しますか？ ゲームの進み具合は残ります。'))return;
+    try{localStorage.removeItem(PLAYLOG_KEY);}catch(e){$('playlogstatus').textContent='記録を消せませんでした。保存設定を確認してください。';return;}
+    PLAYLOG={version:1,days:[]};logSessionRow=null;logSessionDay='';logPendingResult=null;logStorageFailed=false;renderPlayLog();
+  }
+  $('playlogopen').addEventListener('click',()=>{renderPlayLog();$('settings').hidden=true;$('playlog').hidden=false;$('playlogclose').focus();});
+  $('playlogclose').addEventListener('click',()=>{$('playlog').hidden=true;$('settings').hidden=false;$('playlogopen').focus();});
+  $('playlogclear').addEventListener('click',clearPlayLog);
+  addEventListener('pagehide',e=>{if(!e.persisted)logLiveEnd('abandoned');});
+  // POLISH10 PLAYLOG END
   const miniRank=(score,target)=>score>=target*100?'S':score>=target*70?'A':score>=target*40?'B':'C';
   const miniNode=(tag,cls,text,parent)=>{const e=document.createElement(tag);e.className=cls;e.textContent=text;if(parent)parent.appendChild(e);return e;};
   const miniHelpSeen=new Set();
@@ -2089,7 +2181,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
       begin:(mount,game)=>{
         let number=3,helpCard=null;count.hidden=true;
         const countdown=()=>{if(!valid())return dispose();number--;count.textContent=number>0?String(number):'スタート！';if(number>0){uiSound('mg_countdown');return;}clearInterval(countClock);help.hidden=true;uiSound('unlock');start=performance.now();playing=true;
-          try{mountCleanup=mount(arena,session);arena.querySelectorAll(':scope > p:not([class])').forEach(e=>{e.classList.add('mini-feedback');e.setAttribute('aria-hidden','true');e.removeAttribute('role');});}catch(e){dispose();miniRun=null;miniCleanup=null;arena.textContent='読み込みに失敗しました。'+e.message;count.remove();waveButton('あそぶ一覧へ',renderPlayMenu,arena);return;}hideCount=setTimeout(()=>count.remove(),350);
+          try{mountCleanup=mount(arena,session);logMiniStart(kind);arena.querySelectorAll(':scope > p:not([class])').forEach(e=>{e.classList.add('mini-feedback');e.setAttribute('aria-hidden','true');e.removeAttribute('role');});}catch(e){dispose();miniRun=null;miniCleanup=null;arena.textContent='読み込みに失敗しました。'+e.message;count.remove();waveButton('あそぶ一覧へ',renderPlayMenu,arena);return;}hideCount=setTimeout(()=>count.remove(),350);
           clock=setInterval(()=>{if(!valid())return dispose();const next=Math.min(3,1+Math.floor(session.elapsed()/rule.seconds*3));if(next!==stage){stage=next;levelText.textContent='Lv'+stage;toast.textContent='レベルアップ！';shell.classList.remove('stage-up');void shell.offsetWidth;shell.classList.add('stage-up');uiSound('level_up');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.textContent='';shell.classList.remove('stage-up');},900);}const left=session.remaining();time.textContent=Math.ceil(left)+'秒';time.classList.toggle('urgent',left<=5);for(const fn of [...listeners]){if(!valid())break;fn();}if(valid()&&left<=0){uiSound('mg_timeup');session.end({correct,attempts});}},100);
         };
         const resumeCount=()=>{if(!valid())return;helpCard=null;miniHelpSeen.add(kind);count.hidden=false;uiSound('mg_countdown');countClock=setInterval(countdown,1000);};
@@ -2926,6 +3018,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     triedFull=!livePoses[m.h];img.src=livePoses[m.h]||fallback;return img;
   }
   function resetLiveJourney(){
+    $('combo-cue').hidden=true;$('live').classList.remove('combo-rise','full-combo-finale');
     for(const id of ['live-support','live-life-pop','live-ending'])$(id).hidden=true;
     $('live-support').textContent='';$('live-callout').textContent='';$('live-callout').classList.remove('active');$('llife').classList.remove('healing');
     $('live-route-marker').style.left='0%';$('live-route').setAttribute('aria-valuenow','0');
@@ -2959,7 +3052,9 @@ html, body { width:100%; height:100%; overflow:hidden; }
     MEMBERS.forEach(m=>{const fig=document.createElement('figure');fig.style.setProperty('--support-color',m.color);fig.appendChild(livePoseImage(m));const label=document.createElement('figcaption');label.textContent=m.name;fig.appendChild(label);members.appendChild(fig);});
     const papers=$('live-ending-confetti');papers.textContent='';
     if(!reduceMotion&&CFG.effects!=='light')for(let i=0;i<28;i++){const paper=document.createElement('i');paper.style.setProperty('--paper-x',i*100/28+'%');paper.style.setProperty('--paper-color',MEMBERS[i%7].color);paper.style.setProperty('--paper-delay',-i*.11+'s');papers.appendChild(paper);}
-    $('live-ending').hidden=false;uiSound('unlock');buzz(30);
+    const fc=live.miss===0&&live.perfect+live.good>0&&live.perfect+live.good===live.notes.filter(n=>n.time<live.dur-.3).length;
+    $('live').classList.toggle('full-combo-finale',fc);$('live-ending-title').textContent=fc?'FULL COMBO!':'達成！';
+    $('live-ending').hidden=false;uiSound(fc?'combo_milestone':'unlock');buzz(30);
     const endingLive=live;live.endingTimer=setTimeout(()=>{if(live===endingLive&&!live.done)finishLive();},3400);
   }
   $('live-ending').addEventListener('pointerdown',e=>e.stopPropagation());
@@ -2989,7 +3084,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     live = {
       h, m, notes, step: 0, score: 0, combo: 0, maxCombo: 0, perfect: 0, good: 0, miss: 0,
       bpm, countPlan:plan, countNodes:[], milestones:new Set(),journeyStep:-1,ending:false,
-      flash: Array(mode.lanes).fill(0), parts: Array.from({length:96},()=>({active:false})), particleCursor:0, waveAt:-99, waveColor:'#ffcf4a', displayedCombo:-1, done: false, dest: null, src: null, lastCall: -9,
+      flash: Array(mode.lanes).fill(0), impacts:Array.from({length:mode.lanes},()=>({at:-99,grade:''})), parts: Array.from({length:96},()=>({active:false})), particleCursor:0, waveAt:-99, waveColor:'#ffcf4a', displayedCombo:-1, done: false, dest: null, src: null, lastCall: -9,
       mode, approach:noteTravelSeconds(CFG.speed), dev: DEV || !!(so && so.dev), life: BALANCE.life.hearts[mode.diff], failed: false, paused: false, buf: so ? so.buf : null,
       support: so && !so.dev && supportH && supportH !== h ? supportH : null, skills:so && !so.dev ? [...S.skills] : [],
       draft: so && so.dev ? so.draft : null,
@@ -3003,6 +3098,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
       p0: performance.now() + lead * 1000, t0: ac ? ac.currentTime + lead : 0,
     };
     notes.forEach(n => { n.stage = so ? allStages.findIndex(end => n.time < end) : -1; });
+    logLiveStart();
     scheduleCount();
     const liveIdol=$('live-idol');liveIdol.hidden=false;liveIdol.onerror=()=>{liveIdol.hidden=true;};liveIdol.src=`assets/${h}_full.webp`;
     if (ac) {
@@ -3084,7 +3180,12 @@ html, body { width:100%; height:100%; overflow:hidden; }
     updateHearts('hit', n);
     hitSE(grade, live.combo); buzz(grade === 'perfect' ? 12 : 6);
     burst(n.lane, grade === 'perfect' ? 14 : 6);
-    if([25,50,100].includes(live.combo)||live.combo>100&&live.combo%100===0){live.waveAt=gameT();live.waveColor=LANE_COLORS[n.lane];uiSound('combo_milestone');}
+    live.impacts[n.lane].at=gameT();live.impacts[n.lane].grade=grade;live.flash[n.lane]=grade==='perfect'?1:.45;
+    if([10,25,30,50,100].includes(live.combo)||live.combo>100&&live.combo%100===0){
+      live.waveAt=gameT();live.waveColor=LANE_COLORS[n.lane];uiSound('combo_milestone');
+      const cue=$('combo-cue');cue.textContent=live.combo+' COMBO!';cue.hidden=false;$('live').classList.remove('combo-rise');void cue.offsetWidth;$('live').classList.add('combo-rise');
+      clearTimeout(live.comboTimer);live.comboTimer=setTimeout(()=>{cue.hidden=true;$('live').classList.remove('combo-rise');},1000);
+    }
     pop(grade === 'perfect' ? 'ぴったり！' : 'いいね', grade === 'perfect' ? '#ffcf4a' : '#3fe0b0');
     $('lscore').textContent = fmt(live.score);
     const playable=live.notes.filter(note=>note.time<live.dur-.3).length;
@@ -3092,6 +3193,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   }
   function missNote(n) {
     n.st = 3; live.miss++; live.combo = 0;
+    clearTimeout(live.comboTimer);$('combo-cue').hidden=true;$('live').classList.remove('combo-rise');live.waveAt=-99;
     if (live.song) { live.stats[n.stage].miss++; live.stats[n.stage].combo = 0; }
     updateHearts('miss', n);
     if(!playSE('miss_thud'))sfx('miss'); pop('ミス', '#c9a8ad');
@@ -3123,7 +3225,9 @@ html, body { width:100%; height:100%; overflow:hidden; }
   $('quit').addEventListener('click', () => { if (live && live.song && live.completed.length) finishLive(); else { stopLive(); goHome(); } });
   $('encorestop').addEventListener('pointerdown', e => e.stopPropagation());
   $('encorestop').addEventListener('click', e => { e.stopPropagation(); if (live && !live.done && !live.paused && live.completed.length>0) { live.failed=false;finishLive(); } });
-  function stopLive() {
+  function stopLive(recordAbandon=true) {
+    if(recordAbandon)logLiveEnd('abandoned');
+    if(live)clearTimeout(live.comboTimer);$('combo-cue').hidden=true;$('live').classList.remove('combo-rise');
     cancelAnimationFrame(raf);
     if (live && live.dest) { try { live.dest.gain.setTargetAtTime(0, ac.currentTime, 0.04); } catch (e) {} }
     if (live && live.src) { try { live.src.stop(ac.currentTime + 0.3); } catch (e) {} }
@@ -3273,6 +3377,17 @@ html, body { width:100%; height:100%; overflow:hidden; }
       ctx.strokeStyle = rgba(LANE_COLORS[i], .7); ctx.lineWidth = 2;
       ctx.beginPath(); ctx.roundRect(cx-w/2, hitY-h/2, w, h, h/2); ctx.stroke();
     }
+    // POLISH10: レーン数だけの固定プール。光は判定線付近、ノーツより背面へ描く。
+    for(let i=0;i<live.impacts.length;i++){
+      const impact=live.impacts[i],age=t-impact.at,calm=reduceMotion||CFG.effects==='light';
+      if(age<0||age>(calm?.14:.32))continue;
+      const p=age/(calm?.14:.32),perfect=impact.grade==='perfect',x=sx+laneW*(i+.5);
+      ctx.save();ctx.globalAlpha=(1-p)*(calm?.3:.9);ctx.strokeStyle=perfect?'#fff4b0':LANE_COLORS[i];ctx.lineWidth=perfect?3:2;
+      const rx=laneW*(calm?.22:.22+p*.26),ry=calm?5:6+p*(perfect?24:12);
+      ctx.beginPath();ctx.ellipse(x,hitY,rx,ry,0,0,Math.PI*2);ctx.stroke();
+      if(perfect&&!calm){ctx.strokeStyle=LANE_COLORS[i];ctx.lineWidth=2;for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*rx,hitY+Math.sin(a)*ry);ctx.lineTo(x+Math.cos(a)*(rx+10),hitY+Math.sin(a)*(ry+8));ctx.stroke();}}
+      ctx.restore();
+    }
     // ノーツ
     for (const n of live.notes) {
       if(songT()<0)break;
@@ -3303,7 +3418,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
   // ---- リザルト
   function finishLive() {
     if (!live || live.done) return;
-    stopLive();
+    logLiveEnd('finished');stopLive(false);
+    logPendingResult={at:performance.now(),action:''};
     const L = live, st = S.members[L.h];
     const before = L.before;
     const vBefore = L.vBefore;
@@ -3330,6 +3446,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
     if (CFG.call && !L.failed && L.miss === 0 && L.perfect + L.good === L.notes.length) playSE('clap');
     const r = { bday, clear, rank:rankOf(L.score).k, currency, stages:L.completed, stageCount:L.stages.length, dev:L.dev, mode: L.mode, failed: L.failed, h: L.h, m: L.m, score: L.score, perfect: L.perfect, good: L.good, miss: L.miss, maxCombo: L.maxCombo, gain, mult, song: L.song, best, before, after: { lv, exp }, vBefore, vAfter: venueIdx() };
     r.fullCombo=!L.failed&&L.miss===0&&L.perfect+L.good>0&&L.perfect+L.good===L.notes.filter(n=>n.time<L.dur-.3).length&&(L.song?L.completed.length===L.stages.length:songT()>=L.dur);
+    r.remaining=Math.max(1,Math.ceil((L.stages[L.stageIndex]||L.dur)-songT()));r.nextStage=L.stageIndex+1;
     r.travel=travel;showResult(r);
     if (L.song && !L.dev) $('rgain').textContent += `${L.first && L.completed.length ? ' ／ 今日の最初 ×1.5' : ''}${L.support ? ` ／ ${byH(L.support).name} +${L.earned.supportExp} EXP` : ''}`;
     if (L.dev && L.song) $('rsong').textContent = `${L.song.title} ［開発URL・記録なし］`;
@@ -3342,8 +3459,20 @@ html, body { width:100%; height:100%; overflow:hidden; }
     el.style.transition = anim ? '' : 'none'; el.style.width = pct + '%';
     if (!anim) void el.offsetWidth; el.style.transition = '';
   };
+  // POLISH10: 表示だけの目標。点差の候補は同じ単位で比較する。
+  function resultGoal(r){
+    if(r.failed)return {label:'次の目標',text:r.song?`STAGE ${r.nextStage||r.stages.length+1} まであと${r.remaining||1}秒`:`最後まで あと${r.remaining||1}秒`};
+    if(r.best?.isNew)return {label:'今回の達成',text:'ベスト更新！'};
+    const candidates=BALANCE.ranks.filter(rank=>rank.at>r.score).map(rank=>({gap:rank.at-r.score,text:rank.k+' まで あと'}));
+    if(r.best?.prev>r.score)candidates.push({gap:Math.ceil(r.best.prev-r.score),text:'自己ベストまで あと'});
+    candidates.sort((a,b)=>a.gap-b.gap);
+    if(candidates.length)return {label:'次の目標',text:candidates[0].text+fmt(candidates[0].gap)+'点'};
+    if(!r.fullCombo)return {label:'次の目標',text:'フルコンボに挑戦！'};
+    return {label:'今回の達成',text:'SS · FULL COMBO!'};
+  }
   async function showResult(r) {
     const id = ++resultId, m = r.m;
+    const goal=resultGoal(r);$('rgoal').querySelector('small').textContent=goal.label;$('rgoal').querySelector('strong').textContent=goal.text;
     let finished=false;
     const result=$('result');result.classList.remove('result-rank','result-exp','result-rewards');result.classList.add('result-sequence');result.classList.toggle('result-failed',r.failed);
     $('rankstamp').classList.remove('stamped');$('rankstamp').textContent=r.rank+(r.fullCombo?' · FULL COMBO':'');$('rankstamp').classList.toggle('full-combo',!!r.fullCombo);$('resultskip').hidden=false;
@@ -3449,12 +3578,13 @@ html, body { width:100%; height:100%; overflow:hidden; }
     flushStory();
     checkForUpdate();
   }
-  $('tohome').addEventListener('click', goHome);
+  $('tohome').addEventListener('click', () => {logResultAction('home');goHome();});
   $('again').addEventListener('click', () => {
+    logResultAction('again');
     resultId++; $('lvup').hidden = true; audio();
     if (live.song) beginSong(live.h, live.song.s, live.song.df, live.mode, live.draft); else { tryLandscape(); requestLive(live.h); }
   });
-  $('tosongs').addEventListener('click', () => { resultId++; $('lvup').hidden = true; openSongs(live.h); });
+  $('tosongs').addEventListener('click', () => { logResultAction('songs');resultId++; $('lvup').hidden = true; openSongs(live.h); });
 
   // ---- 曲えらび・読み込み
   let pickH = null, SONGS = null, shopOnly = false, selectedSongSlug = null;
