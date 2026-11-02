@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "7382bac1ee";</script>
+<script>window.APP_VERSION = "adbdac380b";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -2443,7 +2443,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   // ---- 音（最初のタップから鳴らす）
   let ac = null, comp = null, noiseBuf = null, seGain = null, synGain = null, sePromise = null, bgmGain = null;
   const SEB = {};
-  const SE_NAMES = ['clap', 'hai', 'haihai', 'oi', 'fuffu', 'kira', 'perfect', 'tap', 'tap_hi', 'ui_tap', 'ui_back', 'buy_coin', 'unlock', 'rank_stamp', 'count_tick', 'level_up', 'combo_milestone', 'miss_thud', 'mg_correct', 'mg_wrong', 'mg_countdown', 'mg_timeup', 'mg_premium', 'live_heal'];
+  const SE_NAMES = ['clap', 'hai', 'haihai', 'oi', 'fuffu', 'kira', 'perfect', 'tap', 'tap_hi', 'ui_tap', 'ui_back', 'buy_coin', 'unlock', 'rank_stamp', 'count_tick', 'level_up', 'combo_milestone', 'miss_thud', 'mg_correct', 'mg_wrong', 'mg_countdown', 'mg_timeup', 'mg_premium', 'live_heal', 'se_balloon_pop', 'se_bbq_sizzle', 'se_register', 'se_crowd_cheer', 'se_puff_found', 'se_drive_over'];
   const CALLS = ['hai', 'haihai', 'oi', 'fuffu'];
   const decode = (ab) => new Promise((res, rej) => {
     const p = ac.decodeAudioData(ab, res, rej);
@@ -3615,7 +3615,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
       if(leveled&&!skipped)showLevelUp(r);else {if(leveled){$('rbanner').hidden=false;$('rbanner').textContent+=`　LEVEL UP! Lv${r.before.lv} → Lv${r.after.lv}`;}flushStory();}
     }
     resultSkip=()=>revealFinal(true);
-    sfx('result');
+    sfx('result');uiSound('se_crowd_cheer');
     // スコアのカウントアップ
     await countResult($('rscore'),r.score,counts,()=>id===resultId&&!finished);
     if (id !== resultId||finished) return;

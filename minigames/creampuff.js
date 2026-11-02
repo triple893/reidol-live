@@ -23,7 +23,7 @@
     function draw(){round=makeRound(members.map(m=>m.h),rng);roundStart=now();choices.textContent='';round.members.forEach((h,i)=>{const m=members.find(m=>m.h===h),b=node('button','',choices);b.type='button';
       const stack=node('span','',b);stack.className='w2-face-stack';const normal=node('img','',stack);normal.alt=m.name;normal.src=`assets/${h}_face.jpg`;
       const endure=node('img','',stack);endure.alt='';endure.src=asset(`a3_${h}_endure`);endure.style.position='absolute';endure.style.inset='0';endure.style.opacity=endureOpacity(i);
-      node('span',m.name,b);b.onclick=()=>{if(dead||now()<nextAllowed)return;if(remaining()<=0){finish();return;}nextAllowed=now()+350;attempts++;const ok=grade(round,i);if(ok)correct++;session?.answer(ok,{button:b,special:ok});feedback.textContent=ok?'正解！':'表情の違いを見てみよう';draw();};});}
+      node('span',m.name,b);b.onclick=()=>{if(dead||now()<nextAllowed)return;if(remaining()<=0){finish();return;}nextAllowed=now()+350;attempts++;const ok=grade(round,i);if(ok)correct++;session?.answer(ok,{button:b,special:ok});if(ok)session?.cue('se_puff_found');feedback.textContent=ok?'正解！':'表情の違いを見てみよう';draw();};});}
     function update(){if(dead)return;if(remaining()<=0){finish();return;}choices.querySelectorAll('.w2-face-stack img:last-child').forEach((img,i)=>img.style.opacity=endureOpacity(i));timer.textContent=`残り${Math.ceil(remaining())}秒 · 正解${correct} / ${attempts}`;}
     if(session)unwatch=session.onTick(update);else interval=setInterval(update,100);cancel.onclick=()=>{if(!dead){stop();onCancel();}};draw();update();return stop;
   }
