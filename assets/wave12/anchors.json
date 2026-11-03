@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "units": "source pixels; topは帽子が少し重なる位置",
+  "images": {
+    "assets/aira_full.webp": {
+      "width": 420,
+      "height": 753,
+      "top": [
+        210,
+        69
+      ],
+      "eyes": [
+        210,
+        127
+      ],
+      "hair": [
+        267,
+        86
+      ],
+      "chest": [
+        210,
+        200
+      ],
+      "headWidth": 145,
+      "faceWidth": 92
+    },
+    "assets/arisu_full.webp": {
+      "width": 420,
+      "height": 753,
+      "top": [
+        211,
+        58
+      ],
+      "eyes": [
+        211,
+        134
+      ],
+      "hair": [
+        270,
+        80
+      ],
+      "chest": [
+        211,
+        190
+      ],
+      "headWidth": 160,
+      "faceWidth": 94
+    },
+    "assets/fuka_full.webp": {
+      "width": 420,
+      "height": 753,
+      "top": [
+        210,
+        65
+      ],
+      "eyes": [
+        210,
+        118
+      ],
+      "hair": [
+        254,
+        84
+      ],
+      "chest": [
+        210,
+        190
+      ],
+      "headWidth": 104,
+      "faceWidth": 78
+    },
+    "assets/nana_full.webp": {
+      "width": 420,
+      "height": 753,
+      "top": [
+        211,
+        54
+      ],
+      "eyes": [
+        212,
+        118
+      ],
+      "hair": [
+        261,
+        78
+      ],
+      "chest": [
+        211,
+        200
+      ],
+      "headWidth": 122,
+      "faceWidth": 82
+    },
+    "assets/neiro_full.webp": {
+      "width": 420,
+      "height": 753,
+      "top": [
+        211,
+        35
+      ],
+      "eyes": [
+        210,
+        113
+      ],
+      "hair": [
+        250,
+        84
+      ],
+      "chest": [
+        211,
+        195
+      ],
+      "headWidth": 108,
+      "faceWidth": 86
+    },
+    "assets/ruri_full.webp": {
+      "width": 420,
+      "height": 753,
+      "top": [
+        211,
+        54
+      ],
+      "eyes": [
+        214,
+        118
+      ],
+      "hair": [
+        272,
+        76
+      ],
+      "chest": [
+        211,
+        195
+      ],
+      "headWidth": 160,
+      "faceWidth": 90
+    },
+    "assets/saaya_full.webp": {
+      "width": 420,
+      "height": 753,
+      "top": [
+        211,
+        73
+      ],
+      "eyes": [
+        211,
+        130
+      ],
+      "hair": [
+        253,
+        92
+      ],
+      "chest": [
+        211,
+        205
+      ],
+      "headWidth": 98,
+      "faceWidth": 80
+    },
+    "assets/wave2/b3_aira_casual_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        66
+      ],
+      "eyes": [
+        201,
+        122
+      ],
+      "hair": [
+        259,
+        82
+      ],
+      "chest": [
+        201,
+        180
+      ],
+      "headWidth": 140,
+      "faceWidth": 88
+    },
+    "assets/wave2/b3_arisu_casual_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        44
+      ],
+      "eyes": [
+        204,
+        116
+      ],
+      "hair": [
+        260,
+        70
+      ],
+      "chest": [
+        201,
+        175
+      ],
+      "headWidth": 150,
+      "faceWidth": 90
+    },
+    "assets/wave2/b3_fuka_casual_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        68
+      ],
+      "eyes": [
+        202,
+        110
+      ],
+      "hair": [
+        239,
+        88
+      ],
+      "chest": [
+        201,
+        185
+      ],
+      "headWidth": 81,
+      "faceWidth": 68
+    },
+    "assets/wave2/b3_nana_casual_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        52
+      ],
+      "eyes": [
+        201,
+        111
+      ],
+      "hair": [
+        253,
+        78
+      ],
+      "chest": [
+        201,
+        185
+      ],
+      "headWidth": 122,
+      "faceWidth": 82
+    },
+    "assets/wave2/b3_neiro_casual_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        63
+      ],
+      "eyes": [
+        202,
+        122
+      ],
+      "hair": [
+        242,
+        88
+      ],
+      "chest": [
+        201,
+        185
+      ],
+      "headWidth": 90,
+      "faceWidth": 76
+    },
+    "assets/wave2/b3_ruri_casual_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        35
+      ],
+      "eyes": [
+        204,
+        109
+      ],
+      "hair": [
+        272,
+        66
+      ],
+      "chest": [
+        201,
+        175
+      ],
+      "headWidth": 166,
+      "faceWidth": 94
+    },
+    "assets/wave2/b3_saaya_casual_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        36
+      ],
+      "eyes": [
+        208,
+        85
+      ],
+      "hair": [
+        251,
+        72
+      ],
+      "chest": [
+        201,
+        150
+      ],
+      "headWidth": 86,
+      "faceWidth": 76
+    },
+    "assets/wave12/b12_fuka_winter_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        200,
+        68
+      ],
+      "eyes": [
+        200,
+        116
+      ],
+      "hair": [
+        245,
+        85
+      ],
+      "chest": [
+        202,
+        195
+      ],
+      "headWidth": 98,
+      "faceWidth": 80
+    },
+    "assets/wave12/b12_ruri_winter_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        35
+      ],
+      "eyes": [
+        202,
+        99
+      ],
+      "hair": [
+        259,
+        70
+      ],
+      "chest": [
+        202,
+        180
+      ],
+      "headWidth": 130,
+      "faceWidth": 90
+    },
+    "assets/wave12/b12_aira_winter_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        66
+      ],
+      "eyes": [
+        201,
+        120
+      ],
+      "hair": [
+        253,
+        87
+      ],
+      "chest": [
+        202,
+        200
+      ],
+      "headWidth": 114,
+      "faceWidth": 84
+    },
+    "assets/wave12/b12_saaya_winter_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        36
+      ],
+      "eyes": [
+        201,
+        94
+      ],
+      "hair": [
+        252,
+        71
+      ],
+      "chest": [
+        202,
+        180
+      ],
+      "headWidth": 107,
+      "faceWidth": 86
+    },
+    "assets/wave12/b12_neiro_winter_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        63
+      ],
+      "eyes": [
+        201,
+        115
+      ],
+      "hair": [
+        246,
+        86
+      ],
+      "chest": [
+        202,
+        200
+      ],
+      "headWidth": 98,
+      "faceWidth": 80
+    },
+    "assets/wave12/b12_nana_winter_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        202,
+        42
+      ],
+      "eyes": [
+        202,
+        105
+      ],
+      "hair": [
+        255,
+        72
+      ],
+      "chest": [
+        202,
+        198
+      ],
+      "headWidth": 122,
+      "faceWidth": 80
+    },
+    "assets/wave12/b12_arisu_winter_full.webp": {
+      "width": 402,
+      "height": 720,
+      "top": [
+        201,
+        43
+      ],
+      "eyes": [
+        201,
+        102
+      ],
+      "hair": [
+        252,
+        82
+      ],
+      "chest": [
+        202,
+        190
+      ],
+      "headWidth": 106,
+      "faceWidth": 90
+    }
+  },
+  "accessories": {
+    "aira_glasses": {
+      "anchor": "eyes",
+      "ratio": 1.0,
+      "visibleWidth": 474,
+      "attach": [
+        256,
+        268
+      ]
+    },
+    "nana_beret": {
+      "anchor": "top",
+      "ratio": 0.85,
+      "visibleWidth": 416,
+      "attach": [
+        256,
+        320
+      ]
+    },
+    "ruri_cat_ears": {
+      "anchor": "top",
+      "ratio": 1.05,
+      "visibleWidth": 363,
+      "attach": [
+        256,
+        160
+      ]
+    },
+    "fuka_ribbon": {
+      "anchor": "hair",
+      "ratio": 0.43,
+      "visibleWidth": 380,
+      "attach": [
+        256,
+        245
+      ]
+    },
+    "neiro_big_ribbon": {
+      "anchor": "hair",
+      "ratio": 0.5,
+      "visibleWidth": 410,
+      "attach": [
+        256,
+        242
+      ]
+    },
+    "saaya_clip": {
+      "anchor": "hair",
+      "ratio": 0.28,
+      "visibleWidth": 278,
+      "attach": [
+        256,
+        258
+      ]
+    },
+    "arisu_badge": {
+      "anchor": "chest",
+      "ratio": 0.35,
+      "visibleWidth": 356,
+      "attach": [
+        256,
+        260
+      ]
+    }
+  },
+  "measurement": "alpha外周 + source座標付き等倍の目視。瞳中点・頭頂・髪横・胸を記録。画像gridはreports/screenshots_reidol_polish12/measure_eyes_grid.png。"
+}
