@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "1b847dd883";</script>
+<script>window.APP_VERSION = "0772a3fba8";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -825,6 +825,10 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #live-backdrop { position:absolute; inset:0; pointer-events:none; background:var(--venue-image) center / cover no-repeat; filter:blur(2px); }
 #live-backdrop::after { content:''; position:absolute; inset:0; background:#101024; opacity:calc(.76 - var(--live-pulse,0) * .045); }
 #live-idol { position:absolute; left:50%; bottom:16%; height:66%; max-width:40%; object-fit:contain; transform:translateX(-50%); opacity:.68; filter:drop-shadow(0 0 8px var(--mc)) drop-shadow(0 2px 3px #101024); pointer-events:none; }
+/* G20261107a CSS BEGIN */
+#live-dance { position:absolute; left:50%; bottom:12.9%; height:74.5%; max-width:40%; aspect-ratio:420/753; transform:translate(-50%,var(--dance-hop,0%)); opacity:.68; filter:drop-shadow(0 0 8px var(--mc)) drop-shadow(0 2px 3px #101024); pointer-events:none; }
+#live-dance img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+/* G20261107a CSS END */
 #stage { position:absolute; }
 /* 色だけで区別せず、センター札も表示する。 */
 #app #members .card { min-height:210px; border:1px solid color-mix(in srgb,var(--mc) 70%,#ffffff30); background:linear-gradient(145deg,color-mix(in srgb,var(--mc) 18%,#242139ed),#17172df2); }
@@ -1505,6 +1509,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
 <section id="live" hidden>
   <div id="live-backdrop" aria-hidden="true"></div>
   <img id="live-idol" alt="" aria-hidden="true" hidden>
+  <div id="live-dance" aria-hidden="true" hidden></div><!-- G20261107a -->
   <div id="live-colorlights" aria-hidden="true"></div>
   <div id="live-support" aria-hidden="true" hidden></div>
   <div id="live-callout" role="status" aria-live="polite"></div>
@@ -3184,6 +3189,90 @@ window.ReidolWear = (() => {
   // ---- ライブ
   const cv = $('stage'), ctx = cv.getContext('2d');
   let live = null, raf = 0, lastFrame = 0, pendingLive = null;
+  // G20261107a DANCE BEGIN
+  const DANCE_SETS = Object.freeze({ neiro: 4 });
+  const DANCE_POSE_BEATS = 2;
+  const liveDanceCache = new Map();
+  let liveDance = null;
+
+  function preloadLiveDance(h) {
+    if (!Object.hasOwn(DANCE_SETS, h) || reduceMotion || CFG.effects === 'light' || liveDanceCache.has(h)) return;
+    const entry = {};
+    liveDanceCache.set(h, entry);
+    const frames = Array.from({ length: DANCE_SETS[h] }, (_, i) => {
+      const img = new Image();
+      img.alt = '';
+      img.hidden = true;
+      img.src = `assets/dance/${h}_${i + 1}.webp`;
+      return img;
+    });
+    Promise.all(frames.map(img => img.decode())).then(() => {
+      entry.frames = frames;
+    }, () => liveDanceCache.delete(h));
+  }
+
+  function beginLiveDance(h, chart, bpm) {
+    preloadLiveDance(h);
+    const frames = liveDanceCache.get(h)?.frames;
+    if (!frames || reduceMotion || CFG.effects === 'light') return;
+    const layer = $('live-dance'), beats = chart?.beats;
+    const validBeats = Array.isArray(beats) && beats.length &&
+      Array.from(beats).every((beat, i) => Number.isFinite(beat) && (i === 0 || beat > beats[i - 1]));
+    const pose = Math.min(1, frames.length - 1);
+    liveDance = { layer, frames, beats: validBeats ? beats : null, interval: 60 / bpm,
+      offset: Number.isFinite(chart?.offset) ? chart.offset : 0, pose };
+    for (const [i, frame] of frames.entries()) frame.hidden = i !== pose;
+    layer.replaceChildren(...frames);
+    layer.style.setProperty('--dance-hop', '0%');
+    $('live-idol').hidden = true;
+    layer.hidden = false;
+  }
+
+  function resetLiveDance() {
+    if (!liveDance) return;
+    const { layer } = liveDance, idol = $('live-idol');
+    layer.hidden = true;
+    layer.replaceChildren();
+    layer.style.removeProperty('--dance-hop');
+    idol.hidden = idol.complete && !idol.naturalWidth;
+    liveDance = null;
+  }
+
+  function renderLiveDance(raw, t) {
+    if (!liveDance) return;
+    if (reduceMotion || CFG.effects === 'light') { resetLiveDance(); return; }
+    if (raw < 0) return;
+    const { beats, frames, interval, offset, layer } = liveDance;
+    let beatIndex, phase;
+    if (beats) {
+      let lo = 0, hi = beats.length;
+      while (lo < hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        if (beats[mid] <= t) lo = mid + 1;
+        else hi = mid;
+      }
+      beatIndex = lo - 1;
+      if (beatIndex >= 0) {
+        const beat = beats[beatIndex];
+        const span = (beats[lo] ?? (beat + (beat - (beats[beatIndex - 1] ?? (beat - interval))))) - beat;
+        phase = Math.min(1, (t - beat) / span);
+      }
+    } else {
+      const position = (t - offset) / interval;
+      beatIndex = Math.floor(position);
+      phase = position - beatIndex;
+    }
+    const pose = Math.floor(Math.max(0, beatIndex) / DANCE_POSE_BEATS) % frames.length;
+    if (pose !== liveDance.pose) {
+      frames[liveDance.pose].hidden = true;
+      frames[pose].hidden = false;
+      liveDance.pose = pose;
+    }
+    const hop = beatIndex < 0 ? 0 : -1.5 * Math.pow(1 - phase, 3);
+    layer.style.setProperty('--dance-hop', `${hop}%`);
+  }
+  motionPreference.addEventListener('change', () => { if (reduceMotion) resetLiveDance(); });
+  // G20261107a DANCE END
   let W = 0, H = 0, DPR = 1, stageW = 0, sx = 0, laneW = 0, hitY = 0, topY = 0;
   let laneGeo = null, stagePaint = null;
   const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
@@ -3319,6 +3408,7 @@ window.ReidolWear = (() => {
     if(!live||live.done||live.ending)return;
     if(live.failed||live.life<=0){finishLive();return;}
     live.ending=true;cancelAnimationFrame(raf);updateLiveJourney(1);
+    resetLiveDance(); // G20261107a
     clearTimeout(live.cheerTimer);$('live-callout').textContent='';$('live-support').hidden=true;$('clearflash').hidden=true;$('encore').hidden=true;$('clearstatus').hidden=true;
     if(live.dest&&ac){try{live.dest.gain.setTargetAtTime(0,ac.currentTime,.08);}catch(e){}}
     const members=$('live-ending-members');members.textContent='';
@@ -3377,6 +3467,7 @@ window.ReidolWear = (() => {
     logLiveStart();
     scheduleCount();
     const liveIdol=$('live-idol');liveIdol.hidden=false;liveIdol.onerror=()=>{liveIdol.hidden=true;};liveIdol.src=`assets/${h}_full.webp`;
+    beginLiveDance(h, so?.chart, bpm); // G20261107a
     if (ac) {
       live.dest = ac.createGain(); live.dest.gain.value = so ? 1 : 0.85; live.dest.connect(comp);
       if (so) { // 曲はここで予約する。以降の時刻はすべて AudioContext の時計が基準
@@ -3505,6 +3596,7 @@ window.ReidolWear = (() => {
   $('encorestop').addEventListener('pointerdown', e => e.stopPropagation());
   $('encorestop').addEventListener('click', e => { e.stopPropagation(); if (live && !live.done && !live.paused && live.completed.length>0) { live.failed=false;finishLive(); } });
   function stopLive(recordAbandon=true) {
+    resetLiveDance(); // G20261107a
     if(recordAbandon)logLiveEnd('abandoned');
     if(live)clearTimeout(live.comboTimer);$('combo-cue').hidden=true;$('live').classList.remove('combo-rise');
     cancelAnimationFrame(raf);
@@ -3520,6 +3612,7 @@ window.ReidolWear = (() => {
     if (!live || live.done || live.paused || live.ending) return;
     const dt = Math.min(0.05, (now - lastFrame) / 1000); lastFrame = now;
     const raw = songT(), t = raw + CFG.off / 1000;
+    renderLiveDance(raw, t); // G20261107a
     if(raw<0){
       const count=Math.floor((raw+4*live.countPlan.beat)/live.countPlan.beat);
       $('countin').hidden=false;$('countin').textContent=count<0?'':String(Math.max(1,Math.min(4,Math.ceil(-raw/live.countPlan.beat)))); // 曲の頭まで残りの拍を4・3・2・1と減らして見せる
@@ -3942,6 +4035,7 @@ window.ReidolWear = (() => {
     }
   }
   function openSongs(h) {
+    preloadLiveDance(h); // G20261107a
     songTab='live';
     resultId++;resultSkip=null;
     if (pickH !== h) supportH = null;
