@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "46d3cdee27";</script>
+<script>window.APP_VERSION = "ad7b129807";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -887,6 +887,8 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #app .playentries { margin:0;height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:10px; }
 #app .playcard { display:flex;flex-direction:column;justify-content:center;gap:10px;padding:12px;font-size:17px;min-height:44px; }
 #app .play-summary { display:block;font-size:14px;white-space:nowrap; }
+#app .playcard .play-best { display:block;font-size:13px;line-height:1.25;color:var(--gold); }
+#app .playcard:has(.play-best) { gap:5px; }
 .pager { display:flex;align-items:center;justify-content:center;gap:10px;grid-column:1/-1;min-height:44px;font-size:14px; }
 #app .pager button { width:44px;min-width:44px;min-height:44px;border:1px solid var(--edge);border-radius:var(--radius-sm);background:var(--glass);font-size:22px; }
 .pager button:disabled { opacity:.4;cursor:default; }
@@ -1098,7 +1100,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   <nav class="home-nav" aria-label="ホームの入口">
     <button id="storybtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-story"/></svg> ストーリー<span id="storydot" class="dot" hidden></span></button>
     <button id="homeshop" type="button"><svg class="icon" aria-hidden="true"><use href="#i-shop"/></svg> ショップ<span id="homeshopdot" class="dot" hidden></span></button>
-    <button id="playbtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg> あそぶ<span id="playdot" class="dot" hidden></span></button>
+    <button id="playbtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span>ミニゲーム</span><small>あそぶ</small><span id="playdot" class="dot" hidden></span></button>
     <button id="membersbtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-members"/></svg> メンバー<span id="membersdot" class="dot" hidden></span></button>
   </nav>
   <button class="btn pri primarylive" id="livebtn" type="button"><small>LIVE</small><svg class="icon" aria-hidden="true"><use href="#i-live"/></svg> ライブ<span id="livedot" class="dot" hidden></span></button>
@@ -1395,6 +1397,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #app .home-today button { border-color:#ffffff28;background:#17172dbb;box-shadow:none;padding:4px 8px; }
 #app .home-side button { height:56px;border-color:#ffffff28;background:#17172dbb;box-shadow:none;border-radius:10px; }
 #app .home-nav button { min-height:60px;border-color:#ffffff28;background:#17172dbb;box-shadow:none;border-radius:12px;gap:3px; }
+#app #playbtn small { font-size:10px;line-height:1; }
 #app #livebtn { width:160px;min-height:80px;border-width:1px;border-radius:18px;box-shadow:0 4px 14px #0005; }
 #app #result .rscore small { font-size:14px; }#app #result :is(.rbest,.rtitle,.keiki) { font-size:14px; }
 #app #playlog .playlog-sheet { background:#211b32;color:#fff3eb; }#playlogtable { background:#171426; }#playlog td { background:#211b32; }
@@ -1442,6 +1445,9 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #app #homefeedback { border-color:var(--gold);color:var(--gold); }
 #app #feedbackprompt { position:absolute;left:8px;right:8px;bottom:4px;display:flex;align-items:center;z-index:3;background:#211b32;border:1px solid #857b9a;border-radius:10px; }
 #feedbackprompt button { min-height:44px;border:0;background:none;color:#fff3eb;font:14px var(--body);padding:4px 8px; }#feedbackpromptopen { flex:1; }#feedbackpromptclose { min-width:44px; }
+#app #feedback.feedback-typing { padding:4px 8px; }
+#app #feedback.feedback-typing .feedback-sheet { width:100%;height:100%;padding:6px;gap:3px; }
+#feedback.feedback-typing #feedbacktitle,#feedback.feedback-typing #feedbackstatus { display:none; }
 /* POLISH11 FEEDBACK END */
 
 /* POLISH8 SPEECH BEGIN — 担当色は縁と札に限定、本文の明暗は固定。 */
@@ -2511,7 +2517,13 @@ window.ReidolWear = (() => {
     stopMini(); $('playtitle').textContent = 'あそぶ'; $('playcontent').textContent = ''; $('wavefeedback').textContent = DEV ? '開発URLでは追加報酬・ミッション・絆は記録されません。' : `今日の最初の1曲: ${ensureDaily().boostUsed ? '受取済み' : 'EXP・景気 ×1.5'}`;
     const entries = document.createElement('div'); entries.className = 'playentries'; $('playcontent').appendChild(entries);
     const unread = unreadNotices();
-    PLAY_ENTRIES.filter(entry=>MINI_KINDS.includes(entry.id)).forEach(entry => { const key=`mini:${entry.id}`;const b=waveButton('',()=>{acknowledge(key);withTip('mini',()=>launchMini(entry.id));},entries);b.className='playcard';const summary=entry.text;const title=miniNode('strong','',entry.title,b),detail=miniNode('span','play-summary',summary,b);b.setAttribute('aria-label',entry.title+' '+entry.text);addBadge(title,unread.some(n=>n.key===key),true); });
+    PLAY_ENTRIES.filter(entry=>MINI_KINDS.includes(entry.id)).forEach(entry => {
+      const key=`mini:${entry.id}`;const b=waveButton('',()=>{acknowledge(key);withTip('mini',()=>launchMini(entry.id));},entries);b.className='playcard';
+      const title=miniNode('strong','',entry.title,b);miniNode('span','play-summary',entry.text,b);
+      const best=Object.hasOwn(MINI_RECORD.best,entry.id)?`ベスト ${fmt(MINI_RECORD.best[entry.id])} pt`:'';
+      if(best)miniNode('span','play-best',best,b);
+      b.setAttribute('aria-label',[entry.title,entry.text,best].filter(Boolean).join(' '));addBadge(title,unread.some(n=>n.key===key),true);
+    });
   }
   function renderPlayDetail(kind) {
     acknowledge(kind);
@@ -4602,6 +4614,30 @@ window.ReidolWear = (() => {
   let feedbackWaitingLogin=false;
   new MutationObserver(()=>{if(feedbackWaitingLogin&&$('pass').hidden){feedbackWaitingLogin=false;$('feedback').hidden=false;$('feedbackloginbtn').focus();}}).observe($('pass'),{attributes:true,attributeFilter:['hidden']});
   $('feedbackloginbtn').addEventListener('click',()=>{feedbackWaitingLogin=true;$('feedback').hidden=true;askPass(async()=>{await checkFeedback();feedbackAuthUI();$('feedbackstatus').textContent=feedbackLoggedIn?'ログインできたよ。送る内容を確認してね。':'ログインをもう一度確かめてね。';});});
+  // 横画面の入力中だけ、キーボードで狭くなった可視領域に感想欄を収める。
+  function syncFeedbackTyping() {
+    const dialog=$('feedback'), field=$('feedbacktrouble'), body=$('feedbackbody'), vv=window.visualViewport;
+    const typing=!dialog.hidden && document.activeElement===field && matchMedia('(orientation:landscape)').matches;
+    dialog.classList.toggle('feedback-typing',typing);
+    for(const name of ['top','bottom','height']) dialog.style.removeProperty(name);
+    if(!typing) return;
+    const rect=app.getBoundingClientRect();
+    if(vv && Math.abs(vv.scale-1)<.01 && vv.height<rect.height-8){
+      const top=Math.max(0,Math.min(rect.height,vv.offsetTop-rect.top));
+      const height=Math.max(0,Math.min(rect.height-top,vv.height));
+      if(height>=80){dialog.style.top=top+'px';dialog.style.bottom='auto';dialog.style.height=height+'px';}
+    }
+    requestAnimationFrame(()=>{
+      if(dialog.hidden||document.activeElement!==field)return;
+      const area=body.getBoundingClientRect(), target=field.getBoundingClientRect();
+      if(target.top<area.top||target.bottom>area.bottom)body.scrollTop+=target.top-area.top-(area.height-target.height)/2;
+    });
+  }
+  $('feedbacktrouble').addEventListener('focus',syncFeedbackTyping);
+  $('feedbacktrouble').addEventListener('blur',syncFeedbackTyping);
+  window.addEventListener('resize',syncFeedbackTyping);
+  window.visualViewport?.addEventListener('resize',syncFeedbackTyping);
+  window.visualViewport?.addEventListener('scroll',syncFeedbackTyping);
   $('feedbacktrouble').addEventListener('input',()=>{$('feedbackremaining').textContent=`残り${300-$('feedbacktrouble').value.length}字`;});
   $('feedbackform').addEventListener('submit',e=>{
     e.preventDefault();if(!feedbackLoggedIn||feedbackBusy)return;
