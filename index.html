@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "ad7b129807";</script>
+<script>window.APP_VERSION = "074ab1531f";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -1639,7 +1639,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   <h2 id="feedbacktitle">遊んでみてどう？</h2>
   <div id="feedbackbody">
     <p id="feedbacklogin" hidden>曲の合言葉でログインすると送れるよ。<button id="feedbackloginbtn" class="btn sec" type="button">合言葉を入れる</button></p>
-    <form id="feedbackform">
+    <form id="feedbackform" novalidate>
       <fieldset><legend>楽しかった？（★1〜5）</legend><div class="feedback-stars">
         <label><input type="radio" name="stars" value="1" required>★1</label><label><input type="radio" name="stars" value="2">★2</label><label><input type="radio" name="stars" value="3">★3</label><label><input type="radio" name="stars" value="4">★4</label><label><input type="radio" name="stars" value="5">★5</label>
       </div></fieldset>
@@ -4601,7 +4601,8 @@ window.ReidolWear = (() => {
     $('feedbackopen').hidden=!feedbackAvailable;$('homefeedback').hidden=!feedbackAvailable;if(!feedbackAvailable)$('feedbackprompt').hidden=true;else maybeFeedbackPrompt();
     return feedbackAvailable;
   }
-  function feedbackAuthUI(){ $('feedbacklogin').hidden=feedbackLoggedIn;$('feedbackreview').disabled=!feedbackLoggedIn; }
+  // 未ログインでもボタンは押せるままにして、押した時に理由を言う（灰色で黙って効かない、を作らない）。
+  function feedbackAuthUI(){ $('feedbacklogin').hidden=feedbackLoggedIn;$('feedbackreview').disabled=false; }
   async function openFeedback(){
     if(feedbackBusy)return;feedbackReturn=document.activeElement;$('settings').hidden=true;$('feedback').hidden=false;$('feedbackprompt').hidden=true;
     $('feedbackbody').hidden=false;$('feedbackform').hidden=false;$('feedbackpreview').hidden=true;feedbackDraft=null;
@@ -4634,15 +4635,19 @@ window.ReidolWear = (() => {
     });
   }
   $('feedbacktrouble').addEventListener('focus',syncFeedbackTyping);
-  $('feedbacktrouble').addEventListener('blur',syncFeedbackTyping);
+  // キーボードが閉じた直後に並びを戻すと、押しかけたボタンが指の下から動いて押せない（iPhone）。指を離し終えてから戻す。
+  $('feedbacktrouble').addEventListener('blur',()=>setTimeout(syncFeedbackTyping,350));
   window.addEventListener('resize',syncFeedbackTyping);
   window.visualViewport?.addEventListener('resize',syncFeedbackTyping);
   window.visualViewport?.addEventListener('scroll',syncFeedbackTyping);
   $('feedbacktrouble').addEventListener('input',()=>{$('feedbackremaining').textContent=`残り${300-$('feedbacktrouble').value.length}字`;});
   $('feedbackform').addEventListener('submit',e=>{
-    e.preventDefault();if(!feedbackLoggedIn||feedbackBusy)return;
+    e.preventDefault();if(feedbackBusy)return;
+    // ブラウザ任せの入力チェックは iPhone で吹き出しが見えず「押しても何も起きない」になるので、必ず言葉で返す。
+    if(!feedbackLoggedIn){feedbackAuthUI();$('feedbackstatus').textContent='曲の合言葉でログインすると送れるよ。上の「合言葉を入れる」を押してね。';$('feedbackbody').scrollTop=0;return;}
     const stars=Number(new FormData($('feedbackform')).get('stars')),best=$('feedbackbest').value;
-    if(!Number.isInteger(stars)||stars<1||stars>5||!['live','mini','members','story','collect','other'].includes(best))return;
+    if(!Number.isInteger(stars)||stars<1||stars>5){$('feedbackstatus').textContent='楽しかった？の★をえらんでね。';const first=$('feedbackform').querySelector('input[name=stars]');first.scrollIntoView({block:'center'});first.focus({preventScroll:true});return;}
+    if(!['live','mini','members','story','collect','other'].includes(best)){$('feedbackstatus').textContent='一番楽しかった所をえらんでね。';$('feedbackbest').scrollIntoView({block:'center'});$('feedbackbest').focus({preventScroll:true});return;}
     feedbackDraft={v:1,appVersion:APP_VERSION,stars,best,trouble:$('feedbacktrouble').value.slice(0,300),playlog:$('feedbacklog').checked?JSON.parse(JSON.stringify(PLAYLOG)):null};
     // 子どもも読めるよう、機械向けの JSON ではなく言葉で見せる（送る中身は同じ）
     const bestLabel={live:'ライブ',mini:'ミニゲーム',members:'メンバー',story:'ストーリー',collect:'集める',other:'その他'}[best];
