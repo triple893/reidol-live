@@ -17,15 +17,18 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "074ab1531f";</script>
+<script>window.APP_VERSION = "1336603d6e";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Re:IDOL ライブ</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+@font-face { font-family:'Dela Gothic One'; src:url('assets/fonts/DelaGothicOne-Regular.woff2') format('woff2'); font-style:normal; font-weight:400; font-display:swap; }
+@font-face { font-family:'Mochiy Pop One'; src:url('assets/fonts/MochiyPopOne-Regular.woff2') format('woff2'); font-style:normal; font-weight:400; font-display:swap; }
+@font-face { font-family:'Zen Maru Gothic'; src:url('assets/fonts/ZenMaruGothic-Medium.woff2') format('woff2'); font-style:normal; font-weight:500; font-display:swap; }
+@font-face { font-family:'Zen Maru Gothic'; src:url('assets/fonts/ZenMaruGothic-Bold.woff2') format('woff2'); font-style:normal; font-weight:700; font-display:swap; }
+</style>
 <script>
 // ★ アバター（予備のSVG似顔絵）。通常は assets の顔アイコン画像を使う。
 // 髪型・色は宣材写真から拾った見た目。差し替えるときは AVATARS の値を直す。
@@ -827,6 +830,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #live-idol { position:absolute; left:50%; bottom:16%; height:66%; max-width:40%; object-fit:contain; transform:translateX(-50%); opacity:.68; filter:drop-shadow(0 0 8px var(--mc)) drop-shadow(0 2px 3px #101024); pointer-events:none; }
 /* G20261107a CSS BEGIN */
 #live-dance { position:absolute; left:50%; bottom:12.9%; height:74.5%; max-width:40%; aspect-ratio:420/753; transform:translate(-50%,var(--dance-hop,0%)); opacity:.68; filter:drop-shadow(0 0 8px var(--mc)) drop-shadow(0 2px 3px #101024); pointer-events:none; }
+#live-dance.notes-active { opacity:.5; }
 #live-dance img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
 /* G20261107a CSS END */
 #stage { position:absolute; }
@@ -1774,9 +1778,14 @@ html, body { width:100%; height:100%; overflow:hidden; }
 #app #liveintro .sheet {width:min(760px,94%);max-height:94cqh;padding:14px 20px;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 #app #liveintro .sheet>p,#app #goods-prep,#app #liveintro #introskiplabel {grid-column:1/-1;}
 #app #liveintro .sheet>p {margin:0;font-size:15px;}#app #liveintro .sheet>button {width:100%;margin:0;min-height:44px;}#app #liveintro #introskiplabel {display:block;font-size:13px;}
-#app #goods-prep input {width:22px;height:22px;min-width:22px;min-height:22px;margin:0;}
+#app #goods-prep input {width:44px;height:44px;min-width:44px;min-height:44px;margin:0;}
 #app #rgoods {position:relative;z-index:3;margin:4px 0;padding:5px 8px;border:1px solid var(--edge);border-radius:10px;background:var(--glass);font-size:12px;line-height:1.5;}
 /* POLISH12 GOODS UI END */
+/* G20261110a: 横画面で読める文字の下限。 */
+#app #playbtn small,#app #live .who span,#app #live #quit,#app #live #llifelabel,#app #live #lstage,#app #live #lanehint,#app #result #again small,#app .newmark,#app .hcards .w2-card .newmark { font-size:13px; }
+#app :is(#homesay,#celebration-phrase)::before { font-size:13px; }
+#app .goods-choice small,#app .goods-note,#app .goods-card small,#app #rgoods { font-size:13px; }
+#app #settings label[for=seteffects],#app #feedbackform>label[for=feedbackbest],#app #feedbackform>label[for=feedbacktrouble] { display:flex;align-items:center;min-width:44px;min-height:44px; }
 </style>
 <script>
 /* 第12弾: 画像座標表と同一箱の着用レイヤー。外部通信・保存は行わない。 */
@@ -2295,7 +2304,7 @@ window.ReidolWear = (() => {
   function beforeLive(action) {
     withTip('live',()=>{
       renderGoodsPrep();
-      if(!CFG.intro&&!BALANCE.wave12.goods.some(g=>GOODS.counts[g.id]>0&&!DEV)){audio();tryLandscape();action();return;}
+      if(!BALANCE.wave12.goods.some(g=>GOODS.counts[g.id]>0&&!DEV)){audio();tryLandscape();action();return;}
       introAction=action;$('introskip').checked=false;$('introskiplabel').hidden=CFG.introVisits<1;$('liveintro').hidden=false;
     });
   }
@@ -2375,7 +2384,6 @@ window.ReidolWear = (() => {
   // POLISH10 PLAYLOG END
   const miniRank=(score,target)=>score>=target*100?'S':score>=target*70?'A':score>=target*40?'B':'C';
   const miniNode=(tag,cls,text,parent)=>{const e=document.createElement(tag);e.className=cls;e.textContent=text;if(parent)parent.appendChild(e);return e;};
-  const miniHelpSeen=new Set();
   const MINI_HELP={
     shiritori:{cue:'はじめの文字と文字数を見る',steps:['帯の「はじめの文字」と「何文字」を見よう。','両方に合う言葉をタップしよう。','最後の文字で次へつなごう。とちゅうで2文字に戻ることもあるよ。毎回、帯の文字と文字数を見よう。'],label:'いぬ → ぬりえ → えんぴつ'},
     abekobe:{cue:'毎回、帯の指示を見て押す',steps:['帯の「勝て・負けろ」「長い・短い」を見よう。','「勝て」は相手に勝つ手、「負けろ」は負ける手。言葉は一番長い・短いものを押そう。','途中で指示が反対になるよ。毎回、帯を見よう。'],label:'相手の手と、上の指示を見よう'},
@@ -2443,9 +2451,9 @@ window.ReidolWear = (() => {
           try{mountCleanup=mount(arena,session);logMiniStart(kind);arena.querySelectorAll(':scope > p:not([class])').forEach(e=>{e.classList.add('mini-feedback');e.setAttribute('aria-hidden','true');e.removeAttribute('role');});}catch(e){dispose();miniRun=null;miniCleanup=null;arena.textContent='読み込みに失敗しました。'+e.message;count.remove();waveButton('あそぶ一覧へ',renderPlayMenu,arena);return;}hideCount=setTimeout(()=>count.remove(),350);
           clock=setInterval(()=>{if(!valid())return dispose();const next=Math.min(3,1+Math.floor(session.elapsed()/rule.seconds*3));if(next!==stage){stage=next;levelText.textContent='Lv'+stage;toast.textContent='レベルアップ！';shell.classList.remove('stage-up');void shell.offsetWidth;shell.classList.add('stage-up');uiSound('level_up');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.textContent='';shell.classList.remove('stage-up');},900);}const left=session.remaining();time.textContent=Math.ceil(left)+'秒';time.classList.toggle('urgent',left<=5);for(const fn of [...listeners]){if(!valid())break;fn();}if(valid()&&left<=0){uiSound('mg_timeup');session.end({correct,attempts});}},100);
         };
-        const resumeCount=()=>{if(!valid())return;helpCard=null;miniHelpSeen.add(kind);count.hidden=false;uiSound('mg_countdown');countClock=setInterval(countdown,1000);};
+        const resumeCount=()=>{if(!valid())return;helpCard=null;if(!S.ux.tips['mini:'+kind]){S.ux.tips['mini:'+kind]=true;saveUx();}count.hidden=false;uiSound('mg_countdown');countClock=setInterval(countdown,1000);};
         const explain=()=>{if(!valid()||playing||helpCard)return;clearInterval(countClock);count.hidden=true;helpCard=miniHowTo(shell,kind,game,resumeCount,renderPlayMenu);};help.onclick=explain;
-        if(miniHelpSeen.has(kind))resumeCount();else explain();
+        if(S.ux.tips['mini:'+kind])resumeCount();else explain();
       }
     };
     time.textContent=Math.ceil(rule.seconds)+'秒';miniRun=session;return session;
@@ -3244,6 +3252,7 @@ window.ReidolWear = (() => {
     if (!liveDance) return;
     const { layer } = liveDance, idol = $('live-idol');
     layer.hidden = true;
+    layer.classList.remove('notes-active');
     layer.replaceChildren();
     layer.style.removeProperty('--dance-hop');
     idol.hidden = idol.complete && !idol.naturalWidth;
@@ -3255,6 +3264,7 @@ window.ReidolWear = (() => {
     if (reduceMotion || CFG.effects === 'light') { resetLiveDance(); return; }
     if (raw < 0) return;
     const { beats, frames, interval, offset, layer } = liveDance;
+    layer.classList.add('notes-active');
     let beatIndex, phase;
     if (beats) {
       let lo = 0, hi = beats.length;
@@ -3358,6 +3368,7 @@ window.ReidolWear = (() => {
   });
   function pauseLive() {
     if (!live || live.done || live.paused || live.ending) return;
+    $('live-dance').classList.remove('notes-active');
     live.pausedRaw = songT(); live.paused = true; cancelAnimationFrame(raf);
     (live.countNodes||[]).forEach(node=>{try{node.stop();}catch(e){}});
     if (live.src) { try { live.src.stop(); } catch (e) {} }

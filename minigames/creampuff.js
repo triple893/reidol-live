@@ -17,14 +17,16 @@
     timer.className='mini-local-timer';const cancel=node('button','やめて一覧へ');cancel.className='btn sec mini-cancel';cancel.type='button';
     function stop(){if(dead)return;dead=true;clearInterval(interval);unwatch();container.classList.remove('wave2-game');}
     function finish(){if(dead)return;stop();const stats=score(correct,attempts);if(session)session.end(stats);else onFinish(stats);}
-    // 我慢の顔は半透明にせず（半透明だと元の顔と2重に見える）、Lvが上がるほど「見えている時間」を短くする
+    // 我慢の顔はLvが上がるほど「見えている時間」を短くする（見えていない間はいつもの顔）
     let roundStart=now();
-    const endureOpacity=i=>{if(i!==round.answer)return '0';const lv=session?session.level():1;if(lv<=1)return '1';return (now()-roundStart)%2000<(lv===2?1200:600)?'1':'0';};
+    const endureShown=i=>{if(i!==round.answer)return false;const lv=session?session.level():1;if(lv<=1)return true;return (now()-roundStart)%2000<(lv===2?1200:600);};
+    const showFace=(img,i)=>{const src=endureShown(i)?img.dataset.endure:img.dataset.normal;if(img.getAttribute('src')!==src)img.src=src;};
     function draw(){round=makeRound(members.map(m=>m.h),rng);roundStart=now();choices.textContent='';round.members.forEach((h,i)=>{const m=members.find(m=>m.h===h),b=node('button','',choices);b.type='button';
-      const stack=node('span','',b);stack.className='w2-face-stack';const normal=node('img','',stack);normal.alt=m.name;normal.src=`assets/${h}_face.jpg`;
-      const endure=node('img','',stack);endure.alt='';endure.src=asset(`a3_${h}_endure`);endure.style.position='absolute';endure.style.inset='0';endure.style.opacity=endureOpacity(i);
+      // 顔は1枚の絵だけにして、我慢の時は絵そのものを差し替える（2枚重ねると端末によって2重に透けて見える）
+      const stack=node('span','',b);stack.className='w2-face-stack';const face=node('img','',stack);face.alt=m.name;face.dataset.normal=`assets/${h}_face.jpg`;face.dataset.endure=asset(`a3_${h}_endure`);
+      if(i===round.answer)new Image().src=face.dataset.endure;showFace(face,i);
       node('span',m.name,b);b.onclick=()=>{if(dead||now()<nextAllowed)return;if(remaining()<=0){finish();return;}nextAllowed=now()+350;attempts++;const ok=grade(round,i);if(ok)correct++;session?.answer(ok,{button:b,special:ok});if(ok)session?.cue('se_puff_found');feedback.textContent=ok?'正解！':'表情の違いを見てみよう';draw();};});}
-    function update(){if(dead)return;if(remaining()<=0){finish();return;}choices.querySelectorAll('.w2-face-stack img:last-child').forEach((img,i)=>img.style.opacity=endureOpacity(i));timer.textContent=`残り${Math.ceil(remaining())}秒 · 正解${correct} / ${attempts}`;}
+    function update(){if(dead)return;if(remaining()<=0){finish();return;}choices.querySelectorAll('.w2-face-stack img').forEach((img,i)=>showFace(img,i));timer.textContent=`残り${Math.ceil(remaining())}秒 · 正解${correct} / ${attempts}`;}
     if(session)unwatch=session.onTick(update);else interval=setInterval(update,100);cancel.onclick=()=>{if(!dead){stop();onCancel();}};draw();update();return stop;
   }
   return {makeRound,grade,score,mount};
