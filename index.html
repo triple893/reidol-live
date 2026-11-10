@@ -17,7 +17,7 @@ body { margin: 0; font: 14px system-ui, sans-serif; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
-<script>window.APP_VERSION = "85f09d1d90";</script>
+<script>window.APP_VERSION = "a2259cce3f";</script>
 </head>
 <body>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -1104,7 +1104,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
   <nav class="home-nav" aria-label="ホームの入口">
     <button id="storybtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-story"/></svg> ストーリー<span id="storydot" class="dot" hidden></span></button>
     <button id="homeshop" type="button"><svg class="icon" aria-hidden="true"><use href="#i-shop"/></svg> ショップ<span id="homeshopdot" class="dot" hidden></span></button>
-    <button id="playbtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span>ミニゲーム</span><small>あそぶ</small><span id="playdot" class="dot" hidden></span></button>
+    <button id="playbtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span>ミニゲーム</span><span id="playdot" class="dot" hidden></span></button>
     <button id="membersbtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-members"/></svg> メンバー<span id="membersdot" class="dot" hidden></span></button>
   </nav>
   <button class="btn pri primarylive" id="livebtn" type="button"><small>LIVE</small><svg class="icon" aria-hidden="true"><use href="#i-live"/></svg> ライブ<span id="livedot" class="dot" hidden></span></button>
@@ -1114,7 +1114,7 @@ html, body { width:100%; height:100%; overflow:hidden; }
 <div id="wave2purchase" class="ovl" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="wave2purchaseh"><h2 id="wave2purchaseh">景気で解放</h2><p id="wave2purchaseinfo"></p><div class="btns"><button id="wave2purchaseok" class="btn pri" type="button">解放する</button><button id="wave2purchasecancel" class="btn sec" type="button">やめる</button></div></div></div>
 <section id="playboard" hidden aria-labelledby="playtitle">
   <button class="btn sec" id="playback" type="button">ホームへ戻る</button>
-  <h1 id="playtitle">あそぶ</h1><label>ミニゲームのセンター <select id="minicenter"></select></label>
+  <h1 id="playtitle">ミニゲーム</h1><label>ミニゲームのセンター <select id="minicenter"></select></label>
   <div id="playcontent"></div><p id="wavefeedback" class="wavefeedback" role="status" aria-live="polite"></p>
 </section>
 <div id="notice" class="ovl" hidden><div class="sheet" role="dialog" aria-modal="true" aria-label="お知らせ"><p id="noticetext" role="status"></p><button class="btn sec" id="noticeclose" type="button">閉じる</button></div></div>
@@ -2234,7 +2234,7 @@ window.ReidolWear = (() => {
     mini:['しりとりは言葉をつなぎ、あべこべは指示をよく見て答えよう。','時間いっぱい遊ぶと、景気とEXPがもらえるよ。途中でもどると報酬はないよ。'],
     shop:['ライブやミニゲームで景気をためよう。景気で新しい曲を買えるよ。','買った曲はずっと遊べるよ。残高を確かめてから「買う」を押してね。'],
   };
-  const HELP_PAGES = ['ライブ：曲と難しさをえらんで、横画面でノーツをタップ。速さは設定で変えられるよ。','ハート：ミスで1個減るよ。20コンボとステージの区切りで1個回復。0で失敗だよ。','アンコール：約30秒でクリア！ 続けると報酬が増えるよ。「ここで終わる」で確定した報酬を持ち帰ろう。','景気とショップ：遊んでためた景気で、新しい曲を買えるよ。','レベルと会場：EXPでメンバーが育つと、大きな会場が開いていくよ。みんなを育てよう。','絆：センターとサポートで完走すると、2人の絆が育つよ。EXPは2人で分けるよ。','ミニゲーム：あそぶメニューから、しりとりとあべこべを遊べるよ。時間いっぱい挑戦しよう。'];
+  const HELP_PAGES = ['ライブ：曲と難しさをえらんで、横画面でノーツをタップ。速さは設定で変えられるよ。','ハート：ミスで1個減るよ。20コンボとステージの区切りで1個回復。0で失敗だよ。','アンコール：約30秒でクリア！ 続けると報酬が増えるよ。「ここで終わる」で確定した報酬を持ち帰ろう。','景気とショップ：遊んでためた景気で、新しい曲を買えるよ。','レベルと会場：EXPでメンバーが育つと、大きな会場が開いていくよ。みんなを育てよう。','絆：センターとサポートで完走すると、2人の絆が育つよ。EXPは2人で分けるよ。','ミニゲーム：ミニゲームから、しりとりとあべこべを遊べるよ。時間いっぱい挑戦しよう。'];
   let guidePages = [], guideAt = 0, guideDone = null, guideKind = null, introAction = null;
   const saveUx = () => { if (!DEV) save(); };
   function showGuide(pages, title, done = null, kind = null) {
@@ -2448,7 +2448,7 @@ window.ReidolWear = (() => {
       begin:(mount,game)=>{
         let number=3,helpCard=null;count.hidden=true;
         const countdown=()=>{if(!valid())return dispose();number--;count.textContent=number>0?String(number):'スタート！';if(number>0){uiSound('mg_countdown');return;}clearInterval(countClock);help.hidden=true;uiSound('unlock');start=performance.now();playing=true;
-          try{mountCleanup=mount(arena,session);logMiniStart(kind);arena.querySelectorAll(':scope > p:not([class])').forEach(e=>{e.classList.add('mini-feedback');e.setAttribute('aria-hidden','true');e.removeAttribute('role');});}catch(e){dispose();miniRun=null;miniCleanup=null;arena.textContent='読み込みに失敗しました。'+e.message;count.remove();waveButton('あそぶ一覧へ',renderPlayMenu,arena);return;}hideCount=setTimeout(()=>count.remove(),350);
+          try{mountCleanup=mount(arena,session);logMiniStart(kind);arena.querySelectorAll(':scope > p:not([class])').forEach(e=>{e.classList.add('mini-feedback');e.setAttribute('aria-hidden','true');e.removeAttribute('role');});}catch(e){dispose();miniRun=null;miniCleanup=null;arena.textContent='読み込みに失敗しました。'+e.message;count.remove();waveButton('ミニゲーム一覧へ',renderPlayMenu,arena);return;}hideCount=setTimeout(()=>count.remove(),350);
           clock=setInterval(()=>{if(!valid())return dispose();const next=Math.min(3,1+Math.floor(session.elapsed()/rule.seconds*3));if(next!==stage){stage=next;levelText.textContent='Lv'+stage;toast.textContent='レベルアップ！';shell.classList.remove('stage-up');void shell.offsetWidth;shell.classList.add('stage-up');uiSound('level_up');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.textContent='';shell.classList.remove('stage-up');},900);}const left=session.remaining();time.textContent=Math.ceil(left)+'秒';time.classList.toggle('urgent',left<=5);for(const fn of [...listeners]){if(!valid())break;fn();}if(valid()&&left<=0){uiSound('mg_timeup');session.end({correct,attempts});}},100);
         };
         const resumeCount=()=>{if(!valid())return;helpCard=null;if(!S.ux.tips['mini:'+kind]){S.ux.tips['mini:'+kind]=true;saveUx();}count.hidden=false;uiSound('mg_countdown');countClock=setInterval(countdown,1000);};
@@ -2464,7 +2464,7 @@ window.ReidolWear = (() => {
     const score=miniNode('div','mini-result-score','0',panel),stamp=miniNode('div','mini-rankstamp',miniRank(r.score,(BALANCE.wave1.mini[kind]||BALANCE.wave2.mini[kind]).target),panel),stats=miniNode('p','',`正解 ${r.correct} / ${r.attempts} · 最大 ${r.maxCombo} COMBO`,panel);
     const rewards=miniNode('p','mini-reward',DEV?'開発URL・記録なし':`景気 +${reward.currency} ／ ${byH(h).name} EXP +${reward.exp}${bonus?' ／ 本日初回 ×1.1':''}`,panel);
     const best=miniNode('p','mini-best',isBest?'ベスト更新！':`ベスト ${fmt(MINI_RECORD.best[kind]||r.score)} pt`,panel);
-    const skip=miniNode('button','btn sec','タップで演出をスキップ',panel);skip.type='button';waveButton('あそぶ一覧へ',renderPlayMenu,panel);
+    const skip=miniNode('button','btn sec','タップで演出をスキップ',panel);skip.type='button';waveButton('ミニゲーム一覧へ',renderPlayMenu,panel);
     let finished=false;const valid=()=>token===miniSequence&&!finished;
     function finish(){if(!valid())return;finished=true;score.textContent=fmt(r.score);stamp.hidden=false;rewards.hidden=false;best.hidden=false;skip.hidden=true;miniResultBusy=false;if(isBest&&!DEV)enqueueCelebration({key:`mini:${kind}:${r.score}`,title:'ベスト更新！',detail:PLAY_ENTRIES.find(e=>e.id===kind).title+' '+fmt(r.score)+' pt',h,size:'medium'});drainCelebrations();}
     miniCleanup=()=>{finished=true;miniResultBusy=false;};stamp.hidden=true;rewards.hidden=true;best.hidden=true;skip.onclick=finish;panel.onclick=e=>{if(!e.target.closest('button'))finish();};
@@ -2522,7 +2522,7 @@ window.ReidolWear = (() => {
   function wavePanel(title,parent=$('playcontent')) { const box = document.createElement('section'); box.className = 'wavepanel'; const h = document.createElement('h2'); h.textContent = title; box.appendChild(h); parent.appendChild(box); return box; }
   function openPlay() { stopMini(); $('wave2panel').hidden = true; $('members').hidden = true; $('home').hidden = true; $('playboard').hidden = false; renderPlayMenu(); }
   function renderPlayMenu() {
-    stopMini(); $('playtitle').textContent = 'あそぶ'; $('playcontent').textContent = ''; $('wavefeedback').textContent = DEV ? '開発URLでは追加報酬・ミッション・絆は記録されません。' : `今日の最初の1曲: ${ensureDaily().boostUsed ? '受取済み' : 'EXP・景気 ×1.5'}`;
+    stopMini(); $('playtitle').textContent = 'ミニゲーム'; $('playcontent').textContent = ''; $('wavefeedback').textContent = DEV ? '開発URLでは追加報酬・ミッション・絆は記録されません。' : `今日の最初の1曲: ${ensureDaily().boostUsed ? '受取済み' : 'EXP・景気 ×1.5'}`;
     const entries = document.createElement('div'); entries.className = 'playentries'; $('playcontent').appendChild(entries);
     const unread = unreadNotices();
     PLAY_ENTRIES.filter(entry=>MINI_KINDS.includes(entry.id)).forEach(entry => {
@@ -2584,7 +2584,7 @@ window.ReidolWear = (() => {
       });
       miniCleanup=frame.cancel;
       frame.begin((arena,session)=>game.mount(arena,{...rule,words,premiumWords,questions,members:MEMBERS,asset:wave2Asset,point:e=>window.ReidolInput.point(e),session,onCancel:renderPlayMenu,onFinish:session.end}),game);
-    } catch (e) { if (token === miniSequence) { $('wavefeedback').textContent = e.message; waveButton('あそぶ一覧へ',renderPlayMenu,$('playcontent')); } }
+    } catch (e) { if (token === miniSequence) { $('wavefeedback').textContent = e.message; waveButton('ミニゲーム一覧へ',renderPlayMenu,$('playcontent')); } }
   }
   MEMBERS.forEach(m => { const o = document.createElement('option'); o.value=m.h; o.textContent=m.name; $('minicenter').appendChild(o); });
   $('playbtn').addEventListener('click',openPlay);
@@ -3041,7 +3041,7 @@ window.ReidolWear = (() => {
   for(const [key,text]of [['live','ライブ'],['info','曲の情報'],['formation','編成・練習']]){const b=document.createElement('button');b.type='button';b.textContent=text;b.dataset.tab=key;b.onclick=()=>showSongTab(key);songTabs.appendChild(b);}
   function showSongTab(key){songTab=key;$('songdetail').hidden=key!=='live';songInfo.hidden=key!=='info';songFormation.hidden=key!=='formation';songTabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===key)));}
   function arrangeSongDetail(){songFacts.textContent='';const card=$('songdetail').querySelector('.song');if(card){for(const e of card.querySelectorAll(':scope > .meta,:scope > .locknote'))songFacts.appendChild(e);card.querySelectorAll('.diff').forEach(b=>{const details=[...b.querySelectorAll('small')];if(!details.length)return;const p=document.createElement('p');p.textContent=b.querySelector('b').textContent+'：'+details.map(e=>e.textContent).join(' ／ ');songFacts.appendChild(p);details.forEach(e=>e.remove());});}showSongTab(songTab);}
-  function waveBackLabel(){$('wave2back').textContent={members:'メンバーへ',play:'あそぶへ',home:'ホームへ'}[wave2Return]||'ホームへ';}
+  function waveBackLabel(){$('wave2back').textContent={members:'メンバーへ',play:'ミニゲームへ',home:'ホームへ'}[wave2Return]||'ホームへ';}
   const cardPositions=new Map(),cardHintsSeen=new Set(),cardTabState=new Map();
   function cardStrip(host,key,items=[...host.children]){
     const frame=document.createElement('div');frame.className='card-carousel';host.replaceWith(frame);frame.appendChild(host);host.replaceChildren(...items);host.classList.add('hcards');host.dataset.cards=key;host.tabIndex=0;host.setAttribute('aria-label',key+'・左右にスクロール');
@@ -3166,7 +3166,7 @@ window.ReidolWear = (() => {
   $('membersbtn').addEventListener('click',()=>{$('home').hidden=true;$('members').hidden=false;renderHome();});
   $('membersback').addEventListener('click',goHome);
   $('membersbonds').addEventListener('click',()=>renderPlayDetail('bonds'));
-  $('homenotice').addEventListener('click',()=>{const items=unreadNotices();viewNoticeSnapshot(items);showNotice(items.length?['今日やることと各入口の赤い点から、まだ見ていない内容を確認できるよ。',...['songs','play','members','story'].filter(g=>items.some(n=>n.group===g)).map(g=>({songs:'曲・ショップ',play:'あそぶ（ミニゲーム）',members:'メンバー（ミッション・絆・内閣・衣装・図鑑・すごろく）',story:'ストーリー'}[g]))].join('\n'):'新しいお知らせはありません。');});
+  $('homenotice').addEventListener('click',()=>{const items=unreadNotices();viewNoticeSnapshot(items);showNotice(items.length?['今日やることと各入口の赤い点から、まだ見ていない内容を確認できるよ。',...['songs','play','members','story'].filter(g=>items.some(n=>n.group===g)).map(g=>({songs:'曲・ショップ',play:'ミニゲーム',members:'メンバー（ミッション・絆・内閣・衣装・図鑑・すごろく）',story:'ストーリー'}[g]))].join('\n'):'新しいお知らせはありません。');});
   $('homebanner').addEventListener('click',()=>{if(homeBirthday)openSongs(homeBirthday.h);else showNotice($('homebanner').textContent);});
 
   // PERSPECTIVE PURE BEGIN — 描画と入力が共用する、見本と同じ投影。
@@ -3912,7 +3912,7 @@ window.ReidolWear = (() => {
       if(leveled&&!skipped)showLevelUp(r);else {if(leveled){$('rbanner').hidden=false;$('rbanner').textContent+=`　LEVEL UP! Lv${r.before.lv} → Lv${r.after.lv}`;}flushStory();}
     }
     resultSkip=()=>revealFinal(true);
-    sfx('result');uiSound('se_crowd_cheer');
+    sfx('result');if(r.clear && !r.failed)uiSound('se_crowd_cheer');
     // スコアのカウントアップ
     await countResult($('rscore'),r.score,counts,()=>id===resultId&&!finished);
     if (id !== resultId||finished) return;
