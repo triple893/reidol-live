@@ -19,7 +19,7 @@
 
   const PLACEHOLDER = '__PASS_HASH__';
   const DEFAULT_CONFIG = Object.freeze({
-    passHash: 'bcab260d340ab28f559a1ee5765e2f87129b3587b395e4b77f9ab09de29bd74d',
+    passHash: '3a793392f7076879138fb8dfccf2f7e363059235df45f7e2cf1dc05e1dfb3164',
     storageKey: 'donz.gate.v1',
     ttlMs: 30 * 24 * 60 * 60 * 1000,
     title: '合言葉をいれてね',
